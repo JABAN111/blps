@@ -1,4 +1,4 @@
-package org.example.blps_lab1.dto;
+package org.example.blps_lab1.authorization.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

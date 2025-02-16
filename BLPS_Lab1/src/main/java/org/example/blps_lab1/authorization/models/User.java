@@ -1,4 +1,4 @@
-package org.example.blps_lab1.models;
+package org.example.blps_lab1.authorization.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

@@ -1,4 +1,4 @@
-package org.example.blps_lab1.controllers;
+package org.example.blps_lab1.authorization.controller;
 
 import org.springframework.stereotype.Controller;
 
