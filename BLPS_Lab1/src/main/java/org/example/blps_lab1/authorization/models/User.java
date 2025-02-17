@@ -1,13 +1,14 @@
 package org.example.blps_lab1.authorization.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.blps_lab1.courseSignUp.models.Course;
 
+import java.util.List;
+
+@Table(name = "user_app")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,10 +18,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String firstName;
 
-    @Column
+    @Column(nullable = false)
     private String lastName;
 
     @Column(unique = true)
@@ -28,4 +29,18 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(length = 12)
+    private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_course",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courseList;
 }
