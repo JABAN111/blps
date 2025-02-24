@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.blps_lab1.authorization.models.User;
-import jakarta.persistence.Id;  
+import jakarta.persistence.Id;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -24,7 +25,10 @@ public class Course {
     private String courseName;
 
     @Column(nullable = false)
-    private Float coursePrice;
+    private BigDecimal coursePrice;
+
+    @Column(nullable = false)
+    private String courseDescription;
 
     @Column
     @Enumerated(EnumType.STRING)

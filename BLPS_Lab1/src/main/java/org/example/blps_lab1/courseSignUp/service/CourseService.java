@@ -2,6 +2,8 @@ package org.example.blps_lab1.courseSignUp.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
@@ -21,6 +23,16 @@ public class CourseService {
         log.info("Created course: {}", newCourse);
     }
 
+    public Course getCourseById(final Long id){
+        Optional<Course> course = courseRepository.findById(id);
+        if(course.isEmpty()){
+            log.error("Course with id {} does not exist", id);
+            throw new ObjectNotExistException("Курс с таким id не существует");
+        }
+        log.info("Get course by id: {}", id);
+        return course.get();
+    }    
+
     public void deleteCourse(final Long id){
         Optional<Course> deletingCourse = courseRepository.findById(id);
         if(deletingCourse.isEmpty()){
@@ -29,6 +41,10 @@ public class CourseService {
         }
         courseRepository.deleteById(id);
         log.info("Course deleted: {}", id);
+    }
+
+    public boolean isExist(final Long id){
+        return courseRepository.findById(id).isPresent();
     }
 
     public List<Course> getAllCourses(){

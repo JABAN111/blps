@@ -1,5 +1,6 @@
 package org.example.blps_lab1.authorization.service.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.example.blps_lab1.authorization.models.User;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
@@ -40,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean isUserExists(final String email) {
+    public boolean isExist(final String email) {
         Optional<User> potentialUser = userRepository.findByEmail(email);
         if (potentialUser.isPresent()) {
             log.info("User with username: {} exist", email);
@@ -52,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(final String email) {
-        if (!isUserExists(email)) {
+        if (!isExist(email)) {
             throw new UsernameNotFoundException("User with username: " + email + " not found");
         }
         return userRepository.findByEmail(email).get();
