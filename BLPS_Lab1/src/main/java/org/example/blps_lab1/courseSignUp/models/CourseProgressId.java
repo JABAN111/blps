@@ -8,4 +8,11 @@ import java.io.Serializable;
 public class CourseProgressId implements Serializable {
     private Long userId;
     private Long courseId;
+
+    public CourseProgressId() {}
+
+    public CourseProgressId(Long courseId, Long userId) {
+        this.courseId = courseId;
+        this.userId = userId;
+    }
 }

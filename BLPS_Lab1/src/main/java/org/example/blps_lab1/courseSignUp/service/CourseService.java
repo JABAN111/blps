@@ -99,4 +99,5 @@ public class CourseService {
         userRepository.save(user);
         return enrolledCourses;
     }
+
 }

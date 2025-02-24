@@ -11,14 +11,10 @@ import org.example.blps_lab1.authorization.models.User;
 @Table(name = "course_progress")
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(CourseProgressId.class)
 public class CourseProgress {
 
-    @Id
-    private Long courseId;
-
-    @Id
-    private Long userId;
+    @EmbeddedId
+    private CourseProgressId courseProgressId;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
