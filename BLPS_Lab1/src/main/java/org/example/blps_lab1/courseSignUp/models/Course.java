@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.blps_lab1.authorization.models.User;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;  
 
 import java.util.List;
 
+@Entity
 @Table(name = "courses")
 @Data
 @AllArgsConstructor

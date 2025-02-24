@@ -9,6 +9,7 @@ import org.example.blps_lab1.courseSignUp.models.Course;
 import java.util.List;
 
 @Table(name = "user_app")
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

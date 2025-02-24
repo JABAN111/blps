@@ -2,11 +2,11 @@ spring:
   application:
     name: BLPS_Lab1
   datasource:
-    url: jdbc:postgresql://postgres:5432/first?autoReconnect=true&useSSL=false
+    url: jdbc:postgresql://localhost:5432/first
     username: user
     password: user
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update  
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    # database-platform: org.hibernate.dialect.PostgreSQLDialect
