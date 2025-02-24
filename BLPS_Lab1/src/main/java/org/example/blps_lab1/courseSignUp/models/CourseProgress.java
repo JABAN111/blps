@@ -17,10 +17,12 @@ public class CourseProgress {
     private CourseProgressId courseProgressId;
 
     @ManyToOne
+    @MapsId("courseId")
     @JoinColumn(name = "course_id")
     private Course course;
 
     @ManyToOne
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 

@@ -23,7 +23,7 @@ public class CourseProgressService {
 
     public void addPoints(Long userId, Long courseId, int points){
         CourseProgressId courseProgressId = new CourseProgressId(courseId, userId);
-        CourseProgress progress = courseProgressRepository.findByUserIdAndCourseId(courseProgressId)
+        CourseProgress progress = courseProgressRepository.findByCourseProgressId(courseProgressId)
                 .orElseGet(() -> {
                     Course course = courseRepository.findById(courseId)
                             .orElseThrow(() -> new EntityNotFoundException("course not found in add points"));
