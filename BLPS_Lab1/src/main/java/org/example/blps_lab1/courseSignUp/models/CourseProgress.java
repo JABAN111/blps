@@ -11,18 +11,20 @@ import org.example.blps_lab1.authorization.models.User;
 @Table(name = "course_progress")
 @NoArgsConstructor
 @AllArgsConstructor
+@IdClass(CourseProgressId.class)
 public class CourseProgress {
 
-    @EmbeddedId
-    private CourseProgressId courseProgressId;
+    @Id
+    private Long courseId;
+
+    @Id
+    private Long userId;
 
     @ManyToOne
-    @MapsId("courseId")
     @JoinColumn(name = "course_id")
     private Course course;
 
     @ManyToOne
-    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 

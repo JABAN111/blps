@@ -19,8 +19,9 @@ public class EnrollmentController {
     private final CourseService courseService;
 
     @PostMapping("/enroll")
-    public List<Course> enrollUser(@RequestParam Long userId, Long courseId){
-        return courseService.enrollUser(userId, courseId);
+    public ResponseEntity<List<Course>> enrollUser(@RequestParam Long userId, Long courseId){
+        List<Course> enrolledCourses = courseService.enrollUser(userId, courseId);
+        return ResponseEntity.ok(enrolledCourses);
     }
 
 }
