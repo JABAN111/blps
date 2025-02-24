@@ -39,4 +39,13 @@ public class Course {
     @ManyToMany
     @JoinTable(name = "user_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<User> userList;
+
+    @ManyToMany
+    @JoinTable(
+            name = "additional_courses",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "additional_courses_id")
+    )
+    private List<Course> additionalCourseList;
+
 }
