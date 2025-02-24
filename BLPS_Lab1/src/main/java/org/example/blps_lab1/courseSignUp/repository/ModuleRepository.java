@@ -1,5 +1,6 @@
 package org.example.blps_lab1.courseSignUp.repository;
 
+import org.example.blps_lab1.courseSignUp.models.Module;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.courseSignUp.models.CourseProgress;
+import org.example.blps_lab1.courseSignUp.models.CourseProgressId;
 import org.example.blps_lab1.courseSignUp.repository.CourseProgressRepository;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,10 @@ public class CourseProgressService {
 
     @Transactional
     public void addPoints(Long userId, Long courseId, int points){
-        CourseProgress progress = courseProgressRepository.findByUserIdAndCourseId(userId, courseId)
+        CourseProgressId courseProgressId = new CourseProgressId(courseId, userId);
+        CourseProgress progress = courseProgressRepository.findByCourseProgressId(courseProgressId)
                 .orElseGet(() -> {
                    CourseProgress newProgress = new CourseProgress();
-                   newProgress.setUserId(userId);
-                   newProgress.setCourseId(courseId);
                    newProgress.setEarnedPoints(points);
                    return newProgress;
                 });
