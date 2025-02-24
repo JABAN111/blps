@@ -10,3 +10,6 @@ spring:
     hibernate:
       ddl-auto: update  
     # database-platform: org.hibernate.dialect.PostgreSQLDialect
+token:
+  signing:
+    key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=
