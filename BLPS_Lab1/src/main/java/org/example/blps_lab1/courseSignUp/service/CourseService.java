@@ -8,6 +8,7 @@ import org.example.blps_lab1.courseSignUp.dto.CourseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class CourseService {
         });
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<Course> enrollUser(Long userId, Long courseId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("user not found in enroll"));
@@ -70,18 +71,15 @@ public class CourseService {
 
         List<Course> enrolledCourses = new ArrayList<>();
 
-        for(Course additional : course.getAdditionalCourseList()){
-            if(!user.getCourseList().contains(additional)){
-                user.getCourseList().add(additional);
-                enrolledCourses.add(additional);
-            }
-        }
 
         if(!user.getCourseList().contains(course)){
             user.getCourseList().add(course);
             enrolledCourses.add(course);
         }
 
+        List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
+        user.getCourseList().addAll(additionalCourses);
+        enrolledCourses.addAll(additionalCourses);
         userRepository.save(user);
         return enrolledCourses;
     }

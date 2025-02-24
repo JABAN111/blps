@@ -16,10 +16,10 @@ public class Module {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long moduleId;
+    private Long id;
 
     @Column(nullable = false)
-    private String moduleName;
+    private String name;
 
 
     @Column(nullable = false)
@@ -31,6 +31,6 @@ public class Module {
 
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Exercise> exercisesList;
+    private List<ModuleExercise> moduleExercises;
 
 }

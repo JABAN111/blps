@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "exercise")
 @Data
@@ -14,15 +16,17 @@ public class Exercise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long exerciseId;
+    private Long id;
 
     @Column(nullable = false)
-    private String exerciseName;
+    private String name;
 
     @Column(nullable = false)
-    private String exerciseDescription;
+    private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "module_id", nullable = false)
-    private Module module;
+    @Column(nullable = false)
+    private Boolean isCompleted;
+
+    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ModuleExercise> moduleExercises;
 }
