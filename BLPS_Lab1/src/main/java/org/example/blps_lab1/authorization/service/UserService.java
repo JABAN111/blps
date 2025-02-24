@@ -10,7 +10,7 @@ public interface UserService {
 
     User updateUser(User user);
 
-    boolean isUserExists(String username);
+    boolean isExist(String username);
 
     UserDetailsService getUserDetailsService();
 }

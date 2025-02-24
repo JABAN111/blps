@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
+
 import org.example.blps_lab1.courseSignUp.models.Topic;
 
 @Builder
@@ -13,7 +15,7 @@ import org.example.blps_lab1.courseSignUp.models.Topic;
 @NoArgsConstructor
 public class CourseDto {
     private String courseName;
-    private Float coursePrice;
+    private BigDecimal coursePrice;
     private Topic topicName;
     private Integer courseDuration;
     private Boolean withJobOffer;
