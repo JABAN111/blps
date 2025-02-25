@@ -2,6 +2,7 @@ package org.example.blps_lab1.courseSignUp.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.blps_lab1.authorization.models.User;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "courses")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Course {

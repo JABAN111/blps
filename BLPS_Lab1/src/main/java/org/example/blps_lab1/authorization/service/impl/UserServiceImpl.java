@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.authorization.service.UserService;
-
+import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
+import org.example.blps_lab1.courseSignUp.models.Course;
+import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -14,16 +16,14 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
-
+import java.util.List;
 import java.util.Optional;
 
-@Service
-@Slf4j
-@AllArgsConstructor
+@Service @Slf4j @AllArgsConstructor @Transactional
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
+    private CourseService courseService;
 
-    @Transactional
     @Override
     public User add(final User user) {
         user.setPassword(user.getPassword());
@@ -32,7 +32,11 @@ public class UserServiceImpl implements UserService {
         return newUser;
     }
 
-    @Transactional
+    @Override
+    public List<User> addAll(final List<User> users) {
+        return userRepository.saveAll(users);
+    }
+
     @Override
     public User updateUser(final User user) {
         User newUser = userRepository.save(user);
@@ -63,5 +67,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetailsService getUserDetailsService() {
         return this::getUserByEmail;
+    }
+
+    @Override
+    public void enrollUser(User user, Course course) {
+        var userOptional = userRepository.findByEmail(user.getEmail());
+        if(userOptional.isEmpty()){
+            log.warn("User with email {} does not exist, impossible to enroll to the course: {}", user.getEmail(), course.getCourseName());
+            throw new ObjectNotExistException("Нет пользователя с email: " + user.getEmail() + ", невозможно зачислить на курс");
+        }
+        var userEntity = userOptional.get();
+        userEntity.getCourseList().add(course);
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public void enrollUser(User user, Long courseId) {
+        var course = courseService.find(courseId);
+        enrollUser(user, course);
     }
 }
