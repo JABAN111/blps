@@ -50,11 +50,15 @@ public class Application {
     private Timestamp createdAt;
 
     @PrePersist
-    @PreUpdate
-    public void updateTimestamps() {
+    public void createTimeStamps() {
         if (createdAt == null) {
             createdAt = new Timestamp(System.currentTimeMillis());
         }
+        updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    @PreUpdate
+    public void updateTimestamps(){
         updatedAt = new Timestamp(System.currentTimeMillis());
     }
 }
