@@ -29,6 +29,25 @@ public class CourseService {
         log.info("Created course: {}", newCourse);
     }
 
+
+    public Course find(final String courseName){
+        return courseRepository.findByCourseName(courseName);
+    }
+
+    public Course find(final long id){
+        var optionalCourse = courseRepository.findById(id);
+        if(optionalCourse.isEmpty()){
+            log.warn("Course with id: {} not exist", id);
+            throw new ObjectNotExistException("Курс с id: " + id + " не существует");
+        }
+        return optionalCourse.get();
+    }
+
+    public List<Course> saveAll(List<Course> courses){
+        return courseRepository.saveAll(courses);
+    }
+
+
     public Course getCourseById(final Long id){
         Optional<Course> course = courseRepository.findById(id);
         if(course.isEmpty()){

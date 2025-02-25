@@ -43,9 +43,10 @@ public class SecurityConfig {
                 }))
                 // FIXME: Fix endpoints to  
                 .authorizeHttpRequests(request -> request
-                        .anyRequest().permitAll()
-                // .requestMatchers("/api/v1/auth/**").permitAll()
-                // .requestMatchers("/all/**").permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/user/**").authenticated()
+                .anyRequest().permitAll()
+                // .requestMatchers("/all").permitAll()
                 // .requestMatchers("/api/v1/manage/**").authenticated()
                 // .requestMatchers("/api/v1/import/**").authenticated()
                 // .requestMatchers("/api/v1/admin/console/**").authenticated()

@@ -1,5 +1,7 @@
 DOCKER_COMPOSE_CMD = docker compose
-MVN_CMD = mvn clean install
+
+MVN_CMD = mvn install
+
 JAR_NAME = $(shell ls target | grep .jar)
 JAVA_CMD = java -jar target/$(JAR_NAME)
 
@@ -20,7 +22,9 @@ run:
 	$(JAVA_CMD)
 
 down:
-	$(DOCKER_COMPOSE_CMD) down
+
+	$(DOCKER_COMPOSE_CMD) down -v
+
 
 test:
 	$(MVN_CMD)
