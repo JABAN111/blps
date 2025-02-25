@@ -8,8 +8,21 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update  
-    # database-platform: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
+  mail:
+    host: smtp.mail.ru
+    port: 465
+    username: hokure04@mail.ru
+    password: aHXm4xap2rkyg4dS4hL5
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  # database-platform: org.hibernate.dialect.PostgreSQLDialect
 token:
   signing:
     key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=

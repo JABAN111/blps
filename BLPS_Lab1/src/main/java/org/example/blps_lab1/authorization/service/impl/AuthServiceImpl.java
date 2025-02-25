@@ -18,6 +18,7 @@ import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
 import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.config.security.services.JwtService;
+import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserService userService;
+    private final EmailService emailService;
 
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
@@ -89,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
 
         var jwt = jwtService.generateToken(user);
         resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
+        emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCoursePrice());
 
         return resultBuilder.build();
     }
