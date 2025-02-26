@@ -9,6 +9,7 @@ import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
+import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public void createCourse(final Course course){
         Course newCourse = courseRepository.save(course);
@@ -102,7 +104,7 @@ public class CourseService {
                 .orElseThrow(() -> new RuntimeException("user not found in enroll"));
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("course nor=t found in enroll"));
+                .orElseThrow(() -> new RuntimeException("course not found in enroll"));
 
         List<Course> enrolledCourses = new ArrayList<>();
 
@@ -114,6 +116,7 @@ public class CourseService {
 
         List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
         user.getCourseList().addAll(additionalCourses);
+        emailService.informAboutNewCourses(user.getEmail(),additionalCourses);
         enrolledCourses.addAll(additionalCourses);
         userRepository.save(user);
         return enrolledCourses;
