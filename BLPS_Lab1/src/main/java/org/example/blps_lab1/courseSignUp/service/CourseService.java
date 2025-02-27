@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
+import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
@@ -83,7 +84,7 @@ public class CourseService {
     public Course updateCourse(Long courseId, CourseDto courseDto){
         if(courseRepository.findById(courseId).isEmpty()){
             log.error("Course with id {} does not exist", courseId);
-            throw new RuntimeException("Курс не найден");
+            throw new ObjectNotFoundException("Курс не найден");
         }
         return courseRepository.findById(courseId).map(course -> {
             course.setCourseName(courseDto.getCourseName());

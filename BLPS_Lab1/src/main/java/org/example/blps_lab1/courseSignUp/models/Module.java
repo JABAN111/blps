@@ -25,7 +25,13 @@ public class Module {
     @Column(nullable = false)
     private Boolean isCompleted;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private Integer orderNumber;
+
+    @Column
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 

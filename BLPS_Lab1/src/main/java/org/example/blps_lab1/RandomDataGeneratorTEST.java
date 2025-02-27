@@ -21,7 +21,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
-@Service
+/*@Service
 @AllArgsConstructor
 public class RandomDataGeneratorTEST implements ApplicationRunner {
     private CompanyService companyService;
@@ -85,4 +85,4 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         System.out.println("all saved");
 
     }
-}
+}*/

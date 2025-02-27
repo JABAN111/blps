@@ -16,6 +16,7 @@ import org.example.blps_lab1.courseSignUp.models.Topic;
 public class CourseDto {
     private String courseName;
     private BigDecimal coursePrice;
+    private String description;
     private Topic topicName;
     private Integer courseDuration;
     private Boolean withJobOffer;

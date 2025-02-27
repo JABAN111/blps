@@ -23,7 +23,14 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllCourses(){
         Map<String, Object> response = new HashMap<>();
-        response.put("expedition_list", courseService.getAllCourses());
+        response.put("course_list", courseService.getAllCourses());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id){
+        Map<String, Object> response = new HashMap<>();
+        response.put("course", courseService.getCourseById(id));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -31,12 +38,12 @@ public class CourseController {
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course){
         Map<String, Object> response = new HashMap<>();
         courseService.createCourse(course);
-        response.put("expedition", course);
+        response.put("course", course);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<Map<String, Object>> deleteExpedition(@PathVariable Long courseId){
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId){
         Map<String, Object> response = new HashMap<>();
         courseService.deleteCourse(courseId);
         return new ResponseEntity<>(response, HttpStatus.OK);

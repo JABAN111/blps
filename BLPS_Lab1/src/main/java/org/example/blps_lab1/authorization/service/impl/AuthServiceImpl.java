@@ -19,6 +19,8 @@ import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.config.security.services.JwtService;
 import org.example.blps_lab1.lms.service.EmailService;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +57,9 @@ public class AuthServiceImpl implements AuthService {
         if (request.getCompanyName() != null) {//NOTE: if company is specifed, user is legal entity
             if(companyService.isExist(request.getCompanyName())){
                 log.warn("Company with name: {} not found", request.getCompanyName());
-                //FIXME: send email to user
-                throw new NotImplementedException("Необходимо добавить, что если компания не зарегестрирована, то ошибка"+ 
-                "присылается пользователю в виде письма на почту");
+                emailService.informAboutCompanyProblem(request.getEmail(), request.getCompanyName());
+                throw new ObjectNotExistException(
+                        "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
             }
             var companyEntity = companyService.getByName(request.getCompanyName());
             userBuilder.company(companyEntity);
@@ -98,8 +100,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthenticationResponse signIn(LoginRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'signIn'");
+        var user = userService.getUserByEmail(request.getEmail());
+        var jwt = jwtService.generateToken(user);
+        return new JwtAuthenticationResponse(jwt);
     }
-    
+
+    @Override
+    public User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+
+            return userService.getUserByEmail(username);
+        } else {
+            throw new IllegalStateException("Current user is not authenticated");
+        }
+    }
+
 }
