@@ -42,7 +42,7 @@ public class ModuleService {
         var optionalModule = moduleRepository.findById(id);
         if(optionalModule.isEmpty()){
             log.warn("Module with id: {} not exist", id);
-            throw new ObjectNotExistException("Модуль с id" + id + "не существует");
+            throw new ObjectNotExistException("Модуль с id" + id + " не существует");
         }
         return optionalModule.get();
     }
@@ -101,8 +101,7 @@ public class ModuleService {
             moduleRepository.save(module);
             log.info("Module {} is completed by user {}", moduleId, userId);
             courseProgressService.addPoints(userId, module.getCourse().getCourseId(), 10);
+            emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
         }
-        emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
-
     }
 }
