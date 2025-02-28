@@ -41,7 +41,7 @@ public class EmailService {
         }
     }
 
-    public void sendTermsOfStudy(String toEmail, String courseName, BigDecimal price){
+    public void sendTermsOfStudy(String toEmail, String courseName, Long courseId, BigDecimal price){
         try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Поздравление с успешным формированием заявки");
 
@@ -51,6 +51,9 @@ public class EmailService {
                     "<h2 style='color: #1FAEE9; text-align: center;'>Добро пожаловать!</h2>" +
                     "<p style='color: #555; font-size: 16px;'>Вам необходимо оплатить данный курс" + courseName+ " </p>" +
                     "<p style='color: #555; font-size: 16px;'>Стоимость данного курса составляет: " + price + "руб </p>" +
+                    "<p style='color: #555; font-size: 16px;'>Вы согласны?</p>" +
+                    "<a href=\"http://localhost:8080/api/v1/user/application/"+courseId+"/OK\" class=\"button\">Да</a>" +
+                    "<a href=\"http://localhost:8080/api/v1/user/application/"+courseId+"/REJECT\" class=\"button\">Нет</a>" +
                     "</div>" +
                     "</body>" +
                     "</html>";

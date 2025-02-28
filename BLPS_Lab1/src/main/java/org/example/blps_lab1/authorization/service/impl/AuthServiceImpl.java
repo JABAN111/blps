@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
 
         var jwt = jwtService.generateToken(user);
         resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
-        emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCoursePrice());
+        emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCourseId(), courseEntity.getCoursePrice());
 
         em.flush();
 
