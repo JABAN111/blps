@@ -9,6 +9,7 @@ JAVA_CMD = java -jar target/$(JAR_NAME)
 
 all: down build up run
 
+
 build:
 	$(MVN_CMD)
 	$(DOCKER_COMPOSE_CMD) build

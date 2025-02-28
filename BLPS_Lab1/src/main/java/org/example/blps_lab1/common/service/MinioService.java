@@ -41,7 +41,7 @@ public class MinioService  {
         ensureBucketExists();
     }
 
-    public String uploadFile(final String username, final String filename, final File file) {
+    public String uploadFile(final String username, final String filename, final File file) throws Exception {
 
         final String filenameForStoring = getNewFileName(username, filename);
 
@@ -58,7 +58,7 @@ public class MinioService  {
             return filenameForStoring;
         } catch (Exception e) {
             log.error("Error occurred while uploading file: {}", filenameForStoring, e);
-            throw new RuntimeException(e);
+            throw new Exception(e);
         }
     }
 
@@ -135,7 +135,7 @@ public class MinioService  {
     }
 
     private String getNewFileName(String username, String filename) {
-        return username.trim() + "/" + filename.trim();
+        return username.trim() + "/" + filename.trim() + ".pdf";
     }
 
     private void ensureBucketExists() {
