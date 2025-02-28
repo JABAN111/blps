@@ -1,6 +1,5 @@
 package org.example.blps_lab1.courseSignUp.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.models.User;
@@ -8,6 +7,7 @@ import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.ModuleDto;
+import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.models.Module;
 import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
@@ -33,9 +33,26 @@ public class ModuleService {
     private final UserRepository userRepository;
 
     public Module createModule(final Module module){
+        validateModule(module);
+
+        Course course = module.getCourse();
+        List<Module> existingModules = moduleRepository.findByCourseOrderByOrderNumberAsc(course);
+        if(!existingModules.isEmpty()){
+            module.setIsBlocked(true);
+        }
         Module newModule = moduleRepository.save(module);
         log.info("Module created {}", newModule);
         return newModule;
+    }
+
+    public void validateModule(Module module){
+        if(module.getOrderNumber() <= 0){
+            throw new IllegalArgumentException("порядковый номер модуля должен быть больше 0");
+        }
+        moduleRepository.findByCourseAndOrderNumber(module.getCourse(), module.getOrderNumber())
+                .ifPresent(existingModule ->{
+                    throw new IllegalArgumentException("Модуль с таким порядковым номером уже существует в данном курсе");
+                });
     }
 
     public Module getModuleById(final Long id){
@@ -97,8 +114,26 @@ public class ModuleService {
                 .allMatch(Exercise::getIsCompleted);
 
         if(isExercisesCompleted){
+            List<Module> courseModules = moduleRepository.findByCourseOrderByOrderNumberAsc(module.getCourse());
+            if(module.getOrderNumber() > 1){
+                Module previousModule = courseModules.stream()
+                        .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() - 1))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Предыдущий модель не найден"));
+
+                if(!previousModule.getIsCompleted()){
+                    throw new IllegalStateException("Нельзя разблокировать новый модуль пока не разблокирован предыдущий");
+                }
+            }
             module.setIsCompleted(true);
             moduleRepository.save(module);
+            courseModules.stream()
+                    .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))
+                    .findFirst()
+                    .ifPresent(nextModule ->{
+                        nextModule.setIsBlocked(false);
+                        moduleRepository.save(nextModule);
+                    });
             log.info("Module {} is completed by user {}", moduleId, userId);
             courseProgressService.addPoints(userId, module.getCourse().getCourseId(), 10);
             emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());

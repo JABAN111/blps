@@ -13,5 +13,6 @@ public class ModuleDto {
     private Boolean isCompleted;
     private Integer orderNumber;
     private String description;
+    private Boolean isBlocked;
 
 }

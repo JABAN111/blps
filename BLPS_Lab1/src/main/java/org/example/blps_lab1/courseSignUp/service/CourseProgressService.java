@@ -28,7 +28,7 @@ public class CourseProgressService {
         CourseProgress progress = courseProgressRepository.findByCourseProgressId(courseProgressId)
                 .orElseGet(() -> {
                     Course course = courseRepository.findById(courseId)
-                            .orElseThrow(() -> new EntityNotFoundException("course not found in add points"));
+                            .orElseThrow(() -> new EntityNotFoundException("Курс не найден addpoints"));
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден в addPoints"));
                     CourseProgress newProgress = new CourseProgress();
