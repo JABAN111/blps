@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
+import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
+import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public void createCourse(final Course course){
         Course newCourse = courseRepository.save(course);
@@ -81,7 +84,7 @@ public class CourseService {
     public Course updateCourse(Long courseId, CourseDto courseDto){
         if(courseRepository.findById(courseId).isEmpty()){
             log.error("Course with id {} does not exist", courseId);
-            throw new RuntimeException("Курс не найден");
+            throw new ObjectNotFoundException("Курс не найден");
         }
         return courseRepository.findById(courseId).map(course -> {
             course.setCourseName(courseDto.getCourseName());
@@ -102,7 +105,7 @@ public class CourseService {
                 .orElseThrow(() -> new RuntimeException("user not found in enroll"));
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("course nor=t found in enroll"));
+                .orElseThrow(() -> new RuntimeException("course not found in enroll"));
 
         List<Course> enrolledCourses = new ArrayList<>();
 
@@ -114,9 +117,44 @@ public class CourseService {
 
         List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
         user.getCourseList().addAll(additionalCourses);
+        emailService.informAboutNewCourses(user.getEmail(),additionalCourses);
         enrolledCourses.addAll(additionalCourses);
         userRepository.save(user);
         return enrolledCourses;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Course addAdditionalCourses(Long courseId, Long additionalId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseId + " не найден"));
+
+        Course additionalCourse = courseRepository.findById(additionalId)
+                .orElseThrow(() -> new ObjectNotFoundException("Дополнительный курс с id " + additionalId + " не найден"));
+
+        if(!course.getAdditionalCourseList().contains(additionalCourse)){
+            course.getAdditionalCourseList().add(additionalCourse);
+            courseRepository.save(course);
+            log.info("Курс {} добавлен в дополнительные курсы для {}", additionalId, courseId);
+        } else{
+            log.warn("Курс {} уже есть в дополнительных курсах для {}", additionalId, courseId);
+        }
+        return course;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Course addListOfCourses(Long id, List<Course> additionalCourses){
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с id "+ id + " не найден"));
+
+        for(Course additionalCourse : additionalCourses){
+            if(additionalCourse.getCourseId() == null){
+                courseRepository.save(additionalCourse);
+            }
+        }
+        course.getAdditionalCourseList().addAll(additionalCourses);
+        courseRepository.save(course);
+        log.info("Курсы добавлены в дополнительные курсы для курса с id {}", id);
+        return course;
     }
 
 }

@@ -1,5 +1,8 @@
 package org.example.blps_lab1.courseSignUp.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Module {
 
     @Id
@@ -25,7 +29,13 @@ public class Module {
     @Column(nullable = false)
     private Boolean isCompleted;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private Integer orderNumber;
+
+    @Column
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 

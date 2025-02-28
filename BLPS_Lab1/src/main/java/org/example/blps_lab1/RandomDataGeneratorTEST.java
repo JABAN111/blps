@@ -21,7 +21,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
-@Service
+/*@Service
+
 @AllArgsConstructor
 public class RandomDataGeneratorTEST implements ApplicationRunner {
     private CompanyService companyService;
@@ -31,15 +32,16 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
 
     @Override
     @Transactional
-    public void run(ApplicationArguments args) throws Exception {  
+    public void run(ApplicationArguments args) throws Exception {
+
         // NOTE: Генерация случайных данных для тестирования
         // Выпилить перед показом
         List<Company> companies = new ArrayList<>();
         List<Course> courses = new ArrayList<>();
         List<User> users = new ArrayList<>();
-        
+
         for (int i = 0; i < 1_000; i++) {
-            
+
             var course = Course.builder()
             .courseName(UUID.randomUUID().toString())
             .coursePrice(BigDecimal.valueOf(new Random().nextDouble()))
@@ -63,10 +65,11 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
                     .companyName(UUID.randomUUID().toString())
                     .user(user)
                     .build();
-            
+
+
 
             users.add(user);
-        
+
             companies.add(company);
 
             courses.add(course);
@@ -75,7 +78,9 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         System.out.println("Companies: " + companies.size());
         System.out.println("Courses: " + courses.size());
         System.out.println("Users: " + users.size());
-        
+
+
+
         userService.addAll(users);
         em.flush();
         companyService.saveAll(companies);
@@ -85,4 +90,5 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         System.out.println("all saved");
 
     }
-}
+}*/
+

@@ -1,5 +1,7 @@
 package org.example.blps_lab1.courseSignUp.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +19,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "courseId")
 public class Course {
 
     @Id
@@ -42,8 +45,7 @@ public class Course {
     @Column
     private Boolean withJobOffer;
 
-    @ManyToMany
-    @JoinTable(name = "user_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @ManyToMany(mappedBy = "courseList")
     private List<User> userList;
 
     @ManyToMany

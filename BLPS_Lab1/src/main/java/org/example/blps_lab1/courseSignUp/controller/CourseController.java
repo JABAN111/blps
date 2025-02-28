@@ -11,10 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api/v1/courses")
 @AllArgsConstructor
 @Slf4j
 public class CourseController {
@@ -23,7 +24,14 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllCourses(){
         Map<String, Object> response = new HashMap<>();
-        response.put("expedition_list", courseService.getAllCourses());
+        response.put("course_list", courseService.getAllCourses());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id){
+        Map<String, Object> response = new HashMap<>();
+        response.put("course", courseService.getCourseById(id));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -31,12 +39,12 @@ public class CourseController {
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course){
         Map<String, Object> response = new HashMap<>();
         courseService.createCourse(course);
-        response.put("expedition", course);
+        response.put("course", course);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<Map<String, Object>> deleteExpedition(@PathVariable Long courseId){
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId){
         Map<String, Object> response = new HashMap<>();
         courseService.deleteCourse(courseId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -49,5 +57,23 @@ public class CourseController {
         response.put("message", "course updated");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{courseId}/additional/{additionalId}")
+    public ResponseEntity<Map<String, Object>> addAdditionalCourse(
+            @PathVariable Long courseId,
+            @PathVariable Long additionalId
+    ){
+        Map<String, Object> response = new HashMap<>();
+        Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
+        response.put("message", "Дополнительный курс добавлен");
+        response.put("course", updatedCourse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/additional-courses")
+    public ResponseEntity<Course> addListOfCourses(@PathVariable Long id, @RequestBody List<Course> additionalCourses){
+        Course updatedCourse = courseService.addListOfCourses(id, additionalCourses);
+        return ResponseEntity.ok(updatedCourse);
     }
 }
