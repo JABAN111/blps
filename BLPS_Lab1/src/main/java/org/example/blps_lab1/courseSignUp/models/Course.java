@@ -45,8 +45,6 @@ public class Course {
     @Column
     private Boolean withJobOffer;
 
-    @Column(nullable = false)
-    private Boolean isFinished;
 
     @ManyToMany(mappedBy = "courseList")
     private List<User> userList;
@@ -59,9 +57,5 @@ public class Course {
     )
     private List<Course> additionalCourseList;
 
-    @PrePersist()
-    public void prePersist(){
-        isFinished = false;
-    }
 
 }
