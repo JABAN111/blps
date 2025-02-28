@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
 /*@Service
+
 @AllArgsConstructor
 public class RandomDataGeneratorTEST implements ApplicationRunner {
     private CompanyService companyService;
@@ -32,6 +33,7 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws Exception {
+
         // NOTE: Генерация случайных данных для тестирования
         // Выпилить перед показом
         List<Company> companies = new ArrayList<>();
@@ -65,6 +67,7 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
                     .build();
 
 
+
             users.add(user);
 
             companies.add(company);
@@ -76,6 +79,8 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         System.out.println("Courses: " + courses.size());
         System.out.println("Users: " + users.size());
 
+
+
         userService.addAll(users);
         em.flush();
         companyService.saveAll(companies);
@@ -86,3 +91,4 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
 
     }
 }*/
+
