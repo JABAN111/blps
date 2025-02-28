@@ -8,10 +8,12 @@ import org.example.blps_lab1.common.exceptions.MailSendingException;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -171,6 +173,48 @@ public class EmailService {
                     "</body>" +
                     "</html>";
             helper.setText(htmlContent, true);
+            mailSender.send(helper.getMimeMessage());
+        }catch (MessagingException e){
+            log.error("Error while sending email on {} {}", toEmail, e.getMessage());
+            throw new MailSendingException("Ошибка при отправке email о успешном отказе");
+        }
+    }
+
+    public void informMinioFailure(String toEmail){
+        try{
+            MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Проблема при отправлении сертификата");
+            String htmlContent = "<html>" +
+                    "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
+                    "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
+                    "<h2 style='color: #1FAEE9; text-align: center;'>Не получилось отправить сертификат вам на почту</h2>" +
+                    "<p style='color: #555; font-size: 16px;'>К сожалению при формировании сертификата о прохождении курса возникла ошибка</p>" +
+                    "<p style='color: #555; font-size: 16px;'>Мы уже занимаемся решением этой проблемы, а вас просим подождать</p>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>";
+            helper.setText(htmlContent, true);
+            mailSender.send(helper.getMimeMessage());
+        }catch (MessagingException e){
+            log.error("Error while sending email on {} {}", toEmail, e.getMessage());
+            throw new MailSendingException("Ошибка при отправке email о успешном отказе");
+        }
+    }
+
+    public void sendCertificateToUser(String toEmail, File file){
+        try{
+            MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Ваш сертификат о прохождении курса");
+            String htmlContent = "<html>" +
+                    "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
+                    "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
+                    "<h2 style='color: #1FAEE9; text-align: center;'>Поздравляем с успешным прохождением курса</h2>" +
+                    "<p style='color: #555; font-size: 16px;'>Сертификат о прохождении курса прикреплен в этом письме</p>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>";
+            helper.setText(htmlContent, true);
+
+            FileSystemResource fileResource = new FileSystemResource(file);
+            helper.addAttachment("Сертификат.pdf",fileResource);
             mailSender.send(helper.getMimeMessage());
         }catch (MessagingException e){
             log.error("Error while sending email on {} {}", toEmail, e.getMessage());
