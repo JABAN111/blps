@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -100,7 +101,7 @@ public class ModuleService {
         });
     }
 
-    public void completeModule(Long userId, Long moduleId){
+    public int completeModule(Long userId, Long moduleId){
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ObjectNotFoundException("Модуль не найден в completeModule"));
 
@@ -111,32 +112,43 @@ public class ModuleService {
 
         boolean isExercisesCompleted = moduleExerciseList.stream()
                 .map(ModuleExercise::getExercise)
-                .allMatch(Exercise::getIsCompleted);
+                .filter(Objects::nonNull)
+                .allMatch(exercise -> Boolean.TRUE.equals(exercise.getIsCompleted()));
 
-        if(isExercisesCompleted){
-            List<Module> courseModules = moduleRepository.findByCourseOrderByOrderNumberAsc(module.getCourse());
-            if(module.getOrderNumber() > 1){
-                Module previousModule = courseModules.stream()
-                        .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() - 1))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Предыдущий модель не найден"));
-
-                if(!previousModule.getIsCompleted()){
-                    throw new IllegalStateException("Нельзя разблокировать новый модуль пока не разблокирован предыдущий");
-                }
-            }
-            module.setIsCompleted(true);
-            moduleRepository.save(module);
-            courseModules.stream()
-                    .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))
-                    .findFirst()
-                    .ifPresent(nextModule ->{
-                        nextModule.setIsBlocked(false);
-                        moduleRepository.save(nextModule);
-                    });
-            log.info("Module {} is completed by user {}", moduleId, userId);
-            courseProgressService.addPoints(userId, module.getCourse().getCourseId(), 10);
-            emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
+        if(!isExercisesCompleted){
+            throw new RuntimeException("Не все задания в модуле завершены");
         }
+
+        List<Module> courseModules = moduleRepository.findByCourseOrderByOrderNumberAsc(module.getCourse());
+        if(module.getOrderNumber() > 1){
+            Module previousModule = courseModules.stream()
+                    .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() - 1))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Предыдущий модель не найден"));
+
+            if(!previousModule.getIsCompleted()){
+                throw new IllegalStateException("Нельзя разблокировать новый модуль пока не разблокирован предыдущий");
+            }
+        }
+        module.setIsCompleted(true);
+        moduleRepository.save(module);
+
+        log.info("Module {} is completed by user {}", moduleId, userId);
+        int totalPoints = moduleExerciseList.stream()
+                .map(ModuleExercise::getExercise)
+                .filter(Objects::nonNull)
+                .mapToInt(Exercise::getPointsForDifficulty)
+                .sum();
+        module.setTotalPoints(totalPoints);
+        courseProgressService.addPoints(userId, module.getCourse().getCourseId(), totalPoints);
+        courseModules.stream()
+                .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))
+                .findFirst()
+                .ifPresent(nextModule ->{
+                    nextModule.setIsBlocked(false);
+                    moduleRepository.save(nextModule);
+                });
+        emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
+        return totalPoints;
     }
 }

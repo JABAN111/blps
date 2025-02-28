@@ -33,6 +33,20 @@ public class Exercise {
     @Column(nullable = false)
     private Boolean isCompleted;
 
+    @Column(nullable = false)
+    private String answer;
+
+    @Enumerated(EnumType.STRING)
+    private DifficultyLevel difficultyLevel;
+
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ModuleExercise> moduleExercises;
+
+    public int getPointsForDifficulty(){
+        return switch (difficultyLevel){
+            case HARD -> 25;
+            case MEDIUM -> 10;
+            case EASY -> 5;
+        };
+    }
 }

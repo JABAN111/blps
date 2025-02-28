@@ -37,6 +37,9 @@ public class Module {
     @Column
     private Boolean isBlocked;
 
+    @Column
+    private Integer totalPoints;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

@@ -57,11 +57,15 @@ public class ModuleController {
     }
 
     @PostMapping("/complete")
-    public String completeModule(
+    public ResponseEntity<Map<String, Object>> completeModule(
             @RequestParam Long userId,
             @RequestParam Long moduleId
     ){
-        moduleService.completeModule(userId, moduleId);
-        return "Module fully completed";
+        int earnedPoints = moduleService.completeModule(userId, moduleId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("moduleId", moduleId);
+        response.put("earnedPoints", earnedPoints);
+        response.put("message", "Модуль успешно завершён");
+        return ResponseEntity.ok(response);
     }
 }

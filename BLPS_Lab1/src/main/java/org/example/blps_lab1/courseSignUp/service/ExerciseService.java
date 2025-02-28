@@ -3,9 +3,12 @@ package org.example.blps_lab1.courseSignUp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.authorization.service.AuthService;
+import org.example.blps_lab1.authorization.service.impl.AuthServiceImpl;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
+import org.example.blps_lab1.courseSignUp.models.DifficultyLevel;
 import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.models.Module;
 import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
@@ -26,6 +29,8 @@ public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final ModuleRepository moduleRepository;
     private final ModuleExerciseRepository moduleExerciseRepository;
+    private final CourseProgressService courseProgressService;
+    private final AuthService authService;
 
     public Exercise createExercise(final ExerciseDto exerciseDto){
         Module module = moduleRepository.findById(exerciseDto.getModuleId())
@@ -35,6 +40,8 @@ public class ExerciseService {
                 .name(exerciseDto.getName())
                 .description(exerciseDto.getDescription())
                 .isCompleted(exerciseDto.getIsCompleted())
+                .answer(exerciseDto.getAnswer())
+                .difficultyLevel(exerciseDto.getDifficultyLevel())
                 .build();
 
         newExercise = exerciseRepository.save(newExercise);
@@ -83,10 +90,31 @@ public class ExerciseService {
             exercise.setName(exerciseDto.getName());
             exercise.setDescription(exerciseDto.getDescription());
             exercise.setIsCompleted(exerciseDto.getIsCompleted());
+            exercise.setAnswer(exerciseDto.getAnswer());
+            exercise.setDifficultyLevel(exerciseDto.getDifficultyLevel());
             return exerciseRepository.save(exercise);
         }).orElseThrow(() ->{
             log.error("Exercise with id {} can't be updated", id);
             return new RuntimeException("Не получилось обновить задание");
         });
     }
+
+    public boolean submitAnswer(Long id, String userAnswer){
+        Exercise exercise = exerciseRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Задание с id" + id + " не найдено"));
+
+        if((exercise.getAnswer().trim().equalsIgnoreCase(userAnswer.trim()))){
+            exercise.setIsCompleted(true);
+            exerciseRepository.save(exercise);
+
+            int points = exercise.getPointsForDifficulty();
+            courseProgressService.addPoints(authService.getCurrentUser().getId(), exercise.getModuleExercises().get(0).getModule().getCourse().getCourseId(), points);
+
+            log.info("Exercise {} marked as completed", id);
+            return true;
+        }
+        log.info("Exercise {} answer is incorrect", id);
+        return false;
+    }
+
 }

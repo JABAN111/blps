@@ -158,4 +158,23 @@ public class EmailService {
             throw new MailSendingException("Ошибка при отправке email о успешном прохождении курса: " + e.getMessage());
         }
     }
+
+    public void rejectionMail(String toEmail, String courseName){
+        try{
+            MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Отказ от курса");
+            String htmlContent = "<html>" +
+                    "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
+                    "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
+                    "<h2 style='color: #1FAEE9; text-align: center;'>Вы отказались от записи на курс " + courseName + "</h2>" +
+                    "<p style='color: #555; font-size: 16px;'>Если передумаете вы знаете, где нас найти</p>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>";
+            helper.setText(htmlContent, true);
+            mailSender.send(helper.getMimeMessage());
+        }catch (MessagingException e){
+            log.error("Error while sending email on {} {}", toEmail, e.getMessage());
+            throw new MailSendingException("Ошибка при отправке email о успешном отказе");
+        }
+    }
 }
