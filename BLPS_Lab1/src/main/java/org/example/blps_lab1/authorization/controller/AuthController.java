@@ -28,8 +28,6 @@ import lombok.AllArgsConstructor;
 public class AuthController {
     
     private AuthService authService;
-    private CertificateExporter certificateExporter;
-    private MinioService minioService;
 
     @PostMapping("/sign-up")
     public ApplicationResponseDto signUp(@RequestBody RegistrationRequestDto request){

@@ -43,7 +43,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
 
-    @Column(length = 40)//TODO: подумоть
+    @Column(length = 15)
     private String phoneNumber;
 
     @OneToOne

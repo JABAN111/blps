@@ -106,10 +106,6 @@ public class MinioService  {
         return listFilesWithPrefixOrWithout(prefix);
     }
 
-    //FIXME: удалить? method for admin only
-    public List<String> listFilesWithoutPrefix() {
-        return listFilesWithPrefixOrWithout(null);
-    }
 
     private List<String> listFilesWithPrefixOrWithout(String prefix) {
         ListObjectsArgs.Builder listObjectsArgsBuilder = ListObjectsArgs.builder().bucket(BUCKET_NAME);

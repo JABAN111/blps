@@ -40,7 +40,7 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         List<Course> courses = new ArrayList<>();
         List<User> users = new ArrayList<>();
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10; i++) {
 
             var course = Course.builder()
             .courseName(UUID.randomUUID().toString())

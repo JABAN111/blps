@@ -32,16 +32,7 @@ public class CertificateManagerService {
             log.error("Error while creating the certificate", e);
             sendAboutException(user.getEmail());
         }
-    }
-
-
-    /*private void sendToUser(User user, File file){
-        //TODO: нужна ручка для отправления файлов
-        // emailService.createMimeMessageHelper(null, null)
-
-        emailService.sendCertificateToUser(user.getEmail(), file);
-    }*/
-
+    }   
 
     private void saveToMinio(User user, Course course, File file){
         StringBuilder filename = new StringBuilder();

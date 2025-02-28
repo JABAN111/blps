@@ -20,8 +20,6 @@ public class UserEnrollmentService {
     private CourseService courseService;
     private EmailService emailService;
 
-    //TODO: В дополнении БПМН была следующая просьба: уведомлять пользователя в случае успешного отказа в обработке
-    // ну и сюда нужно, естественно, еще добавить отправку на почту об успешном зачислении
     public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus status){
         var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, status);
         if (status == ApplicationStatus.REJECT){

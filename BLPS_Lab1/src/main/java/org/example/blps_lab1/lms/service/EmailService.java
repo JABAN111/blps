@@ -41,16 +41,6 @@ public class EmailService {
         }
     }
 
-    /*public void sendMail(MimeMessageHelper helper){
-        try{
-            mailSender.send(helper.getMimeMessage());
-            log.info("Email отправлен успешно");
-        }catch (MessagingException e){
-            log.error("Ошибка при отправке email: {}", e.getMessage());
-            throw new RuntimeException("Ошибка приотпраке email: " + e.getMessage(), e);
-        }
-    }*/
-
     public void sendTermsOfStudy(String toEmail, String courseName, BigDecimal price){
         try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Поздравление с успешным формированием заявки");
