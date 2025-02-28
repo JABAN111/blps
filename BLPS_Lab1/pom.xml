@@ -103,6 +103,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.3</version>
         </dependency>
+		
+		<dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.17</version>
+        </dependency>
 
 	</dependencies>
 
@@ -140,4 +146,3 @@
 	</build>
 
 </project>
-

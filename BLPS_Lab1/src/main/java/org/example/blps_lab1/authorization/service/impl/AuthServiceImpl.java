@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final EmailService emailService;
-
+    
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
         var resultBuilder = ApplicationResponseDto.builder();
