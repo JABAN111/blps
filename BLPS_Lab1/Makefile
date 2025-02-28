@@ -7,7 +7,7 @@ JAVA_CMD = java -jar target/$(JAR_NAME)
 
 .PHONY: all build up down test run
 
-all: build up
+all: down build up run
 
 build:
 	$(MVN_CMD)
