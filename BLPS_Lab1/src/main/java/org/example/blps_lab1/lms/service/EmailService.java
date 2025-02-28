@@ -91,7 +91,7 @@ public class EmailService {
                     "</body>"+
                     "</html>";
 
-            helper.setText(htmlContent);
+            helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
         }catch (MessagingException e){
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
@@ -106,12 +106,12 @@ public class EmailService {
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
                     "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
                     "<h2 style='color: #1FAEE9; text-align: center;'>Поздравляем с успешным прохождение модуля " + moduleName + "</h2>" +
-                    "<p style='color: #555; font-size: 16px;'>Вы полность прошли модкль" + moduleName + "из курса " + courseName+ " </p>" +
+                    "<p style='color: #555; font-size: 16px;'>Вы полность прошли модуль " + moduleName + " из курса: " + courseName+ " </p>" +
                     "</div>" +
                     "</body>" +
                     "</html>";
 
-            helper.setText(htmlContent);
+            helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
         }catch (MessagingException e){
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
@@ -131,7 +131,7 @@ public class EmailService {
                     "</div>" +
                     "</body>" +
                     "</html>";
-            helper.setText(htmlContent);
+            helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
         }catch (MessagingException e){
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
@@ -151,7 +151,7 @@ public class EmailService {
                     "</body>" +
                     "</html>";
 
-            helper.setText(htmlContent);
+            helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
         }catch (MessagingException e){
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());

@@ -28,7 +28,6 @@ public class ModuleExercise {
 
     @ManyToOne
     @JoinColumn(name = "exercise_id", nullable = false)
-    @JsonBackReference
     private Exercise exercise;
 
 }

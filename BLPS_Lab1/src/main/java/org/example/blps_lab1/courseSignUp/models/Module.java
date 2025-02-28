@@ -41,7 +41,6 @@ public class Module {
 
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<ModuleExercise> moduleExercises;
 
 }

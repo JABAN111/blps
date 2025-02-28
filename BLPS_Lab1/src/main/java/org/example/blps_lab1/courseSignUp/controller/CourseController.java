@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -56,5 +57,23 @@ public class CourseController {
         response.put("message", "course updated");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{courseId}/additional/{additionalId}")
+    public ResponseEntity<Map<String, Object>> addAdditionalCourse(
+            @PathVariable Long courseId,
+            @PathVariable Long additionalId
+    ){
+        Map<String, Object> response = new HashMap<>();
+        Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
+        response.put("message", "Дополнительный курс добавлен");
+        response.put("course", updatedCourse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/additional-courses")
+    public ResponseEntity<Course> addListOfCourses(@PathVariable Long id, @RequestBody List<Course> additionalCourses){
+        Course updatedCourse = courseService.addListOfCourses(id, additionalCourses);
+        return ResponseEntity.ok(updatedCourse);
     }
 }

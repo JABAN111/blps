@@ -123,4 +123,38 @@ public class CourseService {
         return enrolledCourses;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Course addAdditionalCourses(Long courseId, Long additionalId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseId + " не найден"));
+
+        Course additionalCourse = courseRepository.findById(additionalId)
+                .orElseThrow(() -> new ObjectNotFoundException("Дополнительный курс с id " + additionalId + " не найден"));
+
+        if(!course.getAdditionalCourseList().contains(additionalCourse)){
+            course.getAdditionalCourseList().add(additionalCourse);
+            courseRepository.save(course);
+            log.info("Курс {} добавлен в дополнительные курсы для {}", additionalId, courseId);
+        } else{
+            log.warn("Курс {} уже есть в дополнительных курсах для {}", additionalId, courseId);
+        }
+        return course;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Course addListOfCourses(Long id, List<Course> additionalCourses){
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с id "+ id + " не найден"));
+
+        for(Course additionalCourse : additionalCourses){
+            if(additionalCourse.getCourseId() == null){
+                courseRepository.save(additionalCourse);
+            }
+        }
+        course.getAdditionalCourseList().addAll(additionalCourses);
+        courseRepository.save(course);
+        log.info("Курсы добавлены в дополнительные курсы для курса с id {}", id);
+        return course;
+    }
+
 }

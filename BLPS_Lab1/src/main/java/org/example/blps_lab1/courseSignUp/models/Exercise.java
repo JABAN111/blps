@@ -34,6 +34,5 @@ public class Exercise {
     private Boolean isCompleted;
 
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<ModuleExercise> moduleExercises;
 }
