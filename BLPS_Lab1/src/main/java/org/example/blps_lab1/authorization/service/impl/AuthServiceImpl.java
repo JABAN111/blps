@@ -23,12 +23,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private CompanyService companyService;
@@ -36,7 +39,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserService userService;
+    private final ApplicationService applicationService;
     private final EmailService emailService;
+    private final EntityManager em;
     
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
@@ -52,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()));
 
         if (request.getCompanyName() != null) {// NOTE: if company is specifed, user is legal entity
-            if (companyService.isExist(request.getCompanyName())) {
+            if (!companyService.isExist(request.getCompanyName())) {
                 log.warn("Company with name: {} not found", request.getCompanyName());
               
                 emailService.informAboutCompanyProblem(request.getEmail(), request.getCompanyName());
@@ -90,6 +95,10 @@ public class AuthServiceImpl implements AuthService {
         var jwt = jwtService.generateToken(user);
         resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
         emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCoursePrice());
+
+        em.flush();
+
+        applicationService.save(request.getCourseId(), user);
 
         return resultBuilder.build();
     }

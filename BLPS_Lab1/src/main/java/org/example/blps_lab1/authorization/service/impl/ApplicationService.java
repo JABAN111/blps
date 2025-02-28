@@ -4,11 +4,13 @@ import java.util.Optional;
 
 import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
-
+import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.ApplicationRepository;
-import org.example.blps_lab1.authorization.service.AuthService;
+import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -18,15 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 @Service @Transactional @Slf4j @AllArgsConstructor
 public class ApplicationService {
     private ApplicationRepository repository;
-    private AuthService authService;
+    private UserService userService;
     private CourseService courseService;
 
+
     public Application save(Long courseId){
-        var userEntity = authService.getCurrentUser();
+        var userEntity = getCurrentUser();
+        return save(courseId, userEntity);
+    }
+
+    public Application save(Long courseId, User user){
         var courseEntity = courseService.find(courseId);
         var app = Application.builder()
         .course(courseEntity)
-        .user(userEntity)
+        .user(user)
         .status(ApplicationStatus.PENDING)
         .build();
         log.debug("attempt to create application: {}", app);
@@ -48,5 +55,17 @@ public class ApplicationService {
         return repository.save(entity);
     }
 
+    private User getCurrentUser() {
+        //copypaste cause depend cycle
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+
+            return userService.getUserByEmail(username);
+        } else {
+            throw new IllegalStateException("Current user is not authenticated");
+        }
+    }
 
 }
