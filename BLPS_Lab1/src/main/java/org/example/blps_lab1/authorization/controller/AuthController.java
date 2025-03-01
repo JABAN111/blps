@@ -1,8 +1,6 @@
 package org.example.blps_lab1.authorization.controller;
 
 
-
-
 import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
 
 import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
@@ -10,8 +8,6 @@ import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
 import org.example.blps_lab1.authorization.service.AuthService;
-import org.example.blps_lab1.common.service.MinioService;
-import org.example.blps_lab1.export.certificate.CertificateExporter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

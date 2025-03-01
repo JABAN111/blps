@@ -1,5 +1,7 @@
 package org.example.blps_lab1.common.advicer;
 
+import org.example.blps_lab1.authorization.exception.AuthorizeException;
+import org.example.blps_lab1.common.exceptions.ExceptionWrapper;
 import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
 import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
@@ -18,8 +20,8 @@ public class ErrorAdvicer {
     @ExceptionHandler({FieldNotSpecifiedException.class, IllegalArgumentException.class, 
         MailAuthenticationException.class, MailSendException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleFieldNotSpecifiedException(RuntimeException e) {
-        return e.getMessage();
+    public ExceptionWrapper handleFieldNotSpecifiedException(RuntimeException e) {
+        return new ExceptionWrapper(e);
     }
 
     @ExceptionHandler({ObjectAlreadyExistException.class,
@@ -32,14 +34,22 @@ public class ErrorAdvicer {
     }
    
 
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ExceptionHandler({AuthorizeException.class})
+    public ExceptionWrapper AuthorizeException(RuntimeException e){
+        return new ExceptionWrapper(e);
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleException(Exception e) {
+        e.printStackTrace();
         return e.getMessage();
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleRuntimeException(RuntimeException e) {
+        e.printStackTrace();
         return "Произошла ошибка на сервере";
     }    
 

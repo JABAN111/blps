@@ -6,7 +6,7 @@ import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
 import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
-
+import org.example.blps_lab1.authorization.exception.AuthorizeException;
 import org.example.blps_lab1.authorization.models.Role;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.authorization.models.User;
@@ -14,16 +14,18 @@ import org.example.blps_lab1.authorization.service.AuthService;
 import org.example.blps_lab1.authorization.service.CompanyService;
 import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
-import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
+
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.config.security.services.JwtService;
 import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
+
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(Role.CASUAL_STUDENT)
                 .password(passwordEncoder.encode(request.getPassword()));
 
+        log.info(userBuilder.build().getPassword());
         if (request.getCompanyName() != null) {// NOTE: if company is specifed, user is legal entity
             if (!companyService.isExist(request.getCompanyName())) {
                 log.warn("Company with name: {} not found", request.getCompanyName());
@@ -88,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (userService.isExist(user.getUsername())) {
             log.warn("User with username: {} exist", user.getUsername());
-            throw new ObjectAlreadyExistException("Пользователь с именем: " + user.getUsername() + " уже существует");
+            throw new AuthorizeException("Пользователь с именем: " + user.getUsername() + " уже существует");
         }
         userService.add(user);
 
@@ -105,8 +108,33 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthenticationResponse signIn(LoginRequest request) {
-        var user = userService.getUserByEmail(request.getEmail());
-        var jwt = jwtService.generateToken(user);
+        if(request.getEmail() == null || request.getEmail().isEmpty()){
+            throw new FieldNotSpecifiedException("Поле email обязательное");
+        }
+        if(request.getPassword() == null || request.getEmail().isEmpty()){
+            throw new FieldNotSpecifiedException("Поле password обязательное");
+        }
+        User userEntity;
+        var word = "jaba";
+        log.info(passwordEncoder.encode(word));
+        log.info(passwordEncoder.encode(word));
+        log.info(passwordEncoder.encode(word));
+
+
+        try{
+            userEntity = userService.getUserByEmail(request.getEmail());
+            log.info(userEntity.getPassword());
+            var requestHashedPassword = passwordEncoder.encode(request.getPassword());
+            log.info(requestHashedPassword);
+
+            if (!requestHashedPassword.equals(userEntity.getPassword())){
+                throw new AuthorizeException("Пароль указан неверно");
+            }
+        }catch(UsernameNotFoundException e){
+            throw new AuthorizeException("Пользователя с заданным email не существует");
+        }
+        var jwt = jwtService.generateToken(userEntity);
+
         return new JwtAuthenticationResponse(jwt);
     }
 
@@ -119,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
 
             return userService.getUserByEmail(username);
         } else {
-            throw new IllegalStateException("Current user is not authenticated");
+            throw new AuthorizeException("Текущий пользователь не авторизован");
         }
     }
 }

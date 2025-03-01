@@ -3,7 +3,7 @@ package org.example.blps_lab1.lms.controller;
 import lombok.AllArgsConstructor;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
