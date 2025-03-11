@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,14 +22,18 @@ public class ModuleController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllModules(){
         Map<String, Object> response = new HashMap<>();
-        response.put("modules_list", moduleService.getAllModules());
+        List<Module> moduleList = moduleService.getAllModules();
+        List<ModuleDto> moduleDto = moduleService.convertToModelDto(moduleList);
+        response.put("modules_list", moduleDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getModuleById(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
-        response.put("module", moduleService.getModuleById(id));
+        Module module = moduleService.getModuleById(id);
+        ModuleDto moduleDto = moduleService.convertToModelDto(module);
+        response.put("module", moduleDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

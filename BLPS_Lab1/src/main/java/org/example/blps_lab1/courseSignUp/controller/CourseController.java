@@ -24,14 +24,18 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllCourses(){
         Map<String, Object> response = new HashMap<>();
-        response.put("course_list", courseService.getAllCourses());
+        List<Course> courseList = courseService.getAllCourses();
+        List<CourseDto> courseDtoList = courseService.convertToDto(courseList);
+        response.put("course_list", courseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
-        response.put("course", courseService.getCourseById(id));
+        Course course = courseService.getCourseById(id);
+        CourseDto courseDto = courseService.convertToDto(course);
+        response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

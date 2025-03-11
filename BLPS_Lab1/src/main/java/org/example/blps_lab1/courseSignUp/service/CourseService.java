@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -59,7 +60,7 @@ public class CourseService {
         }
         log.info("Get course by id: {}", id);
         return course.get();
-    }    
+    }
 
     public void deleteCourse(final Long id){
         Optional<Course> deletingCourse = courseRepository.findById(id);
@@ -157,4 +158,20 @@ public class CourseService {
         return course;
     }
 
+    public List<CourseDto> convertToDto(List<Course> courses){
+        return courses.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public CourseDto convertToDto(Course course){
+        return new CourseDto(
+                course.getCourseName(),
+                course.getCoursePrice(),
+                course.getCourseDescription(),
+                course.getTopicName(),
+                course.getCourseDuration(),
+                course.getWithJobOffer()
+        );
+    }
 }

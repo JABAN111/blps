@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,14 +22,18 @@ public class ExerciseController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllExercises(){
         Map<String, Object> response = new HashMap<>();
-        response.put("exercise_list", exerciseService.getAllExercises());
+        List<Exercise> exerciseList = exerciseService.getAllExercises();
+        List<ExerciseDto> exerciseDtoList = exerciseService.convertToExerciseDto(exerciseList);
+        response.put("exercise_list", exerciseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getExerciseById(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
-        response.put("exercise", exerciseService.getExerciseById(id));
+        Exercise exercise = exerciseService.getExerciseById(id);
+        ExerciseDto exerciseDto = exerciseService.convertToExerciseDto(exercise);
+        response.put("exercise", exerciseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

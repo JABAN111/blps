@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -117,4 +118,23 @@ public class ExerciseService {
         return false;
     }
 
+    public List<ExerciseDto> convertToExerciseDto(List<Exercise> exercises){
+        return exercises.stream()
+                .map(this::convertToExerciseDto)
+                .collect(Collectors.toList());
+    }
+
+    public ExerciseDto convertToExerciseDto(Exercise exercise){
+        Long moduleId = (exercise.getModuleExercises() != null && !exercise.getModuleExercises().isEmpty())
+                ? exercise.getModuleExercises().get(0).getModule().getId() : null;
+
+        return new ExerciseDto(
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getIsCompleted(),
+                moduleId,
+                exercise.getDifficultyLevel(),
+                exercise.getAnswer()
+        );
+    }
 }

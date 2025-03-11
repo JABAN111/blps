@@ -15,5 +15,4 @@ public class ModuleDto {
     private String description;
     private Boolean isBlocked;
     private Integer totalPoints;
-
 }

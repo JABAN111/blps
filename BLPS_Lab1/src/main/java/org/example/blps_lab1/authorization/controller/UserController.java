@@ -4,15 +4,10 @@ package org.example.blps_lab1.authorization.controller;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
 import org.example.blps_lab1.authorization.service.impl.ApplicationService;
 import org.example.blps_lab1.authorization.service.impl.UserEnrollmentService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -29,9 +24,10 @@ public class UserController {
         applicationService.save(courseId);
     }
     
-    @PutMapping("/application/{id}/{status}")
-    public void updateApplicationStatus(@PathVariable Long id, @PathVariable String status) {
-        userEnrollmentService.processEnrolment(id, ApplicationStatus.valueOf(status.toUpperCase().trim()));
+    @PatchMapping("/application/status/{id}")
+    public void updateApplicationStatus(@PathVariable Long id, @RequestBody String status) {
+        ApplicationStatus applicationStatus = ApplicationStatus.valueOf(status.toUpperCase().trim());
+        userEnrollmentService.processEnrolment(id, applicationStatus);
     }
 
     @GetMapping("/ping")

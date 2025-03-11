@@ -2,6 +2,7 @@ package org.example.blps_lab1.courseSignUp.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.math.raw.Mod;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -150,5 +152,22 @@ public class ModuleService {
                 });
         emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
         return totalPoints;
+    }
+
+    public List<ModuleDto> convertToModelDto(List<Module> modules){
+        return modules.stream()
+                .map(this::convertToModelDto)
+                .collect(Collectors.toList());
+    }
+
+    public ModuleDto convertToModelDto(Module module){
+        return new ModuleDto(
+                module.getName(),
+                module.getIsCompleted(),
+                module.getOrderNumber(),
+                module.getDescription(),
+                module.getIsBlocked(),
+                module.getTotalPoints()
+        );
     }
 }
