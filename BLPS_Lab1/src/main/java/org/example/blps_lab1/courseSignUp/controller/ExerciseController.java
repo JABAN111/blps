@@ -62,7 +62,7 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestParam String userAnswer){
+    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestBody String userAnswer){
         boolean isCorrect = exerciseService.submitAnswer(id, userAnswer);
         Map<String, Object> response = new HashMap<>();
         response.put("exercise_id", id);
