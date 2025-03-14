@@ -2,17 +2,12 @@ package org.example.blps_lab1.courseSignUp.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
-import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
-import org.example.blps_lab1.courseSignUp.models.Exercise;
-import org.example.blps_lab1.courseSignUp.models.Module;
-import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
 import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
@@ -39,20 +34,6 @@ public class CourseService {
         log.info("Created course: {}", newCourse);
         return newCourse;
     }
-
-    /*public Module createModule(final Module module){
-        validateModule(module);
-
-        Course course = module.getCourse();
-        List<Module> existingModules = moduleRepository.findByCourseOrderByOrderNumberAsc(course);
-        if(!existingModules.isEmpty()){
-            module.setIsBlocked(true);
-        }
-        Module newModule = moduleRepository.save(module);
-        log.info("Module created {}", newModule);
-        return newModule;
-    }
-    }*/
 
     public Course find(final String courseName){
         return courseRepository.findByCourseName(courseName);
