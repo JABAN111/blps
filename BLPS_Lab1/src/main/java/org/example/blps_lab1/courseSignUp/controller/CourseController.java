@@ -8,6 +8,7 @@ import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class CourseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course){
         Map<String, Object> response = new HashMap<>();
         Course newCourse = courseService.createCourse(course);
@@ -49,6 +51,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId){
         Map<String, Object> response = new HashMap<>();
         courseService.deleteCourse(courseId);
@@ -56,6 +59,7 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable Long courseId, @Valid @RequestBody CourseDto courseDto){
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.updateCourse(courseId, courseDto);
@@ -65,6 +69,7 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/additional/{additionalId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
             @PathVariable Long courseId,
             @PathVariable Long additionalId
@@ -77,6 +82,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}/additional-courses")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Course> addListOfCourses(@PathVariable Long id, @RequestBody List<Course> additionalCourses){
         Course updatedCourse = courseService.addListOfCourses(id, additionalCourses);
         return ResponseEntity.ok(updatedCourse);

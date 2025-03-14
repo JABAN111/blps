@@ -41,15 +41,16 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-                // FIXME: Fix endpoints to  
                 .authorizeHttpRequests(request -> request
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/admin/**").authenticated()
+                .requestMatchers("/api/v1/certificate/**").authenticated()
+                .requestMatchers("/api/v1/courses/**").authenticated()
+                .requestMatchers("/api/v1/enrollment/**").authenticated()
                 .requestMatchers("/api/v1/user/**").authenticated()
+                .requestMatchers("/api/v1/exercises/**").authenticated()
+                .requestMatchers("/api/v1/modules/**").authenticated()
                 .anyRequest().permitAll()
-                // .requestMatchers("/all").permitAll()
-                // .requestMatchers("/api/v1/manage/**").authenticated()
-                // .requestMatchers("/api/v1/import/**").authenticated()
-                // .requestMatchers("/api/v1/admin/console/**").authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

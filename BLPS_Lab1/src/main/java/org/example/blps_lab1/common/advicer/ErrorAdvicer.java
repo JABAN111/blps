@@ -1,5 +1,6 @@
 package org.example.blps_lab1.common.advicer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
 import org.example.blps_lab1.common.exceptions.ExceptionWrapper;
 import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
@@ -15,9 +16,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorAdvicer {
-
-
     @ExceptionHandler({FieldNotSpecifiedException.class, IllegalArgumentException.class, 
         MailAuthenticationException.class, MailSendException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -30,10 +30,9 @@ public class ErrorAdvicer {
         ObjectNotFoundException.class
     })
     @ResponseStatus(value = HttpStatus.I_AM_A_TEAPOT)
-    public String handleObjectException(RuntimeException e) {
-        return e.getMessage();
+    public ExceptionWrapper handleObjectException(RuntimeException e) {
+        return new ExceptionWrapper(e);
     }
-   
 
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ExceptionHandler({AuthorizeException.class})
@@ -41,23 +40,16 @@ public class ErrorAdvicer {
         return new ExceptionWrapper(e);
     }
 
-    @ExceptionHandler(Exception.class)
-    public String handleException(Exception e) {
-        e.printStackTrace();
-        return e.getMessage();
-    }
-
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleRuntimeException(RuntimeException e) {
-        e.printStackTrace();
-        return "Произошла ошибка на сервере";
+    public ExceptionWrapper handleRuntimeException(RuntimeException e) {
+        log.error(e.getMessage(), e);
+        return new ExceptionWrapper(new Exception("Произошла внутренняя ошибка сервера"));
     }   
     
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper UsernameNotFoundException(UsernameNotFoundException e){
-        
         return new ExceptionWrapper(e);
     }
 

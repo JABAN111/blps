@@ -1,6 +1,5 @@
 package org.example.blps_lab1.courseSignUp.controller;
 
-import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
@@ -8,6 +7,7 @@ import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.service.ExerciseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -39,6 +39,7 @@ public class ExerciseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> createExercise(@Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise createdExercise = exerciseService.createExercise(exerciseDto);
@@ -48,6 +49,7 @@ public class ExerciseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteExercise(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
         exerciseService.deleteExercise(id);
@@ -55,6 +57,7 @@ public class ExerciseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> updateExercise(@PathVariable Long id, @Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise updatedExercise = exerciseService.updateExercise(id, exerciseDto);

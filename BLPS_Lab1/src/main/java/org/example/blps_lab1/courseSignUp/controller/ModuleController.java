@@ -7,6 +7,7 @@ import org.example.blps_lab1.courseSignUp.models.Module;
 import org.example.blps_lab1.courseSignUp.service.ModuleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -38,6 +39,7 @@ public class ModuleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> createModule(@Valid @RequestBody Module module){
         Map<String, Object> response = new HashMap<>();
         Module createdModule = moduleService.createModule(module);
@@ -47,6 +49,7 @@ public class ModuleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteModule(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
         moduleService.deleteModule(id);
@@ -54,6 +57,7 @@ public class ModuleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> updateModule(@PathVariable Long id, @Valid @RequestBody ModuleDto moduleDto){
         Map<String, Object> response = new HashMap<>();
         Module updatedModule = moduleService.updateModule(id, moduleDto);
