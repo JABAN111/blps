@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.example.blps_lab1.authorization.service.UserService;
+import org.example.blps_lab1.common.exceptions.ExceptionWrapper;
 import org.example.blps_lab1.config.security.exception.JwtTokenExpiredException;
 import org.example.blps_lab1.config.security.services.JwtService;
 
@@ -69,10 +71,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request, response);
-        } catch (JwtTokenExpiredException ex) {
+        } catch (JwtTokenExpiredException | UsernameNotFoundException ex) {
             log.error("JWT token expired");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-            response.getWriter().write("message: " + ex.getMessage());
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            var wr = new ExceptionWrapper(new Exception("Invalid account"));
+            response.getWriter().write(wr.toString());
             response.getWriter().flush();
         }
     }

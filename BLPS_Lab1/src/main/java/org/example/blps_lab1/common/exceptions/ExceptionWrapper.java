@@ -21,4 +21,10 @@ public class ExceptionWrapper {
         message = e.getMessage();
         time = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "{\"message\": \"" + message + "\", \"time\": " + time + "}";
+    }
+    
 }
