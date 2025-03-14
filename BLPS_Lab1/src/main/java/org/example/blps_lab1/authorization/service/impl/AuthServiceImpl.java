@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final ApplicationService applicationService;
     private final EmailService emailService;
     private final EntityManager em;
-    
+
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
         var resultBuilder = ApplicationResponseDto.builder();
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
         if (request.getCompanyName() != null) {// NOTE: if company is specifed, user is legal entity
             if (!companyService.isExist(request.getCompanyName())) {
                 log.warn("Company with name: {} not found", request.getCompanyName());
-              
+
                 emailService.informAboutCompanyProblem(request.getEmail(), request.getCompanyName());
                 throw new ObjectNotExistException(
                         "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
@@ -97,7 +97,8 @@ public class AuthServiceImpl implements AuthService {
 
         var jwt = jwtService.generateToken(user);
         resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
-        emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCourseId(), courseEntity.getCoursePrice());
+        emailService.sendTermsOfStudy(user.getEmail(), courseEntity.getCourseName(), courseEntity.getCourseId(),
+                courseEntity.getCoursePrice());
 
         em.flush();
 
@@ -108,33 +109,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthenticationResponse signIn(LoginRequest request) {
-        if(request.getEmail() == null || request.getEmail().isEmpty()){
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
             throw new FieldNotSpecifiedException("Поле email обязательное");
         }
-        if(request.getPassword() == null || request.getEmail().isEmpty()){
+        if (request.getPassword() == null || request.getPassword().isEmpty()) {
             throw new FieldNotSpecifiedException("Поле password обязательное");
         }
+
         User userEntity;
-        var word = "jaba";
-        log.info(passwordEncoder.encode(word));
-        log.info(passwordEncoder.encode(word));
-        log.info(passwordEncoder.encode(word));
-
-
-        try{
+        try {
             userEntity = userService.getUserByEmail(request.getEmail());
-            log.info(userEntity.getPassword());
-            var requestHashedPassword = passwordEncoder.encode(request.getPassword());
-            log.info(requestHashedPassword);
+            log.debug("Stored hash: {}", userEntity.getPassword()); // Можно оставить для отладки, но убрать в продакшене
 
-            if (!requestHashedPassword.equals(userEntity.getPassword())){
+            if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
                 throw new AuthorizeException("Пароль указан неверно");
             }
-        }catch(UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             throw new AuthorizeException("Пользователя с заданным email не существует");
         }
-        var jwt = jwtService.generateToken(userEntity);
 
+        var jwt = jwtService.generateToken(userEntity);
         return new JwtAuthenticationResponse(jwt);
     }
 

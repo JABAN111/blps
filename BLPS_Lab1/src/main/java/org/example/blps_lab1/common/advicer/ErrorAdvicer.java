@@ -9,6 +9,7 @@ import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,7 +52,14 @@ public class ErrorAdvicer {
     public String handleRuntimeException(RuntimeException e) {
         e.printStackTrace();
         return "Произошла ошибка на сервере";
-    }    
+    }   
+    
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionWrapper UsernameNotFoundException(UsernameNotFoundException e){
+        
+        return new ExceptionWrapper(e);
+    }
 
 
 }
