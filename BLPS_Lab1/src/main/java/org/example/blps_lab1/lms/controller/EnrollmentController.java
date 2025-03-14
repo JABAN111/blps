@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ public class EnrollmentController {
     private final CourseService courseService;
 
     @PostMapping("/enroll")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<Course> enrollUser(@RequestParam Long userId, Long courseId){
         return courseService.enrollUser(userId, courseId);
     }

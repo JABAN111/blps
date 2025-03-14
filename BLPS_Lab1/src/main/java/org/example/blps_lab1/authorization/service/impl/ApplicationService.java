@@ -50,6 +50,9 @@ public class ApplicationService {
             throw new ObjectNotExistException("Заявки с id: " + id + "  не существует");
         }
         var entity = oldEntityOptional.get();
+        if(entity.getStatus() != ApplicationStatus.PENDING){
+            throw new IllegalStateException("Нельзя изменить статус уже сформированной заявки");
+        }
         entity.setStatus(status);
 
         return repository.save(entity);

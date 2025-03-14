@@ -18,6 +18,7 @@ import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,6 +45,7 @@ public class ModuleService {
             module.setIsBlocked(true);
         }
         Module newModule = moduleRepository.save(module);
+        newModule.setLocalDateTime(LocalDateTime.now());
         log.info("Module created {}", newModule);
         return newModule;
     }
@@ -167,7 +169,8 @@ public class ModuleService {
                 module.getOrderNumber(),
                 module.getDescription(),
                 module.getIsBlocked(),
-                module.getTotalPoints()
+                module.getTotalPoints(),
+                module.getLocalDateTime()
         );
     }
 }

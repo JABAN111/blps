@@ -2,7 +2,6 @@ package org.example.blps_lab1.courseSignUp.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +28,12 @@ public class CourseService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    public void createCourse(final Course course){
+    public Course createCourse(final Course course){
         Course newCourse = courseRepository.save(course);
+        newCourse.setCreationTime(LocalDateTime.now());
         log.info("Created course: {}", newCourse);
+        return newCourse;
     }
-
 
     public Course find(final String courseName){
         return courseRepository.findByCourseName(courseName);
@@ -170,6 +171,7 @@ public class CourseService {
                 course.getCoursePrice(),
                 course.getCourseDescription(),
                 course.getTopicName(),
+                course.getCreationTime(),
                 course.getCourseDuration(),
                 course.getWithJobOffer()
         );

@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,6 +39,9 @@ public class Exercise {
 
     @Enumerated(EnumType.STRING)
     private DifficultyLevel difficultyLevel;
+
+    @Column
+    private LocalDateTime localDateTime;
 
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ModuleExercise> moduleExercises;

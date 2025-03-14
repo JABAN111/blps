@@ -7,6 +7,7 @@ import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.service.ExerciseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -38,14 +39,17 @@ public class ExerciseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> createExercise(@Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise createdExercise = exerciseService.createExercise(exerciseDto);
-        response.put("created_exercise", createdExercise);
+        ExerciseDto newExerciseDto = exerciseService.convertToExerciseDto(createdExercise);
+        response.put("created_exercise", newExerciseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteExercise(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
         exerciseService.deleteExercise(id);
@@ -53,6 +57,7 @@ public class ExerciseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> updateExercise(@PathVariable Long id, @Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise updatedExercise = exerciseService.updateExercise(id, exerciseDto);
@@ -62,8 +67,9 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestBody String userAnswer){
-        boolean isCorrect = exerciseService.submitAnswer(id, userAnswer);
+    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestBody Map<String, String> userAnswer){
+        String answer = userAnswer.get("answer");
+        boolean isCorrect = exerciseService.submitAnswer(id, answer);
         Map<String, Object> response = new HashMap<>();
         response.put("exercise_id", id);
         response.put("is_correct", isCorrect);

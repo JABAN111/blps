@@ -4,11 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.service.AuthService;
-import org.example.blps_lab1.authorization.service.impl.AuthServiceImpl;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
-import org.example.blps_lab1.courseSignUp.models.DifficultyLevel;
 import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.models.Module;
 import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
@@ -17,6 +15,7 @@ import org.example.blps_lab1.courseSignUp.repository.ModuleExerciseRepository;
 import org.example.blps_lab1.courseSignUp.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,6 +42,7 @@ public class ExerciseService {
                 .isCompleted(exerciseDto.getIsCompleted())
                 .answer(exerciseDto.getAnswer())
                 .difficultyLevel(exerciseDto.getDifficultyLevel())
+                .localDateTime(LocalDateTime.now())
                 .build();
 
         newExercise = exerciseRepository.save(newExercise);
@@ -134,7 +134,8 @@ public class ExerciseService {
                 exercise.getIsCompleted(),
                 moduleId,
                 exercise.getDifficultyLevel(),
-                exercise.getAnswer()
+                exercise.getAnswer(),
+                exercise.getLocalDateTime()
         );
     }
 }

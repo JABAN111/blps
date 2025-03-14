@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -25,9 +27,16 @@ public class UserController {
     }
     
     @PatchMapping("/application/status/{id}")
-    public void updateApplicationStatus(@PathVariable Long id, @RequestBody String status) {
-        ApplicationStatus applicationStatus = ApplicationStatus.valueOf(status.toUpperCase().trim());
-        userEnrollmentService.processEnrolment(id, applicationStatus);
+    public void updateApplicationStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
+        try{
+            String appStatus = status.get("status");
+            ApplicationStatus applicationStatus = ApplicationStatus.valueOf(appStatus.toUpperCase().trim());
+            userEnrollmentService.processEnrolment(id, applicationStatus);
+        }catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("Статус указан неверно");
+        }catch (IllegalStateException e){
+            throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявкия");
+        }
     }
 
     @GetMapping("/ping")

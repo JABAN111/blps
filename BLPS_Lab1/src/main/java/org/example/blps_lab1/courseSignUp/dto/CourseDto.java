@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.example.blps_lab1.courseSignUp.models.Topic;
 
@@ -18,6 +19,7 @@ public class CourseDto {
     private BigDecimal coursePrice;
     private String description;
     private Topic topicName;
+    private LocalDateTime creationDate;
     private Integer courseDuration;
     private Boolean withJobOffer;
 }
