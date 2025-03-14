@@ -1,5 +1,6 @@
 package org.example.blps_lab1.courseSignUp.controller;
 
+import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
@@ -62,8 +63,9 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestBody String userAnswer){
-        boolean isCorrect = exerciseService.submitAnswer(id, userAnswer);
+    public ResponseEntity<Map<String, Object>> submitAnswer(@PathVariable Long id, @RequestBody Map<String, String> userAnswer){
+        String answer = userAnswer.get("answer");
+        boolean isCorrect = exerciseService.submitAnswer(id, answer);
         Map<String, Object> response = new HashMap<>();
         response.put("exercise_id", id);
         response.put("is_correct", isCorrect);

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -25,7 +27,8 @@ public class UserController {
     }
     
     @PatchMapping("/application/status/{id}")
-    public void updateApplicationStatus(@PathVariable Long id, @RequestBody String status) {
+    public void updateApplicationStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
+
         ApplicationStatus applicationStatus = ApplicationStatus.valueOf(status.toUpperCase().trim());
         userEnrollmentService.processEnrolment(id, applicationStatus);
     }
