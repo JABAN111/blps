@@ -17,6 +17,7 @@ import org.example.blps_lab1.courseSignUp.repository.ModuleExerciseRepository;
 import org.example.blps_lab1.courseSignUp.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class ExerciseService {
                 .isCompleted(exerciseDto.getIsCompleted())
                 .answer(exerciseDto.getAnswer())
                 .difficultyLevel(exerciseDto.getDifficultyLevel())
+                .localDateTime(LocalDateTime.now())
                 .build();
 
         newExercise = exerciseRepository.save(newExercise);
@@ -134,7 +136,8 @@ public class ExerciseService {
                 exercise.getIsCompleted(),
                 moduleId,
                 exercise.getDifficultyLevel(),
-                exercise.getAnswer()
+                exercise.getAnswer(),
+                exercise.getLocalDateTime()
         );
     }
 }

@@ -42,7 +42,8 @@ public class ExerciseController {
     public ResponseEntity<Map<String, Object>> createExercise(@Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise createdExercise = exerciseService.createExercise(exerciseDto);
-        response.put("created_exercise", createdExercise);
+        ExerciseDto newExerciseDto = exerciseService.convertToExerciseDto(createdExercise);
+        response.put("created_exercise", newExerciseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

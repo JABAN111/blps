@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.blps_lab1.courseSignUp.models.Course;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,5 @@ public class ModuleDto {
     private String description;
     private Boolean isBlocked;
     private Integer totalPoints;
+    private LocalDateTime localDateTime;
 }

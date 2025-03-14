@@ -8,13 +8,18 @@ import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
+import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
 import org.example.blps_lab1.courseSignUp.models.Course;
+import org.example.blps_lab1.courseSignUp.models.Exercise;
+import org.example.blps_lab1.courseSignUp.models.Module;
+import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
 import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
 import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +33,26 @@ public class CourseService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    public void createCourse(final Course course){
+    public Course createCourse(final Course course){
         Course newCourse = courseRepository.save(course);
+        newCourse.setCreationTime(LocalDateTime.now());
         log.info("Created course: {}", newCourse);
+        return newCourse;
     }
 
+    /*public Module createModule(final Module module){
+        validateModule(module);
+
+        Course course = module.getCourse();
+        List<Module> existingModules = moduleRepository.findByCourseOrderByOrderNumberAsc(course);
+        if(!existingModules.isEmpty()){
+            module.setIsBlocked(true);
+        }
+        Module newModule = moduleRepository.save(module);
+        log.info("Module created {}", newModule);
+        return newModule;
+    }
+    }*/
 
     public Course find(final String courseName){
         return courseRepository.findByCourseName(courseName);
@@ -170,6 +190,7 @@ public class CourseService {
                 course.getCoursePrice(),
                 course.getCourseDescription(),
                 course.getTopicName(),
+                course.getCreationTime(),
                 course.getCourseDuration(),
                 course.getWithJobOffer()
         );

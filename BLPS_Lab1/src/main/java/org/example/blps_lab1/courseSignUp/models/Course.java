@@ -11,6 +11,7 @@ import org.example.blps_lab1.authorization.models.User;
 import jakarta.persistence.Id;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -45,6 +46,8 @@ public class Course {
     @Column
     private Boolean withJobOffer;
 
+    @Column
+    private LocalDateTime creationTime;
 
     @ManyToMany(mappedBy = "courseList")
     private List<User> userList;

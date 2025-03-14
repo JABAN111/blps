@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.blps_lab1.courseSignUp.models.DifficultyLevel;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,5 @@ public class ExerciseDto {
     private Long moduleId;
     private DifficultyLevel difficultyLevel;
     private String answer;
+    private LocalDateTime localDateTime;
 }

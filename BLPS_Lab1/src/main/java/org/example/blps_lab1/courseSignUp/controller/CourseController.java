@@ -42,8 +42,9 @@ public class CourseController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course){
         Map<String, Object> response = new HashMap<>();
-        courseService.createCourse(course);
-        response.put("course", course);
+        Course newCourse = courseService.createCourse(course);
+        CourseDto courseDto = courseService.convertToDto(newCourse);
+        response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
