@@ -61,4 +61,8 @@ public class Course {
     private List<Course> additionalCourseList;
 
 
+    @PrePersist
+    public void prePersist() {
+        creationTime = LocalDateTime.now();
+    }
 }
