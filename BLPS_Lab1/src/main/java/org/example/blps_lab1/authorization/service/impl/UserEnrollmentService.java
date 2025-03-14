@@ -22,7 +22,6 @@ public class UserEnrollmentService {
     private AuthService authService;
     private CourseService courseService;
     private EmailService emailService;
-    private ApplicationRepository applicationRepository;
 
     public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus status){
         var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, status);
