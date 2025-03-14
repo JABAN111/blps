@@ -24,7 +24,7 @@ public class UserEnrollmentService {
     private EmailService emailService;
     private ApplicationRepository applicationRepository;
 
-    public void     processEnrolment(Long applicationEnrollmentId, ApplicationStatus status){
+    public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus status){
         var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, status);
         Application application = applicationRepository.findById(applicationEnrollmentId)
                 .orElseThrow(() -> new ObjectNotFoundException("Зявка с даным id "+ applicationEnrollmentId + "не найдена"));
