@@ -7,6 +7,7 @@ import org.example.blps_lab1.authorization.service.impl.UserEnrollmentService;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 
 
@@ -36,7 +37,7 @@ public class UserController {
         }catch (IllegalStateException e){
             throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявкия");
         }
-
+    }
 
     @GetMapping("/ping")
     public String ping(){

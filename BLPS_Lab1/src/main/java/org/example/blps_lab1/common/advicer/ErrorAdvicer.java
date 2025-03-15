@@ -29,7 +29,7 @@ public class ErrorAdvicer {
         ObjectNotExistException.class,
         ObjectNotFoundException.class
     })
-    @ResponseStatus(value = HttpStatus.I_AM_A_TEAPOT)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public ExceptionWrapper handleObjectException(RuntimeException e) {
         return new ExceptionWrapper(e);
     }
