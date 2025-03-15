@@ -3,6 +3,7 @@ package org.example.blps_lab1.lms.service;
 import java.io.File;
 
 import org.example.blps_lab1.authorization.models.User;
+import org.example.blps_lab1.common.exceptions.NotFinishedException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.service.MinioService;
 import org.example.blps_lab1.courseSignUp.models.Course;
@@ -41,7 +42,7 @@ public class CertificateManagerService {
 
 
         if(!allModulesCompleted){
-            throw new RuntimeException("Курс не завершен, так как не все модули пройдены");
+            throw new NotFinishedException("Курс не завершен, так как не все модули пройдены");
         }
 
         CourseProgress courseProgress = courseProgressRepository.findByUserAndCourse(user, course)

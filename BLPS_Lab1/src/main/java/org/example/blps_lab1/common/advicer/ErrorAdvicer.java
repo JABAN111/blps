@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
 import org.example.blps_lab1.common.exceptions.ExceptionWrapper;
 import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
+import org.example.blps_lab1.common.exceptions.NotFinishedException;
 import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
@@ -26,12 +27,21 @@ public class ErrorAdvicer {
         return new ExceptionWrapper(e);
     }
 
-    @ExceptionHandler({ObjectAlreadyExistException.class,
-        ObjectNotExistException.class,
-        ObjectNotFoundException.class
-    })
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public ExceptionWrapper handleObjectException(RuntimeException e) {
+    @ExceptionHandler(ObjectAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionWrapper handleObjectAlreadyExistException(ObjectAlreadyExistException e) {
+        return new ExceptionWrapper(e);
+    }
+    
+    @ExceptionHandler(ObjectNotExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionWrapper handleObjectNotExistException(ObjectNotExistException e) {
+        return new ExceptionWrapper(e);
+    }
+    
+    @ExceptionHandler(ObjectNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionWrapper handleObjectNotFoundException(ObjectNotFoundException e) {
         return new ExceptionWrapper(e);
     }
 
@@ -61,4 +71,10 @@ public class ErrorAdvicer {
     }
 
 
+    @ExceptionHandler(NotFinishedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ExceptionWrapper handleNotFinishedException(NotFinishedException e){
+        return new ExceptionWrapper(e);
+    }
 }
+

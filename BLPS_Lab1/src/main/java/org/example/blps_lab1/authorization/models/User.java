@@ -50,6 +50,7 @@ public class User implements UserDetails {
     private Company company;
 
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Role role;
 
     @ManyToMany(cascade = CascadeType.ALL)
