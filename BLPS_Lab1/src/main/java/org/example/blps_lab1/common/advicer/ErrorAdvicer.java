@@ -10,6 +10,7 @@ import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -51,6 +52,12 @@ public class ErrorAdvicer {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper UsernameNotFoundException(UsernameNotFoundException e){
         return new ExceptionWrapper(e);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ExceptionWrapper handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        return new ExceptionWrapper(new Exception("У вас недостаточно прав"));
     }
 
 

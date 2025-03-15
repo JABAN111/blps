@@ -69,7 +69,7 @@ public class ExerciseService {
     public List<Exercise> saveAll(List<Exercise> exercises){
         return exerciseRepository.saveAll(exercises);
     }
-
+    
     public void deleteExercise(final Long id){
         Optional<Exercise> deletingExercise = exerciseRepository.findById(id);
         if(deletingExercise.isEmpty()){
