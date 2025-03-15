@@ -41,9 +41,7 @@ public class CertificateManagerService {
                 .allMatch(module -> userModuleProgressService.isModuleCompletedForUser(user, module));
 
 
-        if(!allModulesCompleted){
-            throw new NotFinishedException("Курс не завершен, так как не все модули пройдены");
-        }
+  
 
         CourseProgress courseProgress = courseProgressRepository.findByUserAndCourse(user, course)
                 .orElse(new CourseProgress(new CourseProgressId(user.getId(), course.getCourseId()), course, user, 0));
