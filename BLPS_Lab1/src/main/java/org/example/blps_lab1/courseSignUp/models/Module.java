@@ -6,9 +6,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.blps_lab1.authorization.models.User;
+import org.example.blps_lab1.courseSignUp.repository.UserModuleProgressRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "module")

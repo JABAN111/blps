@@ -3,6 +3,7 @@ package org.example.blps_lab1.courseSignUp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.service.AuthService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
@@ -10,9 +11,11 @@ import org.example.blps_lab1.courseSignUp.dto.ExerciseDto;
 import org.example.blps_lab1.courseSignUp.models.Exercise;
 import org.example.blps_lab1.courseSignUp.models.Module;
 import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
+import org.example.blps_lab1.courseSignUp.models.UserExerciseProgress;
 import org.example.blps_lab1.courseSignUp.repository.ExerciseRepository;
 import org.example.blps_lab1.courseSignUp.repository.ModuleExerciseRepository;
 import org.example.blps_lab1.courseSignUp.repository.ModuleRepository;
+import org.example.blps_lab1.courseSignUp.repository.UserExerciseProgressRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ public class ExerciseService {
     private final ModuleExerciseRepository moduleExerciseRepository;
     private final CourseProgressService courseProgressService;
     private final AuthService authService;
+    private final UserExerciseProgressRepository userExerciseProgressRepository;
 
     public Exercise createExercise(final ExerciseDto exerciseDto){
         Module module = moduleRepository.findById(exerciseDto.getModuleId())
@@ -39,7 +43,6 @@ public class ExerciseService {
         Exercise newExercise = Exercise.builder()
                 .name(exerciseDto.getName())
                 .description(exerciseDto.getDescription())
-                .isCompleted(exerciseDto.getIsCompleted())
                 .answer(exerciseDto.getAnswer())
                 .difficultyLevel(exerciseDto.getDifficultyLevel())
                 .localDateTime(LocalDateTime.now())
@@ -90,7 +93,6 @@ public class ExerciseService {
         return exerciseRepository.findById(id).map(exercise -> {
             exercise.setName(exerciseDto.getName());
             exercise.setDescription(exerciseDto.getDescription());
-            exercise.setIsCompleted(exerciseDto.getIsCompleted());
             exercise.setAnswer(exerciseDto.getAnswer());
             exercise.setDifficultyLevel(exerciseDto.getDifficultyLevel());
             return exerciseRepository.save(exercise);
@@ -100,23 +102,45 @@ public class ExerciseService {
         });
     }
 
-    public boolean submitAnswer(Long id, String userAnswer){
-        Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Задание с id" + id + " не найдено"));
+    @Transactional
+    public boolean submitAnswer(Long exerciseId, String userAnswer) {
+        User user = authService.getCurrentUser();
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new ObjectNotFoundException("Задание с id " + exerciseId + " не найдено"));
 
-        if((exercise.getAnswer().trim().equalsIgnoreCase(userAnswer.trim()))){
-            exercise.setIsCompleted(true);
-            exerciseRepository.save(exercise);
+        UserExerciseProgress progress = userExerciseProgressRepository.findByUserAndExercise(user, exercise)
+                .orElseGet(() -> {
+                    UserExerciseProgress newProgress = new UserExerciseProgress(user, exercise);
+                    return userExerciseProgressRepository.save(newProgress);
+                });
 
+        if (exercise.getAnswer().trim().equalsIgnoreCase(userAnswer.trim())) {
+            if (Boolean.TRUE.equals(progress.getIsCompleted())) {
+                log.info("Exercise {} уже завершено пользователем {}", exerciseId, user.getId());
+                return true;
+            }
+
+            progress.setIsCompleted(true);
             int points = exercise.getPointsForDifficulty();
-            courseProgressService.addPoints(authService.getCurrentUser().getId(), exercise.getModuleExercises().get(0).getModule().getCourse().getCourseId(), points);
+            progress.setPoints(points);
+            log.info("Updating progress for exercise {}: isCompleted = {}, points = {}",
+                    exercise.getId(), progress.getIsCompleted(), progress.getPoints());
+            userExerciseProgressRepository.saveAndFlush(progress);
 
-            log.info("Exercise {} marked as completed", id);
+
+            courseProgressService.addPoints(user.getId(),
+                    exercise.getModuleExercises().get(0).getModule().getCourse().getCourseId(),
+                    points);
+
+            log.info("Exercise {} завершено пользователем {}", exerciseId, user.getId());
             return true;
         }
-        log.info("Exercise {} answer is incorrect", id);
+
+        log.info("Exercise {} ответ пользователя {} неверный", exerciseId, user.getId());
         return false;
     }
+
+
 
     public List<ExerciseDto> convertToExerciseDto(List<Exercise> exercises){
         return exercises.stream()
@@ -131,7 +155,6 @@ public class ExerciseService {
         return new ExerciseDto(
                 exercise.getName(),
                 exercise.getDescription(),
-                exercise.getIsCompleted(),
                 moduleId,
                 exercise.getDifficultyLevel(),
                 exercise.getAnswer(),

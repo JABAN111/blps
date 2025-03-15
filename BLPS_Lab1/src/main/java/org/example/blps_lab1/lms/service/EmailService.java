@@ -68,31 +68,37 @@ public class EmailService {
 
     }
 
-    public void informAboutNewCourses(String toEmail, List<Course> additionalCourses){
-        try{
+    public void informAboutNewCourses(String toEmail, String courseName, BigDecimal price, List<Course> additionalCourses) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Запись на курсы");
-            StringBuilder courseList = new StringBuilder();
-            for(Course course : additionalCourses){
-                courseList.append("<li>").append(course.getCourseName()).append("</li>");
-            }
+
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
                     "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
-                    "<h2 style='color: #1FAEE9; text-align: center;'>Вы были записаны на дополнительные курсы, связанные с курсом </h2>"+
-                    "<p style='color: #555; font-size: 16px;'>Вот представленный список курсов:</p>"+
-                    "<ul>" + courseList + "</ul>" +
-                    "<p style='color: #555; font-size: 16px;'>Данные курсы вы можете увидеть на вашей основной странице с курсами</p>"+
-                    "</div>"+
-                    "</body>"+
-                    "</html>";
+                    "<h2 style='color: #1FAEE9; text-align: center;'>Вы были записаны на курс " + courseName + "</h2>" +
+                    "<p style='color: #555; font-size: 16px;'>Поздравляем вас с записью на курс " + courseName + ", вам необходимо оплатить данный курс.</p>" +
+                    "<p style='color: #555; font-size: 16px;'>Стоимость данного курса составляет: " + price + "</p>";
+
+            if (additionalCourses != null && !additionalCourses.isEmpty()) {
+                StringBuilder courseList = new StringBuilder();
+                for (Course course : additionalCourses) {
+                    courseList.append("<li>").append(course.getCourseName()).append("</li>");
+                }
+                htmlContent += "<p style='color: #555; font-size: 16px;'>Также вы были записаны на дополнительные курсы:</p>" +
+                        "<ul>" + courseList + "</ul>" +
+                        "<p style='color: #555; font-size: 16px;'>Данные курсы вы можете увидеть на вашей основной странице с курсами.</p>";
+            }
+
+            htmlContent += "</div></body></html>";
 
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
-            throw new MailSendingException("Ошибка при отправке email о записи на доп курсы: " + e.getMessage());
+            throw new MailSendingException("Ошибка при отправке email о записи на курсы: " + e.getMessage());
         }
     }
+
 
     public void informAboutModuleCompletion(String toEmail, String courseName, String moduleName){
         try{

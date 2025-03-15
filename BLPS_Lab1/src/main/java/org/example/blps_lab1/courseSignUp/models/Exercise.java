@@ -32,9 +32,6 @@ public class Exercise {
     private String description;
 
     @Column(nullable = false)
-    private Boolean isCompleted;
-
-    @Column(nullable = false)
     private String answer;
 
     @Enumerated(EnumType.STRING)

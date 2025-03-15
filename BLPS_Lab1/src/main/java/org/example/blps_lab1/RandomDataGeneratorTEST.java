@@ -21,6 +21,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
+/*
 @Service
 
 @AllArgsConstructor
@@ -92,3 +93,4 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
     }
 }
 
+*/

@@ -5,15 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.math.raw.Mod;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.UserRepository;
+import org.example.blps_lab1.authorization.service.AuthService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.dto.ModuleDto;
-import org.example.blps_lab1.courseSignUp.models.Course;
-import org.example.blps_lab1.courseSignUp.models.Exercise;
+import org.example.blps_lab1.courseSignUp.models.*;
 import org.example.blps_lab1.courseSignUp.models.Module;
-import org.example.blps_lab1.courseSignUp.models.ModuleExercise;
 import org.example.blps_lab1.courseSignUp.repository.ModuleExerciseRepository;
 import org.example.blps_lab1.courseSignUp.repository.ModuleRepository;
+import org.example.blps_lab1.courseSignUp.repository.UserExerciseProgressRepository;
+import org.example.blps_lab1.courseSignUp.repository.UserModuleProgressRepository;
 import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,9 @@ public class ModuleService {
     private final CourseProgressService courseProgressService;
     private final ModuleExerciseRepository moduleExerciseRepository;
     private final EmailService emailService;
-    private final UserRepository userRepository;
+    private final UserModuleProgressRepository userModuleProgressRepository;
+    private final AuthService authService;
+    private final UserExerciseProgressRepository userExerciseProgressRepository;
 
     public Module createModule(final Module module){
         validateModule(module);
@@ -105,56 +108,78 @@ public class ModuleService {
         });
     }
 
-    public int completeModule(Long userId, Long moduleId){
-        Module module = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new ObjectNotFoundException("Модуль не найден в completeModule"));
+    public int completeModule(Long moduleId) {
+        User user = authService.getCurrentUser();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден в completeModule"));
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ObjectNotFoundException("Модуль не найден"));
 
         List<ModuleExercise> moduleExerciseList = moduleExerciseRepository.findByModuleId(moduleId);
 
         boolean isExercisesCompleted = moduleExerciseList.stream()
                 .map(ModuleExercise::getExercise)
                 .filter(Objects::nonNull)
-                .allMatch(exercise -> Boolean.TRUE.equals(exercise.getIsCompleted()));
+                .allMatch(exercise -> {
+                    UserExerciseProgress progress = userExerciseProgressRepository.findByUserAndExercise(user, exercise)
+                            .orElseThrow(() -> new ObjectNotExistException("Прогресс для упражнения не найден"));
 
-        if(!isExercisesCompleted){
+                    return Boolean.TRUE.equals(progress.getIsCompleted());
+                });
+
+        if (!isExercisesCompleted) {
             throw new RuntimeException("Не все задания в модуле завершены");
         }
 
+        UserModuleProgress userModuleProgress = userModuleProgressRepository.findByUserAndModule(user, module)
+                .orElse(new UserModuleProgress(null, user, module, false, 0));
+
+        if (userModuleProgress.getIsCompleted()) {
+            throw new RuntimeException("Модуль уже завершен для данного пользователя");
+        }
+
         List<Module> courseModules = moduleRepository.findByCourseOrderByOrderNumberAsc(module.getCourse());
-        if(module.getOrderNumber() > 1){
+
+        if (module.getOrderNumber() > 1) {
             Module previousModule = courseModules.stream()
                     .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() - 1))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Предыдущий модель не найден"));
+                    .orElseThrow(() -> new RuntimeException("Предыдущий модуль не найден"));
 
-            if(!previousModule.getIsCompleted()){
-                throw new IllegalStateException("Нельзя разблокировать новый модуль пока не разблокирован предыдущий");
-            }
+            userModuleProgressRepository.findByUserAndModule(user, previousModule)
+                    .filter(UserModuleProgress::getIsCompleted)
+                    .orElseThrow(() -> new IllegalStateException("Нельзя разблокировать новый модуль, пока не завершен предыдущий"));
         }
-        module.setIsCompleted(true);
-        moduleRepository.save(module);
 
-        log.info("Module {} is completed by user {}", moduleId, userId);
         int totalPoints = moduleExerciseList.stream()
                 .map(ModuleExercise::getExercise)
                 .filter(Objects::nonNull)
                 .mapToInt(Exercise::getPointsForDifficulty)
                 .sum();
-        module.setTotalPoints(totalPoints);
-        courseProgressService.addPoints(userId, module.getCourse().getCourseId(), totalPoints);
+
+        userModuleProgress.setIsCompleted(true);
+        userModuleProgress.setPoints(totalPoints);
+        userModuleProgressRepository.save(userModuleProgress);
+
+        courseProgressService.addPoints(user.getId(), module.getCourse().getCourseId(), totalPoints);
+
         courseModules.stream()
                 .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))
                 .findFirst()
-                .ifPresent(nextModule ->{
-                    nextModule.setIsBlocked(false);
-                    moduleRepository.save(nextModule);
+                .ifPresent(nextModule -> {
+                    UserModuleProgress nextModuleProgress = userModuleProgressRepository.findByUserAndModule(user, nextModule)
+                            .orElse(new UserModuleProgress(null, user, nextModule, false, 0));
+
+                    nextModuleProgress.setIsCompleted(false);
+                    userModuleProgressRepository.save(nextModuleProgress);
                 });
+
         emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
+
+        log.info("Module {} is completed by user {}", moduleId, user.getId());
+
         return totalPoints;
     }
+
 
     public List<ModuleDto> convertToModelDto(List<Module> modules){
         return modules.stream()

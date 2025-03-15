@@ -22,4 +22,5 @@ public class CourseDto {
     private LocalDateTime creationDate;
     private Integer courseDuration;
     private Boolean withJobOffer;
+    private Boolean isCompleted;
 }

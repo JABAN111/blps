@@ -66,12 +66,9 @@ public class ModuleController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/complete")
-    public ResponseEntity<Map<String, Object>> completeModule(
-            @RequestParam Long userId,
-            @RequestParam Long moduleId
-    ){
-        int earnedPoints = moduleService.completeModule(userId, moduleId);
+    @PostMapping("/complete/{moduleId}")
+    public ResponseEntity<Map<String, Object>> completeModule(@PathVariable Long moduleId){
+        int earnedPoints = moduleService.completeModule(moduleId);
         Map<String, Object> response = new HashMap<>();
         response.put("moduleId", moduleId);
         response.put("earnedPoints", earnedPoints);

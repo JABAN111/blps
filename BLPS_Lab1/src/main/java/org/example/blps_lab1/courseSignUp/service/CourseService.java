@@ -119,7 +119,7 @@ public class CourseService {
 
         List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
         user.getCourseList().addAll(additionalCourses);
-        emailService.informAboutNewCourses(user.getEmail(),additionalCourses);
+        emailService.informAboutNewCourses(user.getEmail(), course.getCourseName(), course.getCoursePrice(), additionalCourses);
         enrolledCourses.addAll(additionalCourses);
         userRepository.save(user);
         return enrolledCourses;
@@ -173,7 +173,8 @@ public class CourseService {
                 course.getTopicName(),
                 course.getCreationTime(),
                 course.getCourseDuration(),
-                course.getWithJobOffer()
+                course.getWithJobOffer(),
+                course.getIsCompleted()
         );
     }
 }

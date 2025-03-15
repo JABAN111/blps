@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 public class ExerciseDto {
     private String name;
     private String description;
-    private Boolean isCompleted;
     private Long moduleId;
     private DifficultyLevel difficultyLevel;
     private String answer;
