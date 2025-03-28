@@ -9,8 +9,8 @@
 		<version>3.4.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.example</groupId>
-	<artifactId>BLPS_Lab1</artifactId>
+	<groupId>labs.blps</groupId>
+	<artifactId>BLPS_Lab2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>BLPS_Lab1</name>
 	<description>BLPS_Lab1</description>
