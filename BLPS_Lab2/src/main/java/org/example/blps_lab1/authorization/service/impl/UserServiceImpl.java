@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -26,7 +27,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 import java.util.Optional;
 
-@Service @Slf4j
+@Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CourseService courseService;
@@ -41,16 +43,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(final User user) {
-        User newUser = transactionTemplate.execute(new TransactionCallback<User>() {
-            @Override
-            public User doInTransaction(@NotNull TransactionStatus status) {
-                user.setPassword(user.getPassword());
-                User savedUser = userRepository.save(user);
-                log.info("{} registered successfully", user.getUsername());
-                return savedUser;
-            }
-        });
-        return newUser;
+//        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        //transactionTemplate.execute(status -> {
+        user.setPassword(user.getPassword());
+        User savedUser = userRepository.save(user);
+        log.info("{} registered successfully", user.getUsername());
+        return savedUser;
+//        });
+//        return newUser;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void enrollUser(User user, Course course) {
         var userOptional = userRepository.findByEmail(user.getEmail());
-        if(userOptional.isEmpty()){
+        if (userOptional.isEmpty()) {
             log.warn("User with email {} does not exist, impossible to enroll to the course: {}", user.getEmail(), course.getCourseName());
             throw new ObjectNotExistException("Нет пользователя с email: " + user.getEmail() + ", невозможно зачислить на курс");
         }

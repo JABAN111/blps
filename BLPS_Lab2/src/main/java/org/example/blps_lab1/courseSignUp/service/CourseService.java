@@ -125,6 +125,36 @@ public class CourseService {
         return enrolledCourses;
     }
 
+//    public List<Course> enrollUser(Long userId, Long courseId){
+//        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+//        try{
+//            User user = userRepository.findById(userId)
+//                    .orElseThrow(() -> new RuntimeException("user not found in enroll"));
+//
+//            Course course = courseRepository.findById(courseId)
+//                    .orElseThrow(() -> new RuntimeException("course not found in enroll"));
+//
+//            List<Course> enrolledCourses = new ArrayList<>();
+//
+//
+//            if(!user.getCourseList().contains(course)){
+//                user.getCourseList().add(course);
+//                enrolledCourses.add(course);
+//            }
+//
+//            List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
+//            user.getCourseList().addAll(additionalCourses);
+//            emailService.informAboutNewCourses(user.getEmail(), course.getCourseName(), course.getCoursePrice(), additionalCourses);
+//            enrolledCourses.addAll(additionalCourses);
+//            userRepository.save(user);
+//            transactionManager.commit(status);
+//            return enrolledCourses;
+//        }catch (Exception e){
+//            transactionManager.rollback(status);
+//            throw new RuntimeException("Transaction failed", e);
+//        }
+//    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public Course addAdditionalCourses(Long courseId, Long additionalId){
         Course course = courseRepository.findById(courseId)

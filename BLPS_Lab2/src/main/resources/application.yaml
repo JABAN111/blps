@@ -36,3 +36,7 @@ minio:
 token:
   signing:
     key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=
+narayana:
+  messaginghub:
+    maxConnections: 10
+    max_prepared_transactions: 100

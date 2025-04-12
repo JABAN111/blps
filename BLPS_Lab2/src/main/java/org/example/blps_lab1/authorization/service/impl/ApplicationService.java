@@ -46,9 +46,9 @@ public class ApplicationService {
     }
 
     public Application add(Long courseId, User user) {
-        Application application = transactionTemplate.execute(new TransactionCallback<Application>() {
-            @Override
-            public Application doInTransaction(@NotNull TransactionStatus status) {
+//        Application application = transactionTemplate.execute(new TransactionCallback<Application>() {
+//            @Override
+//            public Application doInTransaction(@NotNull TransactionStatus status) {
                 var courseEntity = courseService.find(courseId);
                 var app = Application.builder()
                         .course(courseEntity)
@@ -59,9 +59,9 @@ public class ApplicationService {
                 return repository.save(
                         app
                 );
-            }
-        });
-        return application;
+//            }
+//        });
+//        return application;
     }
 
 
