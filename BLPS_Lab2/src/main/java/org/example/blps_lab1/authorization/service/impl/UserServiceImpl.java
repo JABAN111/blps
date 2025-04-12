@@ -9,26 +9,47 @@ import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service @Slf4j @AllArgsConstructor @Transactional
+@Service @Slf4j
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
-    private CourseService courseService;
+    private final UserRepository userRepository;
+    private final CourseService courseService;
+    private final TransactionTemplate transactionTemplate;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, CourseService courseService, PlatformTransactionManager transactionManager) {
+        this.userRepository = userRepository;
+        this.courseService = courseService;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+    }
 
     @Override
     public User add(final User user) {
-        user.setPassword(user.getPassword());
-        User newUser = userRepository.save(user);
-        log.info("{} registered successfully", user.getUsername());
+        User newUser = transactionTemplate.execute(new TransactionCallback<User>() {
+            @Override
+            public User doInTransaction(@NotNull TransactionStatus status) {
+                user.setPassword(user.getPassword());
+                User savedUser = userRepository.save(user);
+                log.info("{} registered successfully", user.getUsername());
+                return savedUser;
+            }
+        });
         return newUser;
     }
 

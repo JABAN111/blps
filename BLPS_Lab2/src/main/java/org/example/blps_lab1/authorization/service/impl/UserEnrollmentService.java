@@ -1,38 +1,54 @@
 package org.example.blps_lab1.authorization.service.impl;
 
-import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
-import org.example.blps_lab1.authorization.repository.ApplicationRepository;
 import org.example.blps_lab1.authorization.service.AuthService;
 import org.example.blps_lab1.authorization.service.UserService;
 
-import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.lms.service.EmailService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
-@Service @Slf4j @AllArgsConstructor @Transactional
+@Service @Slf4j
 public class UserEnrollmentService {
-    private ApplicationService applicationService;
-    private UserService userService;
-    private AuthService authService;
-    private CourseService courseService;
-    private EmailService emailService;
+    private final ApplicationService applicationService;
+    private final UserService userService;
+    private final AuthService authService;
+    private final CourseService courseService;
+    private final EmailService emailService;
+    private final TransactionTemplate transactionTemplate;
 
-    public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus status){
-        var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, status);
-        if (status == ApplicationStatus.REJECT){
-            emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());
-            return;
-        }
+    @Autowired
+    public UserEnrollmentService(PlatformTransactionManager transactionTemplate, EmailService emailService, CourseService courseService, AuthService authService, UserService userService, ApplicationService applicationService) {
+        this.transactionTemplate = new TransactionTemplate(transactionTemplate);
+        this.emailService = emailService;
+        this.courseService = courseService;
+        this.authService = authService;
+        this.userService = userService;
+        this.applicationService = applicationService;
+    }
 
-        var user = authService.getCurrentUser();
-        userService.enrollUser(user, applicationEntity.getCourse());
-        courseService.enrollUser(user.getId(), applicationEnrollmentId);
+    public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus appStatus){
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
+                if (appStatus == ApplicationStatus.REJECT){
+                    emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());
+                    return;
+                }
+                var user = authService.getCurrentUser();
+                userService.enrollUser(user, applicationEntity.getCourse());
+                courseService.enrollUser(user.getId(), applicationEnrollmentId);
+            }
+        });
     }
 
 }

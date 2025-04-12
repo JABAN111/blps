@@ -7,6 +7,7 @@ import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
+import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.Role;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.authorization.models.User;
@@ -18,6 +19,7 @@ import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.config.security.services.JwtService;
 import org.example.blps_lab1.lms.service.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,14 +28,16 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private CompanyService companyService;
@@ -44,64 +48,84 @@ public class AuthServiceImpl implements AuthService {
     private final ApplicationService applicationService;
     private final EmailService emailService;
     private final EntityManager em;
+    private final TransactionTemplate transactionTemplate;
+
+    @Autowired
+    public AuthServiceImpl(CompanyService companyService, CourseService courseService, PasswordEncoder passwordEncoder, JwtService jwtService, UserService userService, ApplicationService applicationService, EmailService emailService, EntityManager em, PlatformTransactionManager transactionManager) {
+        this.companyService = companyService;
+        this.courseService = courseService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.userService = userService;
+        this.applicationService = applicationService;
+        this.emailService = emailService;
+        this.em = em;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+    }
 
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
-        var resultBuilder = ApplicationResponseDto.builder();
+        return transactionTemplate.execute(status -> {
+            var resultBuilder = ApplicationResponseDto.builder();
 
-        var userBuilder = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .company(null)
-                .role(Role.CASUAL_STUDENT)
-                .password(passwordEncoder.encode(request.getPassword()));
+            var userBuilder = User.builder()
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .company(null)
+                    .role(Role.CASUAL_STUDENT)
+                    .password(passwordEncoder.encode(request.getPassword()));
 
-        log.info(userBuilder.build().getPassword());
-        if (request.getCompanyName() != null) {// NOTE: if company is specifed, user is legal entity
-            if (!companyService.isExist(request.getCompanyName())) {
-                log.warn("Company with name: {} not found", request.getCompanyName());
+            log.info(userBuilder.build().getPassword());
+            if (request.getCompanyName() != null) {// NOTE: if company is specified, user is legal entity
+                if (!companyService.isExist(request.getCompanyName())) {
+                    log.warn("Company with name: {} not found", request.getCompanyName());
 
-                emailService.informAboutCompanyProblem(request.getEmail(), request.getCompanyName());
-                throw new ObjectNotExistException(
-                        "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
+                    emailService.informAboutCompanyProblem(request.getEmail(),
+                            request.getCompanyName());
+                    throw new ObjectNotExistException(
+                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
+                }
+                var companyEntity = companyService.getByName(request.getCompanyName());
+                userBuilder.company(companyEntity);
+                userBuilder.role(Role.LEGAL_COMPANY);
             }
-            var companyEntity = companyService.getByName(request.getCompanyName());
-            userBuilder.company(companyEntity);
-            userBuilder.role(Role.LEGAL_COMPANY);
-        }
 
-        if (request.getCourseId() == null) {
-            log.warn("Course id is not specified", request);
-            throw new FieldNotSpecifiedException("Не указан id курса");
-        }
-        if (!courseService.isExist(request.getCourseId())) {
-            log.warn("Course with id: {} not found", request.getCourseId());
-            throw new ObjectNotExistException("Курс с id: " + request.getCourseId() + " не найден");
-        }
+//         if (request.getCourseId() == null) {
+//         log.warn("Course id is not specified", request);
+//         throw new FieldNotSpecifiedException("Не указан id курса");
+//         }
+            // if (!courseService.isExist(request.getCourseId())) {
+            // log.warn("Course with id: {} not found", request.getCourseId());
+            // throw new ObjectNotExistException("Курс с id: " + request.getCourseId() + "
+            // не найден");
+            // }
 
-        var courseEntity = courseService.getCourseById(request.getCourseId());
-        userBuilder.courseList(List.of(courseEntity));
+            var courseEntity = courseService.getCourseById(request.getCourseId());
+            userBuilder.courseList(List.of(courseEntity));
 
-        resultBuilder.description(courseEntity.getCourseDescription());
-        resultBuilder.price(courseEntity.getCoursePrice());
+            resultBuilder.description(courseEntity.getCourseDescription());
+            resultBuilder.price(courseEntity.getCoursePrice());
 
-        var user = userBuilder.build();
+            var user = userBuilder.build();
 
-        if (userService.isExist(user.getUsername())) {
-            log.warn("User with username: {} exist", user.getUsername());
-            throw new AuthorizeException("Пользователь с именем: " + user.getUsername() + " уже существует");
-        }
-        userService.add(user);
+//         if (userService.isExist(user.getUsername())) {
+            // log.warn("User with username: {} exist", user.getUsername());
+            // throw new AuthorizeException("Пользователь с именем: " + user.getUsername() +
+            // " уже существует");
+            // }
+            userService.add(user);
 
-        var jwt = jwtService.generateToken(user);
-        resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
-        em.flush();
+            var jwt = jwtService.generateToken(user);
+            resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
+//         em.flush();
 
-        applicationService.save(request.getCourseId(), user);
+            applicationService.add(request.getCourseId(), user);
 
-        return resultBuilder.build();
+            return resultBuilder.build();
+        });
+
     }
 
     @Override
@@ -116,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
         User userEntity;
         try {
             userEntity = userService.getUserByEmail(request.getEmail());
-            log.debug("Stored hash: {}", userEntity.getPassword()); // Можно оставить для отладки, но убрать в продакшене
+            log.debug("Stored hash: {}", userEntity.getPassword());
 
             if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
                 throw new AuthorizeException("Пароль указан неверно");

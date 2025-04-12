@@ -23,7 +23,7 @@ public class UserController {
 
     @PostMapping("/application/{courseId}")
     public void createApplication(@PathVariable Long courseId){
-        applicationService.save(courseId);
+        applicationService.add(courseId);
     }
     
     @PatchMapping("/application/status/{id}")

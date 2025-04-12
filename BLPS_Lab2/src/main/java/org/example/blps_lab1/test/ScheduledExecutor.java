@@ -66,7 +66,7 @@ public class ScheduledExecutor {
     /**
      * Периодически выводит список пользователей, сохранённых в базе данных.
      */
-    @Scheduled(fixedRate = 10000)
+//    @Scheduled(fixedRate = 10000)
     public void listUsers() {
         schedUserServ.create("nigga?");
 //        List<String> names = schedUserServ.getAll();
