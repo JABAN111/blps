@@ -1,9 +1,6 @@
 package org.example.blps_lab1.authorization.service.impl;
 
-
-
 import java.util.List;
-
 
 import org.example.blps_lab1.authorization.dto.CompanyDto;
 import org.example.blps_lab1.authorization.mapper.CompanyMapper;
@@ -25,14 +22,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Boolean isExist(String companyName) {
-        if (companyRepository.findById(companyName).isPresent()){
-            return true;
-        }
-        return false;
+        return companyRepository.findById(companyName).isPresent();
     }
 
     @Override
-
     public List<Company> saveAll(List<Company> companies) {
         return companyRepository.saveAll(companies);
     }
@@ -41,7 +34,7 @@ public class CompanyServiceImpl implements CompanyService {
     public Company getByName(String companyName) {
         var potentialCompany = companyRepository.findById(companyName);
 
-        if(potentialCompany.isPresent()){
+        if (potentialCompany.isPresent()) {
             return potentialCompany.get();
         }
         log.warn("Company with name: {} not found", companyName);
@@ -50,12 +43,12 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company getOrCreate(CompanyDto companyDto) {
-        Company result; 
-        if(isExist(companyDto.getCompanyName())){
+        Company result;
+        if (isExist(companyDto.getCompanyName())) {
             result = getByName(companyDto.getCompanyName());
-        } 
-        result = save(companyDto);
-        
+        } else {
+            result = save(companyDto);
+        }
 
         return result;
     }
@@ -69,5 +62,5 @@ public class CompanyServiceImpl implements CompanyService {
     public Company save(Company company) {
         return companyRepository.save(company);
     }
-    
+
 }

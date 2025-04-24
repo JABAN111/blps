@@ -1,8 +1,6 @@
 spring:
-#  jta:
-#    enabled: true
-#    narayana:
-
+  jta:
+    enabled: true
   application:
     name: BLPS_Lab1
   datasource:
