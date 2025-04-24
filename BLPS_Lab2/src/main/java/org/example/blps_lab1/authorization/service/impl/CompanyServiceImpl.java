@@ -32,13 +32,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company getByName(String companyName) {
-        var potentialCompany = companyRepository.findById(companyName);
-
-        if (potentialCompany.isPresent()) {
-            return potentialCompany.get();
-        }
-        log.warn("Company with name: {} not found", companyName);
-        throw new ObjectNotExistException("Компания с именем: " + companyName + " не найдена");
+        return companyRepository.findById(companyName)
+                .orElseThrow(() -> new ObjectNotExistException("Компания с именем: " + companyName + " не найдена"));
     }
 
     @Override

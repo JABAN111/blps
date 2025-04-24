@@ -39,14 +39,13 @@ public class UserEnrollmentService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
-
                 ApplicationStatus appStatus;
                 try {
                     appStatus = ApplicationStatus.valueOf(applicationStatus.toUpperCase().trim());
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Статус указан неверно");
                 } catch (IllegalStateException e) {
-                    throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявкия");
+                    throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявки");
                 }
                 var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
                 if (appStatus == ApplicationStatus.REJECT){

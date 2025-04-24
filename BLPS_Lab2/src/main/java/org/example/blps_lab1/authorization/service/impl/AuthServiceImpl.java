@@ -109,26 +109,6 @@ public class AuthServiceImpl implements AuthService {
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
             return resultBuilder.build();
-
-            // NOTE: if company is specified, user is legal entity
-//            FIXME: временно убито, необходимо переосмыслить работу с компаниями
-//            if (request.getCompanyName() != null) {
-//                log.info("company is specified");
-//
-//                if (!companyService.isExist(request.getCompanyName())) {
-//                    log.warn("company with name: {} not found", request.getCompanyName());
-//
-////                    TODO сюда надо вкорячить защиту от ебаного зависания email
-////                     dev режим без email, либо замоканный email?
-//                    emailService.informAboutCompanyProblem(request.getEmail(),
-//                            request.getCompanyName());
-//                    throw new ObjectNotExistException(
-//                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
-//                }
-//                var companyEntity = companyService.getByName(request.getCompanyName());
-//                userBuilder.company(companyEntity);
-//                userBuilder.role(Role.LEGAL_COMPANY);
-//            }
         });
     }
 
