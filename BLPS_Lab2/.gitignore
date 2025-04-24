@@ -18,7 +18,6 @@ target/
 *.iws
 *.iml
 *.ipr
-./transaction-logs/**
 
 
 
@@ -34,3 +33,4 @@ build/
 
 ### VS Code ###
 .vscode/
+transaction-logs
