@@ -7,7 +7,6 @@ import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
-import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.Role;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.authorization.models.User;
@@ -21,7 +20,6 @@ import org.example.blps_lab1.config.security.services.JwtService;
 import org.example.blps_lab1.lms.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,10 +30,6 @@ import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
@@ -50,7 +44,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final ApplicationService applicationService;
     private final EmailService emailService;
-    private final EntityManager em;
     private final TransactionTemplate transactionTemplate;
     private final PlatformTransactionManager transactionManager;
 
@@ -63,7 +56,6 @@ public class AuthServiceImpl implements AuthService {
         this.userService = userService;
         this.applicationService = applicationService;
         this.emailService = emailService;
-        this.em = em;
         this.transactionManager = transactionManager;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
@@ -82,15 +74,17 @@ public class AuthServiceImpl implements AuthService {
                     .password(passwordEncoder.encode(request.getPassword()));
 
             log.info(userBuilder.build().getPassword());
-            if (request.getCompanyName() != null) {// NOTE: if company is specified, user is legal entity
+            // NOTE: if company is specified, user is legal entity
+            if (request.getCompanyName() != null) {
                 log.info("company is specified");
 
                 if (!companyService.isExist(request.getCompanyName())) {
-                    log.warn("Company with name: {} not found", request.getCompanyName());
+                    log.warn("company with name: {} not found", request.getCompanyName());
 
 //                    TODO сюда надо вкорячить защиту от ебаного зависания email
-//                    emailService.informAboutCompanyProblem(request.getEmail(),
-//                            request.getCompanyName());
+//                    dev режим без email, либо замоканный email?
+                    emailService.informAboutCompanyProblem(request.getEmail(),
+                            request.getCompanyName());
                     throw new ObjectNotExistException(
                             "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
                 }
@@ -101,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
 
 
             if (request.getCourseId() == null) {
-                log.warn("Course id is not specified", request);
+                log.warn("course id is not specified, request: {}", request);
                 throw new FieldNotSpecifiedException("Не указан id курса");
             }
             if (!courseService.isExist(request.getCourseId())) {
@@ -136,29 +130,30 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthenticationResponse signIn(LoginRequest request) {
-        if (request.getEmail() == null || request.getEmail().isEmpty()) {
-            throw new FieldNotSpecifiedException("Поле email обязательное");
-        }
-        if (request.getPassword() == null || request.getPassword().isEmpty()) {
-            throw new FieldNotSpecifiedException("Поле password обязательное");
-        }
-
-        User userEntity;
-        try {
-            userEntity = userService.getUserByEmail(request.getEmail());
-            log.debug("Stored hash: {}", userEntity.getPassword());
-
-            if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
-                throw new AuthorizeException("Пароль указан неверно");
+        return transactionTemplate.execute(status -> {
+            if (request.getEmail() == null || request.getEmail().isEmpty()) {
+                throw new FieldNotSpecifiedException("Поле email обязательное");
             }
-        } catch (UsernameNotFoundException e) {
-            throw new AuthorizeException("Пользователя с заданным email не существует");
-        }
+            if (request.getPassword() == null || request.getPassword().isEmpty()) {
+                throw new FieldNotSpecifiedException("Поле password обязательное");
+            }
 
-        var jwt = jwtService.generateToken(userEntity);
-        return new JwtAuthenticationResponse(jwt);
+            User userEntity;
+            try {
+                userEntity = userService.getUserByEmail(request.getEmail());
+                log.debug("Stored hash: {}", userEntity.getPassword());
+
+                if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
+                    throw new AuthorizeException("Пароль указан неверно");
+                }
+            } catch (UsernameNotFoundException e) {
+                throw new AuthorizeException("Пользователя с заданным email не существует");
+            }
+
+            var jwt = jwtService.generateToken(userEntity);
+            return new JwtAuthenticationResponse(jwt);
+        });
     }
-
     @Override
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
