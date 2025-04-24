@@ -66,9 +66,10 @@ public class ScheduledExecutor {
     /**
      * Периодически выводит список пользователей, сохранённых в базе данных.
      */
-//    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1000)
     public void listUsers() {
         schedUserServ.create("nigga?");
+//        System.exit(1);
 //        List<String> names = schedUserServ.getAll();
 //        if (names.isEmpty()) {
 //            System.out.println("Executor ---> Users database is still empty");

@@ -41,16 +41,22 @@ public class UserServiceImpl implements UserService {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
+
+
     @Override
     public User add(final User user) {
+        if (user.getPhoneNumber().equals("+79991875292")){
+            throw new RuntimeException("rabotaet?");
+        }
 //        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        //transactionTemplate.execute(status -> {
+
+        var us = transactionTemplate.execute(status -> {
         user.setPassword(user.getPassword());
         User savedUser = userRepository.save(user);
         log.info("{} registered successfully", user.getUsername());
         return savedUser;
-//        });
-//        return newUser;
+        });
+        return us;
     }
 
     @Override

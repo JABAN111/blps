@@ -70,12 +70,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request) {
-        var def = new DefaultTransactionDefinition();
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        var status = transactionManager.getTransaction(def);
-        try {
+        return transactionTemplate.execute(status -> {
             var resultBuilder = ApplicationResponseDto.builder();
-
             var userBuilder = User.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
@@ -85,24 +81,47 @@ public class AuthServiceImpl implements AuthService {
                     .role(Role.CASUAL_STUDENT)
                     .password(passwordEncoder.encode(request.getPassword()));
 
-            // Логика обработки компании
-            if (request.getCompanyName() != null) {
+            log.info(userBuilder.build().getPassword());
+            if (request.getCompanyName() != null) {// NOTE: if company is specified, user is legal entity
+                log.info("company is specified");
+
                 if (!companyService.isExist(request.getCompanyName())) {
                     log.warn("Company with name: {} not found", request.getCompanyName());
-                    emailService.informAboutCompanyProblem(request.getEmail(), request.getCompanyName());
-                    throw new ObjectNotExistException("Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
+
+//                    TODO сюда надо вкорячить защиту от ебаного зависания email
+//                    emailService.informAboutCompanyProblem(request.getEmail(),
+//                            request.getCompanyName());
+                    throw new ObjectNotExistException(
+                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
                 }
                 var companyEntity = companyService.getByName(request.getCompanyName());
                 userBuilder.company(companyEntity);
                 userBuilder.role(Role.LEGAL_COMPANY);
             }
 
+
+            if (request.getCourseId() == null) {
+                log.warn("Course id is not specified", request);
+                throw new FieldNotSpecifiedException("Не указан id курса");
+            }
+            if (!courseService.isExist(request.getCourseId())) {
+                log.warn("Course with id: {} not found", request.getCourseId());
+                throw new ObjectNotExistException("Курс с id: " + request.getCourseId() + " не найден");
+            }
+
             var courseEntity = courseService.getCourseById(request.getCourseId());
             userBuilder.courseList(List.of(courseEntity));
+
             resultBuilder.description(courseEntity.getCourseDescription());
             resultBuilder.price(courseEntity.getCoursePrice());
 
             var user = userBuilder.build();
+
+            if (userService.isExist(user.getUsername())) {
+                log.warn("User with username: {} exist", user.getUsername());
+                throw new AuthorizeException("Пользователь с именем: " + user.getUsername() +
+                        " уже существует");
+            }
             userService.add(user);
 
             var jwt = jwtService.generateToken(user);
@@ -110,83 +129,9 @@ public class AuthServiceImpl implements AuthService {
 
             applicationService.add(request.getCourseId(), user);
 
-            // Явно фиксируем транзакцию
-            transactionManager.commit(status);
             return resultBuilder.build();
-        } catch (Exception e) {
-            // В блоке catch вызываем rollback только если транзакция еще не завершена.
-            if (!status.isCompleted()) {
-                transactionManager.rollback(status);
-            }
-            log.error("Transaction rolled back due to exception", e);
-            return null;
-        }
+        });
     }
-
-
-//        return transactionTemplate.execute(status -> {
-
-//            var resultBuilder = ApplicationResponseDto.builder();
-//
-//            var userBuilder = User.builder()
-//                    .firstName(request.getFirstName())
-//                    .lastName(request.getLastName())
-//                    .email(request.getEmail())
-//                    .phoneNumber(request.getPhoneNumber())
-//                    .company(null)
-//                    .role(Role.CASUAL_STUDENT)
-//                    .password(passwordEncoder.encode(request.getPassword()));
-//
-//            log.info(userBuilder.build().getPassword());
-//            if (request.getCompanyName() != null) {// NOTE: if company is specified, user is legal entity
-//                if (!companyService.isExist(request.getCompanyName())) {
-//                    log.warn("Company with name: {} not found", request.getCompanyName());
-//
-//                    emailService.informAboutCompanyProblem(request.getEmail(),
-//                            request.getCompanyName());
-//                    throw new ObjectNotExistException(
-//                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
-//                }
-//                var companyEntity = companyService.getByName(request.getCompanyName());
-//                userBuilder.company(companyEntity);
-//                userBuilder.role(Role.LEGAL_COMPANY);
-//            }
-//
-//
-////         if (request.getCourseId() == null) {
-////         log.warn("Course id is not specified", request);
-////         throw new FieldNotSpecifiedException("Не указан id курса");
-////         }
-//            // if (!courseService.isExist(request.getCourseId())) {
-//            // log.warn("Course with id: {} not found", request.getCourseId());
-//            // throw new ObjectNotExistException("Курс с id: " + request.getCourseId() + "
-//            // не найден");
-//            // }
-//
-//            var courseEntity = courseService.getCourseById(request.getCourseId());
-//            userBuilder.courseList(List.of(courseEntity));
-//
-//            resultBuilder.description(courseEntity.getCourseDescription());
-//            resultBuilder.price(courseEntity.getCoursePrice());
-//
-//            var user = userBuilder.build();
-//
-////            if (userService.isExist(user.getUsername())) {
-////                log.warn("User with username: {} exist", user.getUsername());
-////                throw new AuthorizeException("Пользователь с именем: " + user.getUsername() +
-////                        " уже существует");
-////            }
-//            userService.add(user);
-//
-//            var jwt = jwtService.generateToken(user);
-//            resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
-////         em.flush();
-//
-//            applicationService.add(request.getCourseId(), user);
-//
-//            return resultBuilder.build();
-//        });
-
 
 
     @Override
