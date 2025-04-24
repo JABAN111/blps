@@ -35,10 +35,19 @@ public class UserEnrollmentService {
         this.applicationService = applicationService;
     }
 
-    public void processEnrolment(Long applicationEnrollmentId, ApplicationStatus appStatus){
+    public void processEnrolment(Long applicationEnrollmentId, String applicationStatus){
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+
+                ApplicationStatus appStatus;
+                try {
+                    appStatus = ApplicationStatus.valueOf(applicationStatus.toUpperCase().trim());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Статус указан неверно");
+                } catch (IllegalStateException e) {
+                    throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявкия");
+                }
                 var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
                 if (appStatus == ApplicationStatus.REJECT){
                     emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());

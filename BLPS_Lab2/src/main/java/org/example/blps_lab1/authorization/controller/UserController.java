@@ -41,25 +41,17 @@ public class UserController {
      * @param body          тело Patch-запроса с новым статусом заявки.
      *                      Заявка имеет три статуса, соответствующих enum {@link ApplicationStatus}:
      *                      <pre>{@code
-     *                                  {
-     *                                      OK,
-     *                                      REJECT,
-     *                                      PENDING
-     *                                  }
-     *                                  }</pre>
+     *                                                       {
+     *                                                           OK,
+     *                                                           REJECT,
+     *                                                           PENDING
+     *                                                       }
+     *                                                       }</pre>
      */
     @PatchMapping("/application/status/{applicationID}")
-    //FIXME вынести парсинг из endpoint в бизнес логику. Туда просто передавать в виде строки
     public void updateApplicationStatus(@PathVariable Long applicationID, @RequestBody Map<String, String> body) {
-        try {
-            String appStatus = body.get("newStatus");
-            ApplicationStatus applicationStatus = ApplicationStatus.valueOf(appStatus.toUpperCase().trim());
-            userEnrollmentService.processEnrolment(applicationID, applicationStatus);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Статус указан неверно");
-        } catch (IllegalStateException e) {
-            throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявкия");
-        }
+        String appStatus = body.get("newStatus");
+        userEnrollmentService.processEnrolment(applicationID, appStatus);
     }
 
     @GetMapping("/ping")
