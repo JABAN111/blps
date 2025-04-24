@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
 import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
-import org.example.blps_lab1.authorization.exception.AuthorizeException;
-import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.Role;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.service.AuthService;
@@ -13,14 +11,10 @@ import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.authorization.service.impl.ApplicationService;
 import org.example.blps_lab1.config.security.services.JwtService;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
@@ -37,7 +31,6 @@ public class SchedUserServ {
     private final AuthService authService;
     private CourseService courseService;
     private final JwtService jwtService;
-    private static boolean dumb = true;
 
 
     @Autowired
@@ -70,11 +63,7 @@ public class SchedUserServ {
             request.setPhoneNumber("_73219211223");
             request.setCourseId(1L);
 
-            if (!dumb)
-                request.setCompanyName(UUID.randomUUID().toString());
-            if (dumb) {
-                dumb = false;
-            }
+//            request.setCompanyName(UUID.randomUUID().toString());
             System.out.println("отправляет регистрацию");
             var d = authService.signUp(request);
             System.out.println("закончили?");

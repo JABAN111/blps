@@ -24,12 +24,11 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
-@Transactional
 @Slf4j
 public class ApplicationService {
-    private ApplicationRepository repository;
-    private UserService userService;
-    private CourseService courseService;
+    private final ApplicationRepository repository;
+    private final UserService userService;
+    private final CourseService courseService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
@@ -46,53 +45,46 @@ public class ApplicationService {
     }
 
     public Application add(Long courseId, User user) {
-//        Application application = transactionTemplate.execute(new TransactionCallback<Application>() {
-//            @Override
-//            public Application doInTransaction(@NotNull TransactionStatus status) {
-                var courseEntity = courseService.find(courseId);
-                var app = Application.builder()
-                        .course(courseEntity)
-                        .user(user)
-                        .status(ApplicationStatus.PENDING)
-                        .build();
-                log.debug("attempt to create application: {}", app);
-                return repository.save(
-                        app
-                );
-//            }
-//        });
-//        return application;
+        return transactionTemplate.execute(status -> {
+            var courseEntity = courseService.find(courseId);
+            var app = Application.builder()
+                    .course(courseEntity)
+                    .user(user)
+                    .status(ApplicationStatus.PENDING)
+                    .build();
+            log.debug("attempt to create application: {}", app);
+            return repository.save(app);
+        });
     }
 
 
+    public Application updateStatus(Long id, ApplicationStatus applicationStatus) {
+        return transactionTemplate.execute(status -> {
+            Optional<Application> oldEntityOptional = repository.findById(id);
+            if (oldEntityOptional.isEmpty()) {
+                log.warn("Application with id: {} did not exist", id);
+                throw new ObjectNotExistException("Заявки с id: " + id + "  не существует");
+            }
+            var entity = oldEntityOptional.get();
+            if (entity.getStatus() != ApplicationStatus.PENDING) {
+                throw new IllegalStateException("Нельзя изменить статус уже сформированной заявки");
+            }
+            entity.setStatus(applicationStatus);
 
-
-public Application updateStatus(Long id, ApplicationStatus status) {
-    Optional<Application> oldEntityOptional = repository.findById(id);
-    if (oldEntityOptional.isEmpty()) {
-        log.warn("Application with id: {} did not exist", id);
-        throw new ObjectNotExistException("Заявки с id: " + id + "  не существует");
+            return repository.save(entity);
+        });
     }
-    var entity = oldEntityOptional.get();
-    if (entity.getStatus() != ApplicationStatus.PENDING) {
-        throw new IllegalStateException("Нельзя изменить статус уже сформированной заявки");
+
+    private User getCurrentUser() {
+//        copypaste cause depend cycle
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            return userService.getUserByEmail(username);
+        } else {
+            throw new IllegalStateException("Current user is not authenticated");
+        }
     }
-    entity.setStatus(status);
-
-    return repository.save(entity);
-}
-
-private User getCurrentUser() {
-    //copypaste cause depend cycle
-    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    if (principal instanceof UserDetails) {
-        String username = ((UserDetails) principal).getUsername();
-
-        return userService.getUserByEmail(username);
-    } else {
-        throw new IllegalStateException("Current user is not authenticated");
-    }
-}
 
 }
