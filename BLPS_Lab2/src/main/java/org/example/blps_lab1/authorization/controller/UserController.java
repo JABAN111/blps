@@ -28,23 +28,33 @@ public class UserController {
      * Данный endpoint создает заявку, ПРИВЯЗАННУЮ К КОНКРЕТНОМУ ПОЛЬЗОВАТЕЛЮ
      * пользователь достается из jwt токена
      */
-    @PostMapping("/application/{courseId}")
+    @PostMapping("/application/{courseUUID}")
     public void createApplication(@PathVariable UUID courseUUID) {
         log.info("got request for course with id: {}", courseUUID);
         applicationService.add(courseUUID);
     }
 
     /**
+     * Данный endpoint обновляет заявку, ПРИВЯЗАННУЮ К КОНКРЕТНОМУ ПОЛЬЗОВАТЕЛЮ.
      *
-     * @param id
-     * @param status
+     * @param applicationID идентификатор заявки
+     * @param body          тело Patch-запроса с новым статусом заявки.
+     *                      Заявка имеет три статуса, соответствующих enum {@link ApplicationStatus}:
+     *                      <pre>{@code
+     *                                  {
+     *                                      OK,
+     *                                      REJECT,
+     *                                      PENDING
+     *                                  }
+     *                                  }</pre>
      */
-    @PatchMapping("/application/status/{id}")
-    public void updateApplicationStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
+    @PatchMapping("/application/status/{applicationID}")
+    //FIXME вынести парсинг из endpoint в бизнес логику. Туда просто передавать в виде строки
+    public void updateApplicationStatus(@PathVariable Long applicationID, @RequestBody Map<String, String> body) {
         try {
-            String appStatus = status.get("status");
+            String appStatus = body.get("newStatus");
             ApplicationStatus applicationStatus = ApplicationStatus.valueOf(appStatus.toUpperCase().trim());
-            userEnrollmentService.processEnrolment(id, applicationStatus);
+            userEnrollmentService.processEnrolment(applicationID, applicationStatus);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Статус указан неверно");
         } catch (IllegalStateException e) {
