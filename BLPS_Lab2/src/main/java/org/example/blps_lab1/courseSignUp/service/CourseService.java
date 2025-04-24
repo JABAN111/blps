@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +40,7 @@ public class CourseService {
         return courseRepository.findByCourseName(courseName);
     }
 
-    public Course find(final long id){
+    public Course find(final UUID id){
         var optionalCourse = courseRepository.findById(id);
         if(optionalCourse.isEmpty()){
             log.warn("Course with id: {} not exist", id);
@@ -53,7 +54,7 @@ public class CourseService {
     }
 
 
-    public Course getCourseById(final Long id){
+    public Course getCourseByUUID(final UUID id){
         Optional<Course> course = courseRepository.findById(id);
         if(course.isEmpty()){
             log.error("Course with id {} does not exist", id);
@@ -63,18 +64,18 @@ public class CourseService {
         return course.get();
     }
 
-    public void deleteCourse(final Long id){
-        Optional<Course> deletingCourse = courseRepository.findById(id);
+    public void deleteCourse(final UUID courseUUID){
+        Optional<Course> deletingCourse = courseRepository.findById(courseUUID);
         if(deletingCourse.isEmpty()){
-            log.error("Course with id {} does not exist", id);
+            log.error("Course with id {} does not exist", courseUUID);
             throw new RuntimeException("Курс с таким id не существует");
         }
-        courseRepository.deleteById(id);
-        log.info("Course deleted: {}", id);
+        courseRepository.deleteById(courseUUID);
+        log.info("Course deleted: {}", courseUUID);
     }
 
-    public boolean isExist(final Long id){
-        return courseRepository.findById(id).isPresent();
+    public boolean isExist(final UUID courseUUID){
+        return courseRepository.findById(courseUUID).isPresent();
     }
 
     public List<Course> getAllCourses(){
@@ -83,12 +84,12 @@ public class CourseService {
         return list;
     }
 
-    public Course updateCourse(Long courseId, CourseDto courseDto){
-        if(courseRepository.findById(courseId).isEmpty()){
-            log.error("Course with id {} does not exist", courseId);
+    public Course updateCourse(UUID courseUUID, CourseDto courseDto){
+        if(courseRepository.findById(courseUUID).isEmpty()){
+            log.error("Course with id {} does not exist", courseUUID);
             throw new ObjectNotFoundException("Курс не найден");
         }
-        return courseRepository.findById(courseId).map(course -> {
+        return courseRepository.findById(courseUUID).map(course -> {
             course.setCourseName(courseDto.getCourseName());
             course.setCoursePrice(courseDto.getCoursePrice());
             course.setTopicName(courseDto.getTopicName());
@@ -96,17 +97,17 @@ public class CourseService {
             course.setWithJobOffer(courseDto.getWithJobOffer());
             return courseRepository.save(course);
         }).orElseThrow(() -> {
-            log.error("Course with id {} can't be updated", courseId);
+            log.error("Course with id {} can't be updated", courseUUID);
             return new RuntimeException("Не получилось обновить курс");
         });
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Course> enrollUser(Long userId, Long courseId){
+    public List<Course> enrollUser(Long userId, UUID courseUUID){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("user not found in enroll"));
 
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findById(courseUUID)
                 .orElseThrow(() -> new RuntimeException("course not found in enroll"));
 
         List<Course> enrolledCourses = new ArrayList<>();
@@ -155,37 +156,47 @@ public class CourseService {
 //        }
 //    }
 
+    /**
+     * Утилитарная функция для записи на дополнительные курсы, связанные с основными
+     * например, если вы проходите курс "Бухгалтер будущего", и к этому курсу закреплен курс "Python для чайников",
+     * то пользователя автоматически должно записать на курс по Python
+     * @param courseUUID основного курса
+     * @param additionalCourseUUID второстепенного курса
+     * @return основной курс(тот, что с UUID: <code>courseUUID</code>
+     */
+    // TODO: заменить на программную транзакцию +
+    //  REQUIRED = default -> нет надобности упоминать
     @Transactional(propagation = Propagation.REQUIRED)
-    public Course addAdditionalCourses(Long courseId, Long additionalId){
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseId + " не найден"));
+    public Course addAdditionalCourses(UUID courseUUID, UUID additionalCourseUUID){
+        Course course = courseRepository.findById(courseUUID)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseUUID + " не найден"));
 
-        Course additionalCourse = courseRepository.findById(additionalId)
-                .orElseThrow(() -> new ObjectNotFoundException("Дополнительный курс с id " + additionalId + " не найден"));
+        Course additionalCourse = courseRepository.findById(additionalCourseUUID)
+                .orElseThrow(() -> new ObjectNotFoundException("Дополнительный курс с id " + additionalCourseUUID + " не найден"));
 
         if(!course.getAdditionalCourseList().contains(additionalCourse)){
             course.getAdditionalCourseList().add(additionalCourse);
             courseRepository.save(course);
-            log.info("Курс {} добавлен в дополнительные курсы для {}", additionalId, courseId);
+            log.info("Курс {} добавлен в дополнительные курсы для {}", additionalCourseUUID, courseUUID);
         } else{
-            log.warn("Курс {} уже есть в дополнительных курсах для {}", additionalId, courseId);
+            log.warn("Курс {} уже есть в дополнительных курсах для {}", additionalCourseUUID, courseUUID);
         }
         return course;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public Course addListOfCourses(Long id, List<Course> additionalCourses){
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Курс с id "+ id + " не найден"));
+    public Course addListOfCourses(UUID uuid, List<Course> additionalCourses){
+        Course course = courseRepository.findById(uuid)
+                .orElseThrow(() -> new ObjectNotFoundException("Курс с uuid "+ uuid + " не найден"));
 
         for(Course additionalCourse : additionalCourses){
-            if(additionalCourse.getCourseId() == null){
+            if(additionalCourse.getCourseUUID() == null){
                 courseRepository.save(additionalCourse);
             }
         }
         course.getAdditionalCourseList().addAll(additionalCourses);
         courseRepository.save(course);
-        log.info("Курсы добавлены в дополнительные курсы для курса с id {}", id);
+        log.info("Курсы добавлены в дополнительные курсы для курса с uuid {}", uuid);
         return course;
     }
 

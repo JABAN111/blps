@@ -129,7 +129,7 @@ public class ExerciseService {
 
 
             courseProgressService.addPoints(user.getId(),
-                    exercise.getModuleExercises().get(0).getModule().getCourse().getCourseId(),
+                    exercise.getModuleExercises().get(0).getModule().getCourse().getCourseUUID(),
                     points);
 
             log.info("Exercise {} завершено пользователем {}", exerciseId, user.getId());

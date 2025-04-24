@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "courses")
@@ -24,8 +25,8 @@ import java.util.List;
 public class Course {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long courseId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID courseUUID;
 
     @Column(nullable = false)
     private String courseName;

@@ -1,6 +1,7 @@
 package org.example.blps_lab1.authorization.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
@@ -39,14 +40,14 @@ public class ApplicationService {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    public Application add(Long courseId) {
+    public Application add(UUID courseUUID) {
         var userEntity = getCurrentUser();
-        return add(courseId, userEntity);
+        return add(courseUUID, userEntity);
     }
 
-    public Application add(Long courseId, User user) {
+    public Application add(UUID courseUUID, User user) {
         return transactionTemplate.execute(status -> {
-            var courseEntity = courseService.find(courseId);
+            var courseEntity = courseService.find(courseUUID);
             var app = Application.builder()
                     .course(courseEntity)
                     .user(user)

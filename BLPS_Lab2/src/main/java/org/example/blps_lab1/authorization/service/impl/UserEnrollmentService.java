@@ -44,9 +44,10 @@ public class UserEnrollmentService {
                     emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());
                     return;
                 }
+                var courseUUID = applicationEntity.getCourse().getCourseUUID();
                 var user = authService.getCurrentUser();
                 userService.enrollUser(user, applicationEntity.getCourse());
-                courseService.enrollUser(user.getId(), applicationEnrollmentId);
+                courseService.enrollUser(user.getId(), courseUUID);
             }
         });
     }

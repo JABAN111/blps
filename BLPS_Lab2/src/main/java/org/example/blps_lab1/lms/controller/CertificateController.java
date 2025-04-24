@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("api/v1/certificate")
 @AllArgsConstructor
@@ -19,8 +21,8 @@ public class CertificateController {
     private CertificateManagerService certificateManagerService;
     
 
-    @GetMapping("/{courseId}")
-    public void getMethodName(@PathVariable Long courseId) {
-        certificateManagerService.getCertificate(authService.getCurrentUser(), courseId);
+    @GetMapping("/{courseUUID}")
+    public void getMethodName(@PathVariable UUID courseUUID) {
+        certificateManagerService.getCertificate(authService.getCurrentUser(), courseUUID);
     }
 }

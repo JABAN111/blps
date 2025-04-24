@@ -2,9 +2,7 @@ package org.example.blps_lab1.courseSignUp.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.math.raw.Mod;
 import org.example.blps_lab1.authorization.models.User;
-import org.example.blps_lab1.authorization.repository.UserRepository;
 import org.example.blps_lab1.authorization.service.AuthService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
 import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
@@ -160,7 +158,7 @@ public class ModuleService {
         userModuleProgress.setPoints(totalPoints);
         userModuleProgressRepository.save(userModuleProgress);
 
-        courseProgressService.addPoints(user.getId(), module.getCourse().getCourseId(), totalPoints);
+        courseProgressService.addPoints(user.getId(), module.getCourse().getCourseUUID(), totalPoints);
 
         courseModules.stream()
                 .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))

@@ -13,6 +13,7 @@ import org.example.blps_lab1.courseSignUp.models.Topic;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
@@ -26,6 +27,8 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
     private CourseService courseService;
     private UserService userService;
     private EntityManager em;
+    private PasswordEncoder passwordEncoder;
+
 
     @Override
     @Transactional
@@ -37,38 +40,37 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         List<Course> courses = new ArrayList<>();
         List<User> users = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
 
-            var course = Course.builder()
-                    .courseName(UUID.randomUUID().toString())
-                    .coursePrice(BigDecimal.valueOf(new Random().nextDouble()))
-                    .courseDescription(UUID.randomUUID().toString())
-                    .courseDuration(new Random().nextInt())
-                    .withJobOffer(new Random().nextBoolean())
-                    .topicName(Topic.ANALYTICS)
-                    .build();
+        var course = Course.builder()
+                .courseName(UUID.randomUUID().toString())
+                .coursePrice(BigDecimal.valueOf(new Random().nextDouble()))
+                .courseDescription(UUID.randomUUID().toString())
+                .courseDuration(new Random().nextInt())
+                .withJobOffer(new Random().nextBoolean())
+                .topicName(Topic.ANALYTICS)
+                .build();
 
-            var user = User.builder()
-                    .firstName(UUID.randomUUID().toString())
-                    .lastName(UUID.randomUUID().toString())
-                    .email(UUID.randomUUID().toString())
-                    .phoneNumber("8-800-555-35-35")
-                    .role(Role.CASUAL_STUDENT)
-                    .password(UUID.randomUUID().toString())
-                    .courseList(List.of(course))
-                    .build();
+        var user = User.builder()
+                .firstName(UUID.randomUUID().toString())
+                .lastName(UUID.randomUUID().toString())
+                .email(UUID.randomUUID().toString())
+                .phoneNumber("8-800-555-35-35")
+                .role(Role.CASUAL_STUDENT)
+                .password(UUID.randomUUID().toString())
+                .courseList(List.of(course))
+                .build();
 
-            Company company = Company.builder()
-                    .companyName(UUID.randomUUID().toString())
-                    .user(user)
-                    .build();
+        Company company = Company.builder()
+                .companyName(UUID.randomUUID().toString())
+                .user(user)
+                .build();
 
-            users.add(user);
+        users.add(user);
 
-            companies.add(company);
+        companies.add(company);
 
-            courses.add(course);
-        }
+        courses.add(course);
+
 
         System.out.println("Companies: " + companies.size());
         System.out.println("Courses: " + courses.size());
@@ -79,6 +81,14 @@ public class RandomDataGeneratorTEST implements ApplicationRunner {
         companyService.saveAll(companies);
         courseService.saveAll(courses);
 
+        var us = new User();
+        us.setEmail("jaba@jaba.jaba");
+        us.setPassword("jaba");
+        us.setLastName("jaba");
+        us.setFirstName("jaba");
+        us.setRole(Role.CASUAL_STUDENT);
+        us.setPassword(passwordEncoder.encode("jaba"));
+        userService.add(us);
         System.out.println("all saved");
 
     }

@@ -94,16 +94,16 @@ public class AuthServiceImpl implements AuthService {
             }
 
 
-            if (request.getCourseId() == null) {
+            if (request.getCourseUUID() == null) {
                 log.warn("course id is not specified, request: {}", request);
                 throw new FieldNotSpecifiedException("Не указан id курса");
             }
-            if (!courseService.isExist(request.getCourseId())) {
-                log.warn("Course with id: {} not found", request.getCourseId());
-                throw new ObjectNotExistException("Курс с id: " + request.getCourseId() + " не найден");
+            if (!courseService.isExist(request.getCourseUUID())) {
+                log.warn("Course with id: {} not found", request.getCourseUUID());
+                throw new ObjectNotExistException("Курс с id: " + request.getCourseUUID() + " не найден");
             }
 
-            var courseEntity = courseService.getCourseById(request.getCourseId());
+            var courseEntity = courseService.getCourseByUUID(request.getCourseUUID());
             userBuilder.courseList(List.of(courseEntity));
 
             resultBuilder.description(courseEntity.getCourseDescription());
@@ -121,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
 
-            applicationService.add(request.getCourseId(), user);
+            applicationService.add(request.getCourseUUID(), user);
 
             return resultBuilder.build();
         });

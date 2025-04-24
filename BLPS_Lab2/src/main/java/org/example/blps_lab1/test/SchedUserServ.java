@@ -61,7 +61,7 @@ public class SchedUserServ {
             request.setLastName(UUID.randomUUID().toString());
             request.setFirstName(UUID.randomUUID().toString());
             request.setPhoneNumber("_73219211223");
-            request.setCourseId(1L);
+            request.setCourseUUID(UUID.randomUUID());
 
 //            request.setCompanyName(UUID.randomUUID().toString());
             System.out.println("отправляет регистрацию");
@@ -78,7 +78,7 @@ public class SchedUserServ {
                     .password((request.getPassword()));
 
 
-            var courseEntity = courseService.getCourseById(request.getCourseId());
+            var courseEntity = courseService.getCourseByUUID(request.getCourseUUID());
             userBuilder.courseList(List.of(courseEntity));
 
             resultBuilder.description(courseEntity.getCourseDescription());
@@ -118,10 +118,13 @@ public class SchedUserServ {
 //                user1.setPhoneNumber("89991875292");
 //                user1.setRole(Role.ROLE_ADMIN);
 //                userService.add(user1);
-            return "success: " + d.toString();
+//            userService.enrollUser(user, 2L);
+            return "succes4s: " + d.toString();
         });
         System.out.println("res: " + res);
     }
+
+
 
     public List<String> getAll() {
         return this.jdbcTemplate.queryForList("SELECT NAME FROM UNI", String.class);

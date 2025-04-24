@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/enrollment")
@@ -21,8 +22,8 @@ public class EnrollmentController {
 
     @PostMapping("/enroll")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<Course> enrollUser(@RequestParam Long userId, Long courseId){
-        return courseService.enrollUser(userId, courseId);
+    public List<Course> enrollUser(@RequestParam Long userId, UUID courseUUID){
+        return courseService.enrollUser(userId, courseUUID);
     }
 
 }

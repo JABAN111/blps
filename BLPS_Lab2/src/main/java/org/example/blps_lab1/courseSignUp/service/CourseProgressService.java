@@ -13,6 +13,8 @@ import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,11 +25,11 @@ public class CourseProgressService {
     private final CourseProgressRepository courseProgressRepository;
     private final UserRepository userRepository;
 
-    public void addPoints(Long userId, Long courseId, int points){
-        CourseProgressId courseProgressId = new CourseProgressId(courseId, userId);
+    public void addPoints(Long userId, UUID courseUUID, int points){
+        CourseProgressId courseProgressId = new CourseProgressId(courseUUID, userId);
         CourseProgress progress = courseProgressRepository.findByCourseProgressId(courseProgressId)
                 .orElseGet(() -> {
-                    Course course = courseRepository.findById(courseId)
+                    Course course = courseRepository.findById(courseUUID)
                             .orElseThrow(() -> new EntityNotFoundException("Курс не найден addpoints"));
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден в addPoints"));
@@ -41,7 +43,7 @@ public class CourseProgressService {
 
         progress.setEarnedPoints(progress.getEarnedPoints() + points);
         courseProgressRepository.save(progress);
-        log.info("User {} earned {} points for course {}", userId, points, courseId);
+        log.info("User {} earned {} points for course {}", userId, points, courseUUID);
     }
 }
 

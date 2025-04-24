@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/courses")
@@ -32,9 +33,9 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id){
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid){
         Map<String, Object> response = new HashMap<>();
-        Course course = courseService.getCourseById(id);
+        Course course = courseService.getCourseByUUID(uuid);
         CourseDto courseDto = courseService.convertToDto(course);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -50,19 +51,19 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{courseId}")
+    @DeleteMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId){
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable UUID courseUUID){
         Map<String, Object> response = new HashMap<>();
-        courseService.deleteCourse(courseId);
+        courseService.deleteCourse(courseUUID);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{courseId}")
+    @PutMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable Long courseId, @Valid @RequestBody CourseDto courseDto){
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable UUID courseUUID, @Valid @RequestBody CourseDto courseDto){
         Map<String, Object> response = new HashMap<>();
-        Course updatedCourse = courseService.updateCourse(courseId, courseDto);
+        Course updatedCourse = courseService.updateCourse(courseUUID, courseDto);
         response.put("message", "course updated");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -71,8 +72,8 @@ public class CourseController {
     @PostMapping("/{courseId}/additional/{additionalId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
-            @PathVariable Long courseId,
-            @PathVariable Long additionalId
+            @PathVariable UUID courseId,
+            @PathVariable UUID additionalId
     ){
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
@@ -81,10 +82,10 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/additional-courses")
+    @PutMapping("/{courseUUID}/additional-courses")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Course> addListOfCourses(@PathVariable Long id, @RequestBody List<Course> additionalCourses){
-        Course updatedCourse = courseService.addListOfCourses(id, additionalCourses);
+    public ResponseEntity<Course> addListOfCourses(@PathVariable UUID courseUUID, @RequestBody List<Course> additionalCourses){
+        Course updatedCourse = courseService.addListOfCourses(courseUUID, additionalCourses);
         return ResponseEntity.ok(updatedCourse);
     }
 }

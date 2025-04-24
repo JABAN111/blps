@@ -3,6 +3,8 @@ package org.example.blps_lab1.authorization.dto;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class RegistrationRequestDto {
     private String firstName;
@@ -17,5 +19,5 @@ public class RegistrationRequestDto {
 
     private String companyName;//NOTE: nullable field, validating only if client specified 
 
-    private Long courseId;
+    private UUID courseUUID;
 }
