@@ -61,7 +61,7 @@ public class SchedUserServ {
             request.setLastName(UUID.randomUUID().toString());
             request.setFirstName(UUID.randomUUID().toString());
             request.setPhoneNumber("_73219211223");
-            request.setCourseUUID(UUID.randomUUID());
+//            request.setCourseUUID(UUID.randomUUID());
 
 //            request.setCompanyName(UUID.randomUUID().toString());
             System.out.println("отправляет регистрацию");
@@ -78,11 +78,11 @@ public class SchedUserServ {
                     .password((request.getPassword()));
 
 
-            var courseEntity = courseService.getCourseByUUID(request.getCourseUUID());
-            userBuilder.courseList(List.of(courseEntity));
-
-            resultBuilder.description(courseEntity.getCourseDescription());
-            resultBuilder.price(courseEntity.getCoursePrice());
+//            var courseEntity = courseService.getCourseByUUID(request.getCourseUUID());
+//            userBuilder.courseList(List.of(courseEntity));
+//
+//            resultBuilder.description(courseEntity.getCourseDescription());
+//            resultBuilder.price(courseEntity.getCoursePrice());
 
 
             //last

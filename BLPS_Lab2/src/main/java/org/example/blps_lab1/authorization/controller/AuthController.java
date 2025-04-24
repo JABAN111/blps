@@ -8,14 +8,11 @@ import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
 import org.example.blps_lab1.authorization.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.AllArgsConstructor;
 
-
+import java.util.UUID;
 
 
 @RestController
@@ -26,8 +23,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/sign-up")
-    public ApplicationResponseDto signUp(@RequestBody RegistrationRequestDto request){
+    public JwtAuthenticationResponse signUp(@RequestBody RegistrationRequestDto request){
         return authService.signUp(request);
+    }
+
+    @PostMapping("/sign-up/{courseUUID}")
+    public ApplicationResponseDto signUp(@RequestBody RegistrationRequestDto request, @PathVariable UUID courseUUID){
+        return authService.signUp(request, courseUUID);
     }
 
     @PostMapping("/sign-in")

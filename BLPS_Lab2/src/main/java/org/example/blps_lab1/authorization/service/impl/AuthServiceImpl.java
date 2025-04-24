@@ -1,6 +1,7 @@
 package org.example.blps_lab1.authorization.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
 import org.example.blps_lab1.authorization.dto.JwtAuthenticationResponse;
@@ -60,70 +61,74 @@ public class AuthServiceImpl implements AuthService {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
+    /**
+     * Возвращает готового пользователя, собранного из <code>RegistrationRequestDto</code>
+     * @throws AuthorizeException, если пользователь с таким именем существует
+     * @param request RegistrationRequestDto
+     * @return <code>User</code>, которого можно сохранять в бд
+     */
+    private User getUserOrThrow(RegistrationRequestDto request){
+        var userBuilder = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phoneNumber(request.getPhoneNumber())
+                .company(null)
+                .role(Role.CASUAL_STUDENT)
+                .password(passwordEncoder.encode(request.getPassword()));
+        var user = userBuilder.build();
+
+        if (userService.isExist(user.getUsername())) {
+            log.warn("User with username: {} exist", user.getUsername());
+            throw new AuthorizeException("Пользователь с именем: " + user.getUsername() +
+                    " уже существует");
+        }
+        return user;
+    }
+
     @Override
-    public ApplicationResponseDto signUp(RegistrationRequestDto request) {
+    public JwtAuthenticationResponse signUp(RegistrationRequestDto request) {
+        return transactionTemplate.execute(status -> {
+            var user = getUserOrThrow(request);
+            userService.add(user);
+            var jwt = jwtService.generateToken(user);
+            return new JwtAuthenticationResponse(jwt);
+        });
+    }
+
+    @Override
+    public ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID) {
         return transactionTemplate.execute(status -> {
             var resultBuilder = ApplicationResponseDto.builder();
-            var userBuilder = User.builder()
-                    .firstName(request.getFirstName())
-                    .lastName(request.getLastName())
-                    .email(request.getEmail())
-                    .phoneNumber(request.getPhoneNumber())
-                    .company(null)
-                    .role(Role.CASUAL_STUDENT)
-                    .password(passwordEncoder.encode(request.getPassword()));
-
-            log.info(userBuilder.build().getPassword());
-            // NOTE: if company is specified, user is legal entity
-            if (request.getCompanyName() != null) {
-                log.info("company is specified");
-
-                if (!companyService.isExist(request.getCompanyName())) {
-                    log.warn("company with name: {} not found", request.getCompanyName());
-
-//                    TODO сюда надо вкорячить защиту от ебаного зависания email
-//                    dev режим без email, либо замоканный email?
-                    emailService.informAboutCompanyProblem(request.getEmail(),
-                            request.getCompanyName());
-                    throw new ObjectNotExistException(
-                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
-                }
-                var companyEntity = companyService.getByName(request.getCompanyName());
-                userBuilder.company(companyEntity);
-                userBuilder.role(Role.LEGAL_COMPANY);
-            }
-
-
-            if (request.getCourseUUID() == null) {
+            var user = getUserOrThrow(request);
+            if (courseUUID == null) {
                 log.warn("course id is not specified, request: {}", request);
                 throw new FieldNotSpecifiedException("Не указан id курса");
             }
-            if (!courseService.isExist(request.getCourseUUID())) {
-                log.warn("Course with id: {} not found", request.getCourseUUID());
-                throw new ObjectNotExistException("Курс с id: " + request.getCourseUUID() + " не найден");
-            }
-
-            var courseEntity = courseService.getCourseByUUID(request.getCourseUUID());
-            userBuilder.courseList(List.of(courseEntity));
-
-            resultBuilder.description(courseEntity.getCourseDescription());
-            resultBuilder.price(courseEntity.getCoursePrice());
-
-            var user = userBuilder.build();
-
-            if (userService.isExist(user.getUsername())) {
-                log.warn("User with username: {} exist", user.getUsername());
-                throw new AuthorizeException("Пользователь с именем: " + user.getUsername() +
-                        " уже существует");
-            }
             userService.add(user);
-
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
-
-            applicationService.add(request.getCourseUUID(), user);
-
             return resultBuilder.build();
+
+            // NOTE: if company is specified, user is legal entity
+//            FIXME: временно убито, необходимо переосмыслить работу с компаниями
+//            if (request.getCompanyName() != null) {
+//                log.info("company is specified");
+//
+//                if (!companyService.isExist(request.getCompanyName())) {
+//                    log.warn("company with name: {} not found", request.getCompanyName());
+//
+////                    TODO сюда надо вкорячить защиту от ебаного зависания email
+////                     dev режим без email, либо замоканный email?
+//                    emailService.informAboutCompanyProblem(request.getEmail(),
+//                            request.getCompanyName());
+//                    throw new ObjectNotExistException(
+//                            "Компания с именем: " + request.getCompanyName() + " не зарегистрирована");
+//                }
+//                var companyEntity = companyService.getByName(request.getCompanyName());
+//                userBuilder.company(companyEntity);
+//                userBuilder.role(Role.LEGAL_COMPANY);
+//            }
         });
     }
 
@@ -154,6 +159,7 @@ public class AuthServiceImpl implements AuthService {
             return new JwtAuthenticationResponse(jwt);
         });
     }
+
     @Override
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
