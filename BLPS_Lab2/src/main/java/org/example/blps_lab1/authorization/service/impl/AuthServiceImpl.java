@@ -39,7 +39,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
 
-    private CompanyService companyService;
     private CourseService courseService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -50,8 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final PlatformTransactionManager transactionManager;
 
     @Autowired
-    public AuthServiceImpl(CompanyService companyService, CourseService courseService, PasswordEncoder passwordEncoder, JwtService jwtService, UserService userService, ApplicationService applicationService, EmailService emailService, EntityManager em, PlatformTransactionManager transactionManager) {
-        this.companyService = companyService;
+    public AuthServiceImpl(CourseService courseService, PasswordEncoder passwordEncoder, JwtService jwtService, UserService userService, ApplicationService applicationService, EmailService emailService, EntityManager em, PlatformTransactionManager transactionManager) {
         this.courseService = courseService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -111,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
      * @param courseUUID uuid курса, на который записывается пользователь.
      *                   Если курса не существует, выбрасывает ошибку {@link CourseNotExistException}
      *                   Если uuid не указан, выбрасывает ошибку {@link FieldNotSpecifiedException}
-     * @return  {@link ApplicationResponseDto}, который влкючает в себя
+     * @return  {@link ApplicationResponseDto}, который включает в себя
      *           jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
      */
     @Override
@@ -129,8 +127,9 @@ public class AuthServiceImpl implements AuthService {
                 log.warn("course with uuid: {} not found", courseUUID);
                 throw new CourseNotExistException("ошибка при создании заявки: данного курса больше не существует");
             }
+            var userEntity = userService.add(user);
+            applicationService.add(courseUUID, userEntity);
 
-            userService.add(user);
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));
             return resultBuilder.build();
