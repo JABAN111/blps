@@ -54,6 +54,23 @@ type ApplicationResponseDto struct {
 	Jwt         JwtAuthenticationResponse `json:"jwt"`
 }
 
+type ErrHttp struct {
+	code int
+	text string
+}
+
+func (e ErrHttp) Error() string {
+	return fmt.Sprintf("{code: %v, error: %v}", e.code, e.text)
+}
+
+func (e ErrHttp) getCode() int {
+	return e.code
+}
+
+func (e ErrHttp) getText() string {
+	return e.text
+}
+
 func signUp(reg RegistrationBody) (*ApplicationResponseDto, error) {
 	url := address + registrationUrl
 
@@ -74,9 +91,12 @@ func signUp(reg RegistrationBody) (*ApplicationResponseDto, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("неожиданный код ответа: %d, тело: %s", resp.StatusCode, string(bodyBytes))
+		return nil, ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
 	}
 
 	var applicationResponse ApplicationResponseDto
@@ -174,8 +194,8 @@ func TestLogin(t *testing.T) {
 		{
 			name: "valid test",
 			args: args{
-				Email:    "jaba@jaba.jaba",
-				Password: "jaba",
+				Email:    "admin",
+				Password: "admin",
 			},
 			expErr: false,
 		},
@@ -207,6 +227,7 @@ func TestLogin(t *testing.T) {
 			if tc.expErr {
 				require.Error(t, err, tc.name)
 			} else {
+				require.NotNil(t, res, tc.name)
 				require.True(t, len(res.Token) > 5)
 			}
 		})
