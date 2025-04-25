@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class ErrorAdvicer {
-    @ExceptionHandler({FieldNotSpecifiedException.class, IllegalArgumentException.class, 
+    @ExceptionHandler({FieldNotSpecifiedException.class, IllegalArgumentException.class,
         MailAuthenticationException.class, MailSendException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ExceptionWrapper handleFieldNotSpecifiedException(RuntimeException e) {
@@ -32,13 +32,13 @@ public class ErrorAdvicer {
     public ExceptionWrapper handleObjectAlreadyExistException(ObjectAlreadyExistException e) {
         return new ExceptionWrapper(e);
     }
-    
+
     @ExceptionHandler(ObjectNotExistException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper handleObjectNotExistException(ObjectNotExistException e) {
         return new ExceptionWrapper(e);
     }
-    
+
     @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper handleObjectNotFoundException(ObjectNotFoundException e) {
@@ -56,8 +56,8 @@ public class ErrorAdvicer {
     public ExceptionWrapper handleRuntimeException(RuntimeException e) {
         log.error(e.getMessage(), e);
         return new ExceptionWrapper(new Exception("Произошла внутренняя ошибка сервера"));
-    }   
-    
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper UsernameNotFoundException(UsernameNotFoundException e){

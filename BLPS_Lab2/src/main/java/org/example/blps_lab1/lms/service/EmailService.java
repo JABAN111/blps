@@ -27,21 +27,21 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    public MimeMessageHelper createMimeMessageHelper(String toEmail, String subject){
-        try{
+    public MimeMessageHelper createMimeMessageHelper(String toEmail, String subject) {
+        try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(senderEmail);
             helper.setTo(toEmail);
             helper.setSubject(subject);
             return helper;
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while creating email:  {}", e.getMessage(), e);
             throw new MailCreationException("Ошибка при создании сообщения: " + e.getMessage());
         }
     }
 
-    public void sendTermsOfStudy(String toEmail, String courseName, Long courseId, BigDecimal price){
+    public void sendTermsOfStudy(String toEmail, String courseName, Long courseId, BigDecimal price) {
         try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Поздравление с успешным формированием заявки");
 
@@ -49,26 +49,29 @@ public class EmailService {
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
                     "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
                     "<h2 style='color: #1FAEE9; text-align: center;'>Добро пожаловать!</h2>" +
-                    "<p style='color: #555; font-size: 16px;'>Вам необходимо оплатить данный курс" + courseName+ " </p>" +
+                    "<p style='color: #555; font-size: 16px;'>Вам необходимо оплатить данный курс" + courseName + " </p>" +
                     "<p style='color: #555; font-size: 16px;'>Стоимость данного курса составляет: " + price + "руб </p>" +
                     "<p style='color: #555; font-size: 16px;'>Вы согласны?</p>" +
-                    "<a href=\"http://localhost:8080/api/v1/user/application/"+courseId+"/OK\" class=\"button\">Да</a>" +
-                    "<a href=\"http://localhost:8080/api/v1/user/application/"+courseId+"/REJECT\" class=\"button\">Нет</a>" +
+                    "<a href=\"http://localhost:8080/api/v1/user/application/" + courseId + "/OK\" class=\"button\">Да</a>" +
+                    "<a href=\"http://localhost:8080/api/v1/user/application/" + courseId + "/REJECT\" class=\"button\">Нет</a>" +
                     "</div>" +
                     "</body>" +
                     "</html>";
 
-            helper.setText(htmlContent,true);
+            helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
             log.info("Email send successfully on {}", toEmail);
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о подаче заявки на курс : " + e.getMessage());
         }
 
     }
 
-    public void informAboutNewCourses(String toEmail, String courseName, BigDecimal price, List<Course> additionalCourses) {
+    public void informAboutNewCourses(String toEmail,
+                                      String courseName,
+                                      BigDecimal price,
+                                      List<Course> additionalCourses) {
         try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Запись на курсы");
 
@@ -100,48 +103,48 @@ public class EmailService {
     }
 
 
-    public void informAboutModuleCompletion(String toEmail, String courseName, String moduleName){
-        try{
+    public void informAboutModuleCompletion(String toEmail, String courseName, String moduleName) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Успешное прохождение модуля");
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
                     "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
                     "<h2 style='color: #1FAEE9; text-align: center;'>Поздравляем с успешным прохождение модуля " + moduleName + "</h2>" +
-                    "<p style='color: #555; font-size: 16px;'>Вы полность прошли модуль " + moduleName + " из курса: " + courseName+ " </p>" +
+                    "<p style='color: #555; font-size: 16px;'>Вы полность прошли модуль " + moduleName + " из курса: " + courseName + " </p>" +
                     "</div>" +
                     "</body>" +
                     "</html>";
 
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о завершении модуля: " + e.getMessage());
         }
     }
 
-    public void informAboutCompanyProblem(String toEmail, String companyName){
-        try{
+    public void informAboutCompanyProblem(String toEmail, String companyName) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Проблема при регистрации");
             String htmlContent = "<html>" +
-                    "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +"<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
+                    "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" + "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
                     "<div style='max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);'>" +
-                    "<h2 style='color: #1FAEE9; text-align: center;'> Компания с указанным вами именем "+companyName+" не зарегестрирована</h2>" +
+                    "<h2 style='color: #1FAEE9; text-align: center;'> Компания с указанным вами именем " + companyName + " не зарегестрирована</h2>" +
                     "<p style='color: #555; font-size: 16px;'>Пожалуйста проверьте, что вы правильно указали название компании</p>" +
-                    "<p style='color: #555; font-size: 16px;'>Если ошибка не будет решена, обратитесь в техподержку</p>"+
+                    "<p style='color: #555; font-size: 16px;'>Если ошибка не будет решена, обратитесь в техподержку</p>" +
                     "</div>" +
                     "</body>" +
                     "</html>";
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о проблемах при регистрации компании: " + e.getMessage());
         }
     }
 
-    public void informAboutCourseCompletion(String toEmail, String courseName){
-        try{
+    public void informAboutCourseCompletion(String toEmail, String courseName) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Успешное прохождение курса");
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
@@ -154,14 +157,14 @@ public class EmailService {
 
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending an email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о успешном прохождении курса: " + e.getMessage());
         }
     }
 
-    public void rejectionMail(String toEmail, String courseName){
-        try{
+    public void rejectionMail(String toEmail, String courseName) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Отказ от курса");
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
@@ -173,14 +176,14 @@ public class EmailService {
                     "</html>";
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о успешном отказе");
         }
     }
 
-    public void informMinioFailure(String toEmail){
-        try{
+    public void informMinioFailure(String toEmail) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Проблема при отправлении сертификата");
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
@@ -193,14 +196,14 @@ public class EmailService {
                     "</html>";
             helper.setText(htmlContent, true);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о успешном отказе");
         }
     }
 
-    public void sendCertificateToUser(String toEmail, File file){
-        try{
+    public void sendCertificateToUser(String toEmail, File file) {
+        try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Ваш сертификат о прохождении курса");
             String htmlContent = "<html>" +
                     "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>" +
@@ -213,9 +216,9 @@ public class EmailService {
             helper.setText(htmlContent, true);
 
             FileSystemResource fileResource = new FileSystemResource(file);
-            helper.addAttachment("Сертификат.pdf",fileResource);
+            helper.addAttachment("Сертификат.pdf", fileResource);
             mailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
+        } catch (MessagingException e) {
             log.error("Error while sending email on {} {}", toEmail, e.getMessage());
             throw new MailSendingException("Ошибка при отправке email о успешном отказе");
         }

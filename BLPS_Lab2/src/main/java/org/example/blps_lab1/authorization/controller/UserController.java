@@ -1,7 +1,6 @@
 package org.example.blps_lab1.authorization.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
 import org.example.blps_lab1.authorization.service.impl.ApplicationService;
 import org.example.blps_lab1.authorization.service.impl.UserEnrollmentService;

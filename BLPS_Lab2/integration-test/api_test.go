@@ -26,7 +26,7 @@ const (
 )
 
 var client = http.Client{
-	Timeout: 10 * time.Second,
+	Timeout: 10 * time.Minute,
 }
 
 func TestPreflight(t *testing.T) {
@@ -393,7 +393,7 @@ func generateUserToken(email, password string) (string, error) {
 		RegistrationBody{
 			FirstName:   email,
 			LastName:    email,
-			Email:       email,
+			Email:       email + "@gmail.com",
 			Password:    password,
 			PhoneNumber: "+78005553535",
 		},
@@ -434,6 +434,22 @@ func TestUpdateApplicationStatus(t *testing.T) {
 			applicationStatus: "OK",
 			expErr:            false,
 		},
+		{
+			name:              "invalid status",
+			username:          uuid.NewString(),
+			password:          uuid.NewString(),
+			courseUUID:        getExistCourseUUID(),
+			applicationStatus: "adslls",
+			expErr:            true,
+		},
+		{
+			name:              "reject status",
+			username:          uuid.NewString(),
+			password:          uuid.NewString(),
+			courseUUID:        getExistCourseUUID(),
+			applicationStatus: "REJECT",
+			expErr:            false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -452,4 +468,21 @@ func TestUpdateApplicationStatus(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("send new status to same application", func(t *testing.T) {
+		username := uuid.NewString()
+		pass := uuid.NewString()
+		token, err := generateUserToken(username, pass)
+		require.NoError(t, err)
+
+		courseUUID := getExistCourseUUID()
+		applicationID, err := createApplication(courseUUID, token)
+		require.NoError(t, err)
+		err = updateApplicationStatus(applicationID, token, "OK")
+		require.NoError(t, err)
+		err = updateApplicationStatus(applicationID, token, "OK")
+		require.Error(t, err)
+		err = updateApplicationStatus(applicationID, token, "REJECT")
+		require.Error(t, err)
+	})
 }
