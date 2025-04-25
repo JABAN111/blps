@@ -18,6 +18,7 @@ const (
 	apiV            = "/api/v1"
 	authBase        = apiV + "/auth"
 	userBase        = apiV + "/user"
+	courseBase      = apiV + "/courses"
 	registrationUrl = authBase + "/sign-up"
 	login           = authBase + "/sign-in"
 )
@@ -69,6 +70,53 @@ func (e ErrHttp) getCode() int {
 
 func (e ErrHttp) getText() string {
 	return e.text
+}
+
+type Course struct {
+	CourseUUID     uuid.UUID   `json:"courseUUID"`
+	CourseName     string      `json:"courseName"`
+	CoursePrice    float64     `json:"coursePrice"`
+	Description    string      `json:"description"`
+	TopicName      string      `json:"topicName"`
+	CreationDate   string      `json:"creationDate"`
+	CourseDuration int         `json:"courseDuration"`
+	WithJobOffer   bool        `json:"withJobOffer"`
+	IsCompleted    interface{} `json:"isCompleted"`
+}
+
+type CoursesResponse struct {
+	Courses []Course `json:"course_list"`
+}
+
+func getAllCourses(token string) ([]Course, error) {
+	url := address + courseBase
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при создании запроса")
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+
+	var coursesResp CoursesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&coursesResp); err != nil {
+		return nil, fmt.Errorf("ошибка при обработке ответа: %v", err)
+	}
+
+	return coursesResp.Courses, nil
 }
 
 func signUp(reg RegistrationBody) (*ApplicationResponseDto, error) {
@@ -235,12 +283,14 @@ func TestLogin(t *testing.T) {
 }
 
 func TestCreateApplication(t *testing.T) {
-	t.Skip("need logic for processing exist UUID")
-
 	jwtResp, err := signIn(LoginRequest{Email: "jaba@jaba.jaba", Password: "jaba"})
 	require.NoError(t, err, "failed to get token")
 	token := jwtResp.Token
 	t.Log("attempt to create an application with token: " + token)
+
+	courses, err := getAllCourses(token)
+	require.NoError(t, err, "failed to get courses")
+	require.True(t, len(courses) != 0, "at least one course must be")
 
 	testCases := []struct {
 		name       string
@@ -248,9 +298,9 @@ func TestCreateApplication(t *testing.T) {
 		expErr     bool
 	}{
 		{
-			name: "Valid token creation",
-			//courseUUID: 2, // NOTE: такой курс должен уже быть создан заранее TODO
-			expErr: false,
+			name:       "Valid token creation",
+			courseUUID: courses[0].CourseUUID, // NOTE: такой курс должен уже быть создан заранее
+			expErr:     false,
 		},
 		{
 			name: "course which are not exist",
@@ -275,4 +325,13 @@ func TestCreateApplication(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetCourses(t *testing.T) {
+	jwtResp, err := signIn(LoginRequest{Email: "jaba@jaba.jaba", Password: "jaba"})
+	require.NoError(t, err, "failed to get token")
+	token := jwtResp.Token
+	t.Log("attempt to create an application with token: " + token)
+	_, err = getAllCourses(token)
+	require.NoError(t, err)
 }

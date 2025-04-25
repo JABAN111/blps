@@ -27,7 +27,10 @@ public class UserEnrollmentService {
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public UserEnrollmentService(PlatformTransactionManager transactionTemplate, EmailService emailService, CourseService courseService, AuthService authService, UserService userService, ApplicationService applicationService) {
+    public UserEnrollmentService(
+            PlatformTransactionManager transactionTemplate, EmailService emailService,
+            CourseService courseService, AuthService authService,
+            UserService userService, ApplicationService applicationService) {
         this.transactionTemplate = new TransactionTemplate(transactionTemplate);
         this.emailService = emailService;
         this.courseService = courseService;
@@ -60,6 +63,5 @@ public class UserEnrollmentService {
             }
         });
     }
-
 }
 

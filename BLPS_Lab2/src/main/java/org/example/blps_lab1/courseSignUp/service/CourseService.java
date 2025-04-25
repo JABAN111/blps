@@ -58,7 +58,7 @@ public class CourseService {
         return courseRepository.findById(id).orElseThrow(() -> new ObjectNotExistException("Курс с id: " + id + " не существует"));
     }
 
-    public List<Course> saveAll(List<Course> courses) {
+    public List<Course> addAll(List<Course> courses) {
         return courseRepository.saveAll(courses);
     }
 
@@ -185,6 +185,7 @@ public class CourseService {
 
     public CourseDto convertToDto(Course course) {
         return new CourseDto(
+                course.getCourseUUID(),
                 course.getCourseName(),
                 course.getCoursePrice(),
                 course.getCourseDescription(),
