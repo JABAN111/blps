@@ -1,6 +1,5 @@
 package org.example.blps_lab1.authorization.service.impl;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
@@ -13,7 +12,6 @@ import org.example.blps_lab1.common.exceptions.CourseNotExistException;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.service.AuthService;
-import org.example.blps_lab1.authorization.service.CompanyService;
 import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
 
@@ -44,19 +42,20 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final ApplicationService applicationService;
-    private final EmailService emailService;
+    private final EmailService emailService; // FIXME: temporary killed, need to enable and check
     private final TransactionTemplate transactionTemplate;
-    private final PlatformTransactionManager transactionManager;
 
     @Autowired
-    public AuthServiceImpl(CourseService courseService, PasswordEncoder passwordEncoder, JwtService jwtService, UserService userService, ApplicationService applicationService, EmailService emailService, EntityManager em, PlatformTransactionManager transactionManager) {
+    public AuthServiceImpl(CourseService courseService, PasswordEncoder passwordEncoder,
+                           JwtService jwtService, UserService userService,
+                           ApplicationService applicationService, EmailService emailService,
+                           PlatformTransactionManager transactionManager) {
         this.courseService = courseService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userService = userService;
         this.applicationService = applicationService;
         this.emailService = emailService;
-        this.transactionManager = transactionManager;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -109,8 +108,8 @@ public class AuthServiceImpl implements AuthService {
      * @param courseUUID uuid курса, на который записывается пользователь.
      *                   Если курса не существует, выбрасывает ошибку {@link CourseNotExistException}
      *                   Если uuid не указан, выбрасывает ошибку {@link FieldNotSpecifiedException}
-     * @return  {@link ApplicationResponseDto}, который включает в себя
-     *           jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
+     * @return {@link ApplicationResponseDto}, который включает в себя
+     * jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
      */
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID) {
@@ -170,7 +169,6 @@ public class AuthServiceImpl implements AuthService {
 
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
-
             return userService.getUserByEmail(username);
         } else {
             throw new AuthorizeException("Текущий пользователь не авторизован");
