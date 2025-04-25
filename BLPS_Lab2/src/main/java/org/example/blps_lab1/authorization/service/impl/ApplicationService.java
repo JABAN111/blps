@@ -9,19 +9,15 @@ import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.repository.ApplicationRepository;
 import org.example.blps_lab1.authorization.service.UserService;
 import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
+import org.example.blps_lab1.common.exceptions.StatusAlreadySetException;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
@@ -69,7 +65,7 @@ public class ApplicationService {
             }
             var entity = oldEntityOptional.get();
             if (entity.getStatus() != ApplicationStatus.PENDING) {
-                throw new IllegalStateException("Нельзя изменить статус уже сформированной заявки");
+                throw new StatusAlreadySetException("Нельзя изменить статус уже сформированной заявки");
             }
             entity.setStatus(applicationStatus);
 

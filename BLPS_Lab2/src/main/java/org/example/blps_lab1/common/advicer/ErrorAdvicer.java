@@ -2,12 +2,7 @@ package org.example.blps_lab1.common.advicer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
-import org.example.blps_lab1.common.exceptions.ExceptionWrapper;
-import org.example.blps_lab1.common.exceptions.FieldNotSpecifiedException;
-import org.example.blps_lab1.common.exceptions.NotFinishedException;
-import org.example.blps_lab1.common.exceptions.ObjectAlreadyExistException;
-import org.example.blps_lab1.common.exceptions.ObjectNotExistException;
-import org.example.blps_lab1.common.exceptions.ObjectNotFoundException;
+import org.example.blps_lab1.common.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
@@ -21,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ErrorAdvicer {
     @ExceptionHandler({FieldNotSpecifiedException.class, IllegalArgumentException.class,
-        MailAuthenticationException.class, MailSendException.class})
+        MailAuthenticationException.class, MailSendException.class, StatusAlreadySetException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ExceptionWrapper handleFieldNotSpecifiedException(RuntimeException e) {
         return new ExceptionWrapper(e);
