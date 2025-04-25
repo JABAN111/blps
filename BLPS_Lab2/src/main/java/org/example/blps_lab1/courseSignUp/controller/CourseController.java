@@ -32,7 +32,7 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{uuid}")
     public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid){
         Map<String, Object> response = new HashMap<>();
         Course course = courseService.getCourseByUUID(uuid);

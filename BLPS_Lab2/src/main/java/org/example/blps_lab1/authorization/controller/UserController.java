@@ -1,6 +1,5 @@
 package org.example.blps_lab1.authorization.controller;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
 import org.example.blps_lab1.authorization.service.impl.ApplicationService;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
-
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -41,22 +39,16 @@ public class UserController {
      * @param body          тело Patch-запроса с новым статусом заявки.
      *                      Заявка имеет три статуса, соответствующих enum {@link ApplicationStatus}:
      *                      <pre>{@code
-     *                                                       {
-     *                                                           OK,
-     *                                                           REJECT,
-     *                                                           PENDING
-     *                                                       }
-     *                                                       }</pre>
+     *                                                                            {
+     *                                                                                OK,
+     *                                                                                REJECT,
+     *                                                                                PENDING
+     *                                                                            }
+     *                                                                            }</pre>
      */
     @PatchMapping("/application/status/{applicationID}")
     public void updateApplicationStatus(@PathVariable Long applicationID, @RequestBody Map<String, String> body) {
         String appStatus = body.get("newStatus");
         userEnrollmentService.processEnrolment(applicationID, appStatus);
     }
-
-    @GetMapping("/ping")
-    public String ping() {
-        return "Pong";
-    }
-
 }

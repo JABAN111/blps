@@ -3,6 +3,7 @@ package data
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -190,6 +191,7 @@ func signIn(reg LoginRequest) (*JwtAuthenticationResponse, error) {
 }
 
 func createApplication(uuid uuid.UUID, token string) error {
+	var errHttp ErrHttp
 	url := fmt.Sprintf("%s%s/application/%v", address, userBase, uuid)
 
 	req, err := http.NewRequest(http.MethodPost, url, nil)
@@ -206,7 +208,9 @@ func createApplication(uuid uuid.UUID, token string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("неожиданный код ответа: %d, тело: %s", resp.StatusCode, string(bodyBytes))
+		errHttp.code = resp.StatusCode
+		errHttp.text = string(bodyBytes)
+		return errHttp
 	}
 
 	return nil
@@ -293,9 +297,10 @@ func TestCreateApplication(t *testing.T) {
 	require.True(t, len(courses) != 0, "at least one course must be")
 
 	testCases := []struct {
-		name       string
-		courseUUID uuid.UUID
-		expErr     bool
+		name           string
+		courseUUID     uuid.UUID
+		expErr         bool
+		httpCodeExpect int
 	}{
 		{
 			name:       "Valid token creation",
@@ -312,17 +317,24 @@ func TestCreateApplication(t *testing.T) {
 				}
 				return id
 			}(),
-			expErr: true,
+			expErr:         true,
+			httpCodeExpect: http.StatusBadRequest,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := createApplication(tc.courseUUID, token)
 			if tc.expErr {
+				var netStatus ErrHttp
+				errors.As(err, &netStatus)
 				require.Error(t, err, tc.name)
+				require.Equal(t, tc.httpCodeExpect, netStatus.getCode(), tc.name)
+				return
 			} else {
 				require.NoError(t, err, tc.name)
+				return
 			}
+
 		})
 	}
 }

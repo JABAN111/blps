@@ -1,5 +1,6 @@
 package org.example.blps_lab1.courseSignUp.dto;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.example.blps_lab1.courseSignUp.models.Topic;
 
@@ -15,6 +17,7 @@ import org.example.blps_lab1.courseSignUp.models.Topic;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseDto {
+    private UUID courseUUID;
     private String courseName;
     private BigDecimal coursePrice;
     private String description;

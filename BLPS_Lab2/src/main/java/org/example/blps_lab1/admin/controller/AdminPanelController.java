@@ -24,7 +24,6 @@ public class AdminPanelController {
     public void updateRole(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String role = body.get("role");
-        // TODO: первого админа необходимо инициализировать admin, admin
         adminPanelService.updateRole(email, role);
     }
 }
