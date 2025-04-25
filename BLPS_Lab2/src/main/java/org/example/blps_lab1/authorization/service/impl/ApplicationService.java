@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
-//transaction update finished
+//transactional OK
 public class ApplicationService {
     private final ApplicationRepository repository;
     private final UserService userService;

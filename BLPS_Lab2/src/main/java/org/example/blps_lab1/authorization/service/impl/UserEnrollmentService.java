@@ -16,7 +16,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-@Service @Slf4j
+@Service
+@Slf4j
 public class UserEnrollmentService {
     private final ApplicationService applicationService;
     private final UserService userService;
@@ -35,7 +36,7 @@ public class UserEnrollmentService {
         this.applicationService = applicationService;
     }
 
-    public void processEnrolment(Long applicationEnrollmentId, String applicationStatus){
+    public void processEnrolment(Long applicationEnrollmentId, String applicationStatus) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
@@ -48,7 +49,7 @@ public class UserEnrollmentService {
                     throw new IllegalArgumentException("Нельзя изменить статус уже сформированной заявки");
                 }
                 var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
-                if (appStatus == ApplicationStatus.REJECT){
+                if (appStatus == ApplicationStatus.REJECT) {
                     emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());
                     return;
                 }

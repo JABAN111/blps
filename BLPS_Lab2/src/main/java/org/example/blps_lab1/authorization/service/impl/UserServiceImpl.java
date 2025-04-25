@@ -25,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+// transactional OK
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CourseService courseService;
