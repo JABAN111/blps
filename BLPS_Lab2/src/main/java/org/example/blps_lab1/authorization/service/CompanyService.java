@@ -7,6 +7,8 @@ import java.util.List;
 import org.example.blps_lab1.authorization.dto.CompanyDto;
 import org.example.blps_lab1.authorization.models.Company;
 
+@SuppressWarnings("wait for refactor")
+@Deprecated
 public interface CompanyService {
     
     Boolean isExist(String companyName);

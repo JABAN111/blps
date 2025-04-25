@@ -98,6 +98,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void enrollUser(User user, UUID courseUUID) {
         var course = courseService.find(courseUUID);
+//        transaction opens in method enrollUser() above
         enrollUser(user, course);
     }
 }

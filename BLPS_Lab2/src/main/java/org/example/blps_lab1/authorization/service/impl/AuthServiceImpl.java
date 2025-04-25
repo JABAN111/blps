@@ -109,8 +109,8 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param request    включает в себя поля для регистрации поля
      * @param courseUUID uuid курса, на который записывается пользователь.
-     *                   Если курса не существует, выбрасывает ошибку {@link CourseNotExistException()}
-     *                   Если uuid не указан, выбрасывает ошибку {@link FieldNotSpecifiedException()}
+     *                   Если курса не существует, выбрасывает ошибку {@link CourseNotExistException}
+     *                   Если uuid не указан, выбрасывает ошибку {@link FieldNotSpecifiedException}
      * @return  {@link ApplicationResponseDto}, который влкючает в себя
      *           jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
      */
