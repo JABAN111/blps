@@ -1,6 +1,7 @@
 package org.example.blps_lab1.authorization.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.authorization.models.Application;
 import org.example.blps_lab1.authorization.models.ApplicationStatus;
 import org.example.blps_lab1.authorization.service.impl.ApplicationService;
 import org.example.blps_lab1.authorization.service.impl.UserEnrollmentService;
@@ -23,13 +24,16 @@ public class UserController {
 
 
     /**
-     * Данный endpoint создает заявку, ПРИВЯЗАННУЮ К КОНКРЕТНОМУ ПОЛЬЗОВАТЕЛЮ
+     * Данный endpoint создает заявку,
+     * ПРИВЯЗАННУЮ К КОНКРЕТНОМУ ПОЛЬЗОВАТЕЛЮ
      * пользователь достается из jwt токена
+     * Возвращает id заявки, которую можно подтвердить или отказаться. См {@code updateApplicationStatus()}
      */
     @PostMapping("/application/{courseUUID}")
-    public void createApplication(@PathVariable UUID courseUUID) {
+    public Long createApplication(@PathVariable UUID courseUUID) {
         log.info("got request for course with id: {}", courseUUID);
-        applicationService.add(courseUUID);
+        var applicationEntity = applicationService.add(courseUUID);
+        return applicationEntity.getId();
     }
 
     /**

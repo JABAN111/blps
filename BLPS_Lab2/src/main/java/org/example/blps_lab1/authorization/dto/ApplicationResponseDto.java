@@ -15,4 +15,5 @@ public class ApplicationResponseDto {
     private String description;
     private BigDecimal price;
     private JwtAuthenticationResponse jwt;
+    private Long applicationID;
 }

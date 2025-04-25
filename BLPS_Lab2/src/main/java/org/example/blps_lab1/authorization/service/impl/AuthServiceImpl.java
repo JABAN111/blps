@@ -128,7 +128,8 @@ public class AuthServiceImpl implements AuthService {
                 throw new CourseNotExistException("ошибка при создании заявки: данного курса больше не существует");
             }
             var userEntity = userService.add(user);
-            applicationService.add(courseUUID, userEntity);
+            var applicationEntity = applicationService.add(courseUUID, userEntity);
+            resultBuilder.applicationID(applicationEntity.getId());
 
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));

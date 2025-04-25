@@ -52,9 +52,10 @@ type JwtAuthenticationResponse struct {
 	Token string `json:"token"`
 }
 type ApplicationResponseDto struct {
-	Description string                    `json:"description"`
-	Price       float64                   `json:"price"`
-	Jwt         JwtAuthenticationResponse `json:"jwt"`
+	Description   string                    `json:"description"`
+	Price         float64                   `json:"price"`
+	ApplicationID int                       `json:"applicationID"`
+	Jwt           JwtAuthenticationResponse `json:"jwt"`
 }
 
 type ErrHttp struct {
@@ -90,7 +91,7 @@ type CoursesResponse struct {
 	Courses []Course `json:"course_list"`
 }
 
-func getAllCourses(token string) ([]Course, error) {
+func getAllCourses() ([]Course, error) {
 	url := address + courseBase
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -120,7 +121,7 @@ func getAllCourses(token string) ([]Course, error) {
 	return coursesResp.Courses, nil
 }
 
-func signUp(reg RegistrationBody) (*ApplicationResponseDto, error) {
+func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 	url := address + registrationUrl
 
 	requestBody, err := json.Marshal(reg)
@@ -148,7 +149,7 @@ func signUp(reg RegistrationBody) (*ApplicationResponseDto, error) {
 		}
 	}
 
-	var applicationResponse ApplicationResponseDto
+	var applicationResponse JwtAuthenticationResponse
 	err = json.NewDecoder(resp.Body).Decode(&applicationResponse)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка декодирования ответа: %w", err)
@@ -190,39 +191,53 @@ func signIn(reg LoginRequest) (*JwtAuthenticationResponse, error) {
 	return &jwtAuthResponse, nil
 }
 
-func createApplication(uuid uuid.UUID, token string) error {
+func createApplication(uuid uuid.UUID, token string) (int, error) {
 	var errHttp ErrHttp
 	url := fmt.Sprintf("%s%s/application/%v", address, userBase, uuid)
 
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
-		return fmt.Errorf("ошибка создания запроса: %w", err)
+		return 0, fmt.Errorf("ошибка создания запроса: %w", err)
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+		return 0, fmt.Errorf("ошибка выполнения запроса: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		errHttp.code = resp.StatusCode
 		errHttp.text = string(bodyBytes)
-		return errHttp
+		return 0, errHttp
 	}
+	bodyBytes, _ := io.ReadAll(resp.Body)
 
-	return nil
+	id, _ := strconv.Atoi(string(bodyBytes))
+	return id, nil
 }
 
-func updateApplicationStatus(applicationID int64, token, newStatus string) error {
-	url := address + userBase + "/application/status/" + strconv.FormatInt(applicationID, 10)
+func updateApplicationStatus(applicationID int, token, newStatus string) error {
+	url := address + userBase + "/application/status/" + strconv.Itoa(applicationID)
 
-	req, err := http.NewRequest(http.MethodPatch, url, nil)
+	type updApplStatusBody struct {
+		NewStatus string `json:"newStatus"`
+	}
+	stat := updApplStatusBody{NewStatus: newStatus}
+
+	body, err := json.Marshal(stat)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(body))
+
 	if err != nil {
 		return fmt.Errorf("ошибка при создании запроса")
 	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 
@@ -317,7 +332,7 @@ func TestCreateApplication(t *testing.T) {
 	token := jwtResp.Token
 	t.Log("attempt to create an application with token: " + token)
 
-	courses, err := getAllCourses(token)
+	courses, err := getAllCourses()
 	require.NoError(t, err, "failed to get courses")
 	require.True(t, len(courses) != 0, "at least one course must be")
 
@@ -348,7 +363,7 @@ func TestCreateApplication(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := createApplication(tc.courseUUID, token)
+			_, err := createApplication(tc.courseUUID, token)
 			if tc.expErr {
 				var netStatus ErrHttp
 				errors.As(err, &netStatus)
@@ -369,7 +384,7 @@ func TestGetCourses(t *testing.T) {
 	require.NoError(t, err, "failed to get token")
 	token := jwtResp.Token
 	t.Log("attempt to create an application with token: " + token)
-	_, err = getAllCourses(token)
+	_, err = getAllCourses()
 	require.NoError(t, err)
 }
 
@@ -386,32 +401,55 @@ func generateUserToken(email, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return app.Jwt.Token, nil
+	return app.Token, nil
 }
 
-//func getExistCourses(){
-//
-//}
-//
-//func TestUpdateApplicationStatus(t *testing.T) {
-//
-//
-//	testCases := []struct {
-//		name              string
-//		username          string
-//		password          string
-//		courseUUID        uuid.UUID // function that create new user and register him for course
-//		applicationStatus string
-//		expErr            bool
-//		httpCodeExpect    int
-//	}{
-//		{
-//			name:     "total valid application request",
-//			username: uuid.NewString(),
-//			password: uuid.NewString(),
-//			courseUUID:
-//		},
-//	}
-//	updateApplicationStatus()
-//
-//}
+func getExistCourseUUID() uuid.UUID {
+	res, err := getAllCourses()
+	if err != nil {
+		return uuid.UUID{}
+	}
+	if len(res) == 0 {
+		return uuid.UUID{}
+	}
+
+	return res[0].CourseUUID
+}
+
+func TestUpdateApplicationStatus(t *testing.T) {
+	testCases := []struct {
+		name              string
+		username          string
+		password          string
+		courseUUID        uuid.UUID // function that create new user and register him for course
+		applicationStatus string
+		expErr            bool
+		httpCodeExpect    int
+	}{
+		{
+			name:              "total valid application request",
+			username:          uuid.NewString(),
+			password:          uuid.NewString(),
+			courseUUID:        getExistCourseUUID(),
+			applicationStatus: "OK",
+			expErr:            false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			token, err := generateUserToken(tc.username, tc.password)
+			require.NoError(t, err)
+
+			applicationID, err := createApplication(tc.courseUUID, token)
+			require.NoError(t, err)
+
+			err = updateApplicationStatus(applicationID, token, tc.applicationStatus)
+			if tc.expErr {
+				require.Error(t, err, tc.name)
+			} else {
+				require.NoError(t, err, tc.name)
+			}
+		})
+	}
+}
