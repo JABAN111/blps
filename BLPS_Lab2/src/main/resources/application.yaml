@@ -42,3 +42,7 @@ narayana:
   messaginghub:
     maxConnections: 10
     max_prepared_transactions: 100
+app:
+  admin:
+    username: admin
+    password: admin

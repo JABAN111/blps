@@ -9,6 +9,7 @@ import org.example.blps_lab1.authorization.dto.LoginRequest;
 import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
 import org.example.blps_lab1.authorization.exception.AuthorizeException;
 import org.example.blps_lab1.authorization.models.Role;
+import org.example.blps_lab1.common.exceptions.CourseNotExistException;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.example.blps_lab1.authorization.models.User;
 import org.example.blps_lab1.authorization.service.AuthService;
@@ -63,11 +64,12 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Возвращает готового пользователя, собранного из <code>RegistrationRequestDto</code>
-     * @throws AuthorizeException, если пользователь с таким именем существует
+     *
      * @param request RegistrationRequestDto
-     * @return <code>User</code>, которого можно сохранять в бд
+     * @return {@link User}, которого можно сохранять в бд
+     * @throws AuthorizeException, если пользователь с таким именем существует
      */
-    private User getUserOrThrow(RegistrationRequestDto request){
+    private User getUserOrThrow(RegistrationRequestDto request) {
         var userBuilder = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -86,6 +88,12 @@ public class AuthServiceImpl implements AuthService {
         return user;
     }
 
+    /**
+     * Регистрация пользователя без записи на курс
+     *
+     * @param request включает в себя поля для регистрации поля
+     * @return обертку с JWT токеном внутри
+     */
     @Override
     public JwtAuthenticationResponse signUp(RegistrationRequestDto request) {
         return transactionTemplate.execute(status -> {
@@ -96,6 +104,16 @@ public class AuthServiceImpl implements AuthService {
         });
     }
 
+    /**
+     * Регистрация пользователя с записью на курс
+     *
+     * @param request    включает в себя поля для регистрации поля
+     * @param courseUUID uuid курса, на который записывается пользователь.
+     *                   Если курса не существует, выбрасывает ошибку {@link CourseNotExistException()}
+     *                   Если uuid не указан, выбрасывает ошибку {@link FieldNotSpecifiedException()}
+     * @return  {@link ApplicationResponseDto}, который влкючает в себя
+     *           jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
+     */
     @Override
     public ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID) {
         return transactionTemplate.execute(status -> {
@@ -105,6 +123,13 @@ public class AuthServiceImpl implements AuthService {
                 log.warn("course id is not specified, request: {}", request);
                 throw new FieldNotSpecifiedException("Не указан id курса");
             }
+            try {
+                courseService.getCourseByUUID(courseUUID);
+            } catch (ObjectNotExistException e) {
+                log.warn("course with uuid: {} not found", courseUUID);
+                throw new CourseNotExistException("ошибка при создании заявки: данного курса больше не существует");
+            }
+
             userService.add(user);
             var jwt = jwtService.generateToken(user);
             resultBuilder.jwt(new JwtAuthenticationResponse(jwt));

@@ -1,6 +1,7 @@
 package org.example.blps_lab1.authorization.dto;
 
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
