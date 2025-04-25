@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -96,7 +97,6 @@ func getAllCourses(token string) ([]Course, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ошибка при создании запроса")
 	}
-	req.Header.Add("Authorization", "Bearer "+token)
 
 	resp, err := client.Do(req)
 
@@ -211,6 +211,31 @@ func createApplication(uuid uuid.UUID, token string) error {
 		errHttp.code = resp.StatusCode
 		errHttp.text = string(bodyBytes)
 		return errHttp
+	}
+
+	return nil
+}
+
+func updateApplicationStatus(applicationID int64, token, newStatus string) error {
+	url := address + userBase + "/application/status/" + strconv.FormatInt(applicationID, 10)
+
+	req, err := http.NewRequest(http.MethodPatch, url, nil)
+	if err != nil {
+		return fmt.Errorf("ошибка при создании запроса")
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
 	}
 
 	return nil
@@ -347,3 +372,46 @@ func TestGetCourses(t *testing.T) {
 	_, err = getAllCourses(token)
 	require.NoError(t, err)
 }
+
+func generateUserToken(email, password string) (string, error) {
+	app, err := signUp(
+		RegistrationBody{
+			FirstName:   email,
+			LastName:    email,
+			Email:       email,
+			Password:    password,
+			PhoneNumber: "+78005553535",
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+	return app.Jwt.Token, nil
+}
+
+//func getExistCourses(){
+//
+//}
+//
+//func TestUpdateApplicationStatus(t *testing.T) {
+//
+//
+//	testCases := []struct {
+//		name              string
+//		username          string
+//		password          string
+//		courseUUID        uuid.UUID // function that create new user and register him for course
+//		applicationStatus string
+//		expErr            bool
+//		httpCodeExpect    int
+//	}{
+//		{
+//			name:     "total valid application request",
+//			username: uuid.NewString(),
+//			password: uuid.NewString(),
+//			courseUUID:
+//		},
+//	}
+//	updateApplicationStatus()
+//
+//}

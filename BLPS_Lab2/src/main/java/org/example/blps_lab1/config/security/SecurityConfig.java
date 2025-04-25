@@ -4,6 +4,7 @@ import org.example.blps_lab1.authorization.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -42,15 +43,16 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/admin/**").authenticated()
-                .requestMatchers("/api/v1/certificate/**").authenticated()
-                .requestMatchers("/api/v1/courses/**").authenticated()
-                .requestMatchers("/api/v1/enrollment/**").authenticated()
-                .requestMatchers("/api/v1/user/**").authenticated()
-                .requestMatchers("/api/v1/exercises/**").authenticated()
-                .requestMatchers("/api/v1/modules/**").authenticated()
-                .anyRequest().permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").authenticated()
+                        .requestMatchers("/api/v1/certificate/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/courses").permitAll()
+                        .requestMatchers("/api/v1/courses/**").authenticated()
+                        .requestMatchers("/api/v1/enrollment/**").authenticated()
+                        .requestMatchers("/api/v1/user/**").authenticated()
+                        .requestMatchers("/api/v1/exercises/**").authenticated()
+                        .requestMatchers("/api/v1/modules/**").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

@@ -24,7 +24,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllCourses(){
+    public ResponseEntity<Map<String, Object>> getAllCourses() {
         Map<String, Object> response = new HashMap<>();
         List<Course> courseList = courseService.getAllCourses();
         List<CourseDto> courseDtoList = courseService.convertToDto(courseList);
@@ -33,7 +33,7 @@ public class CourseController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid){
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid) {
         Map<String, Object> response = new HashMap<>();
         Course course = courseService.getCourseByUUID(uuid);
         CourseDto courseDto = courseService.convertToDto(course);
@@ -43,7 +43,7 @@ public class CourseController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course){
+    public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course) {
         Map<String, Object> response = new HashMap<>();
         Course newCourse = courseService.createCourse(course);
         CourseDto courseDto = courseService.convertToDto(newCourse);
@@ -53,7 +53,7 @@ public class CourseController {
 
     @DeleteMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable UUID courseUUID){
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable UUID courseUUID) {
         Map<String, Object> response = new HashMap<>();
         courseService.deleteCourse(courseUUID);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -61,7 +61,7 @@ public class CourseController {
 
     @PutMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable UUID courseUUID, @Valid @RequestBody CourseDto courseDto){
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable UUID courseUUID, @Valid @RequestBody CourseDto courseDto) {
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.updateCourse(courseUUID, courseDto);
         response.put("message", "course updated");
@@ -74,7 +74,7 @@ public class CourseController {
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
             @PathVariable UUID courseId,
             @PathVariable UUID additionalId
-    ){
+    ) {
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
         response.put("message", "Дополнительный курс добавлен");
@@ -84,7 +84,7 @@ public class CourseController {
 
     @PutMapping("/{courseUUID}/additional-courses")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Course> addListOfCourses(@PathVariable UUID courseUUID, @RequestBody List<Course> additionalCourses){
+    public ResponseEntity<Course> addListOfCourses(@PathVariable UUID courseUUID, @RequestBody List<Course> additionalCourses) {
         Course updatedCourse = courseService.addListOfCourses(courseUUID, additionalCourses);
         return ResponseEntity.ok(updatedCourse);
     }
