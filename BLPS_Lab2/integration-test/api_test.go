@@ -121,6 +121,39 @@ func getAllCourses() ([]Course, error) {
 	return coursesResp.Courses, nil
 }
 
+func createCourse(token string, course Course) error {
+	url := address + courseBase
+
+	reqBody, err := json.Marshal(course)
+	if err != nil {
+		return fmt.Errorf("ошибка маршалинга запроса: %w", err)
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return fmt.Errorf("ошибка создания запроса: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	fmt.Println(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		var httpErr ErrHttp
+		httpErr.code = resp.StatusCode
+		httpErr.text = string(bodyBytes)
+		return httpErr
+	}
+
+	return nil
+}
+
 func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 	url := address + registrationUrl
 
@@ -158,6 +191,38 @@ func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 	return &applicationResponse, nil
 }
 
+func getCourse(token string, courseUUID uuid.UUID) (Course, error) {
+	url := address + courseBase + "/" + courseUUID.String()
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка при создании запроса")
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return Course{}, ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+
+	var course Course
+	if err := json.NewDecoder(resp.Body).Decode(&course); err != nil {
+		return Course{}, fmt.Errorf("ошибка при обработке ответа: %v", err)
+	}
+
+	return course, nil
+
+}
+
 func signIn(reg LoginRequest) (*JwtAuthenticationResponse, error) {
 	url := address + login
 
@@ -177,7 +242,7 @@ func signIn(reg LoginRequest) (*JwtAuthenticationResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("неожиданный код ответа: %d, тело: %s", resp.StatusCode, string(bodyBytes))
 	}
@@ -388,7 +453,7 @@ func TestGetCourses(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func generateUserToken(email, password string) (string, error) {
+func generateNewUserAndToken(email, password string) (string, error) {
 	app, err := signUp(
 		RegistrationBody{
 			FirstName:   email,
@@ -402,6 +467,17 @@ func generateUserToken(email, password string) (string, error) {
 		return "", err
 	}
 	return app.Token, nil
+}
+
+func generateToken(email, password string) (string, error) {
+	jwtToken, err := signIn(LoginRequest{
+		Email:    email,
+		Password: password,
+	})
+	if err != nil {
+		return "", err
+	}
+	return jwtToken.Token, nil
 }
 
 func getExistCourseUUID() uuid.UUID {
@@ -454,7 +530,7 @@ func TestUpdateApplicationStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			token, err := generateUserToken(tc.username, tc.password)
+			token, err := generateNewUserAndToken(tc.username, tc.password)
 			require.NoError(t, err)
 
 			applicationID, err := createApplication(tc.courseUUID, token)
@@ -472,7 +548,7 @@ func TestUpdateApplicationStatus(t *testing.T) {
 	t.Run("send new status to same application", func(t *testing.T) {
 		username := uuid.NewString()
 		pass := uuid.NewString()
-		token, err := generateUserToken(username, pass)
+		token, err := generateNewUserAndToken(username, pass)
 		require.NoError(t, err)
 
 		courseUUID := getExistCourseUUID()
@@ -485,4 +561,87 @@ func TestUpdateApplicationStatus(t *testing.T) {
 		err = updateApplicationStatus(applicationID, token, "REJECT")
 		require.Error(t, err)
 	})
+}
+
+func TestGetSpecificCourse(t *testing.T) {
+	testCases := []struct {
+		name           string
+		username       string
+		password       string
+		courseUUID     uuid.UUID // function that create new user and register him for course
+		expErr         bool
+		httpCodeExpect int
+	}{
+		{
+			name:       "total valid application request",
+			username:   uuid.NewString(),
+			password:   uuid.NewString(),
+			courseUUID: getExistCourseUUID(),
+			expErr:     false,
+		},
+		{
+			name:       "course which are not exist",
+			username:   uuid.NewString(),
+			password:   uuid.NewString(),
+			courseUUID: uuid.MustParse("11129969-9cc4-4b70-9da4-17df37be70fa"),
+			expErr:     true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			token, err := generateNewUserAndToken(tc.username, tc.password)
+			require.NoError(t, err)
+
+			course, err := getCourse(token, tc.courseUUID)
+
+			if tc.expErr {
+				require.Error(t, err, tc.name)
+			} else {
+				require.NoError(t, err, tc.name)
+				require.NotNil(t, course)
+			}
+		})
+	}
+}
+
+func TestCreateCourse(t *testing.T) {
+
+	testCases := []struct {
+		name   string
+		course Course
+		expErr bool
+	}{
+		{
+			name: "successful creation",
+			course: Course{
+				CourseName:     "Random bullshit from skillbox",
+				CoursePrice:    2341,
+				Description:    "cool text of bullshit",
+				TopicName:      "MARKETING",
+				CourseDuration: 23,
+
+				WithJobOffer: false,
+			},
+			expErr: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			token, err := generateToken("admin", "admin")
+
+			require.NoError(t, err)
+
+			err = createCourse(token, tc.course)
+			if tc.expErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestDeleteCourse(t *testing.T) {
+	//	нужно сделать так, чтобы он
 }

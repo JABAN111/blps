@@ -21,7 +21,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "courseId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "courseUUID")
 public class Course {
 
     @Id
@@ -34,7 +34,6 @@ public class Course {
     @Column(nullable = false)
     private BigDecimal coursePrice;
 
-    @Column(nullable = false)
     private String courseDescription;
 
     @Column
@@ -45,6 +44,7 @@ public class Course {
     private Integer courseDuration;
 
     @Column
+//    FIXME ???
     private Boolean withJobOffer;
 
     @Column

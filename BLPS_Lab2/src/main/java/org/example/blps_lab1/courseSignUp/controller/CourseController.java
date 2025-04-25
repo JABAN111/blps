@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.courseSignUp.dto.CourseDto;
+import org.example.blps_lab1.courseSignUp.mappers.CourseMapper;
 import org.example.blps_lab1.courseSignUp.models.Course;
 import org.example.blps_lab1.courseSignUp.service.CourseService;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class CourseController {
     public ResponseEntity<Map<String, Object>> getAllCourses() {
         Map<String, Object> response = new HashMap<>();
         List<Course> courseList = courseService.getAllCourses();
-        List<CourseDto> courseDtoList = courseService.convertToDto(courseList);
+        List<CourseDto> courseDtoList = CourseMapper.toDto(courseList);
         response.put("course_list", courseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -36,17 +37,20 @@ public class CourseController {
     public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid) {
         Map<String, Object> response = new HashMap<>();
         Course course = courseService.getCourseByUUID(uuid);
-        CourseDto courseDto = courseService.convertToDto(course);
+        CourseDto courseDto = CourseMapper.toDto(course);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping
+
+//    TODO вынести всё в админку?
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course) {
+    @PostMapping()
+    public ResponseEntity<Map<String, Object>> createCourse(@RequestBody Course course) {
         Map<String, Object> response = new HashMap<>();
+
         Course newCourse = courseService.createCourse(course);
-        CourseDto courseDto = courseService.convertToDto(newCourse);
+        CourseDto courseDto = CourseMapper.toDto(newCourse);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

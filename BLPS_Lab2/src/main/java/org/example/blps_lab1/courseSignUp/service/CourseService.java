@@ -44,6 +44,9 @@ public class CourseService {
     }
 
 
+//    public Course createCourse(final CourseDto courseDto){
+//    }
+
     public Course createCourse(final Course course) {
         Course newCourse = courseRepository.save(course);
         log.info("Created course: {}", newCourse);
@@ -180,26 +183,5 @@ public class CourseService {
             log.info("Курсы добавлены в дополнительные курсы для курса с uuid {}", uuid);
             return course;
         });
-    }
-
-    // TODO вынести в отдельный класс CourseMapper
-    public List<CourseDto> convertToDto(List<Course> courses) {
-        return courses.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    public CourseDto convertToDto(Course course) {
-        return new CourseDto(
-                course.getCourseUUID(),
-                course.getCourseName(),
-                course.getCoursePrice(),
-                course.getCourseDescription(),
-                course.getTopicName(),
-                course.getCreationTime(),
-                course.getCourseDuration(),
-                course.getWithJobOffer(),
-                course.getIsCompleted()
-        );
     }
 }
