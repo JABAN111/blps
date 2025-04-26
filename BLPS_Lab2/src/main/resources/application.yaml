@@ -48,3 +48,5 @@ app:
   admin:
     username: admin@admin.admin
     password: admin
+  files:
+    users: "/Users/jaba/Documents/life/ITMO/blps/BLPS_Labs/BLPS_Lab2/data.xml"

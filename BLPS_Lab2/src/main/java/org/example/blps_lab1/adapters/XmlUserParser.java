@@ -1,6 +1,7 @@
 package org.example.blps_lab1.adapters;
 
 
+import jakarta.annotation.PostConstruct;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -11,6 +12,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.example.blps_lab1.core.domain.auth.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +25,14 @@ import java.util.List;
  */
 @Service
 public class XmlUserParser {
-    private String filePath = "/Users/jaba/Documents/life/ITMO/blps/BLPS_Labs/BLPS_Lab2/data.xml";
-    private final File xmlFile;
-    private final JAXBContext jaxbContext;
+    @Value("{app.files.users}")
+    private String filePath;
+    private File xmlFile;
+    private JAXBContext jaxbContext;
 
-    public XmlUserParser() throws JAXBException {
 
+    @PostConstruct
+    public void xmlConstruct() throws JAXBException {
         this.xmlFile = new File(filePath);
         this.jaxbContext = JAXBContext.newInstance(UsersWrapper.class, User.class);
     }
