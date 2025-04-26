@@ -3,11 +3,14 @@ package org.example.blps_lab1;
 import java.math.BigDecimal;
 import java.util.*;
 
+import jakarta.xml.bind.JAXBException;
+import org.example.blps_lab1.adapters.XmlUserParser;
 import org.example.blps_lab1.adapters.admin.AdminPanelServiceImpl;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.domain.course.Topic;
+import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.ports.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,23 +30,28 @@ public class FirstDataGenerator implements ApplicationRunner {
     private final AuthService authService;
     private final AdminPanelServiceImpl adminPanelService;
     private final CourseService courseService;
+    private final UserService userService;
 
     @Value("${app.admin.password}")
     private String adminPass;
     @Value("${app.admin.username}")
     private String adminLogin;
+    private XmlUserParser xmlUserParser;
 
     @Autowired
-    public FirstDataGenerator(AuthService authService, AdminPanelServiceImpl adminPanelService, CourseService courseService) {
+    public FirstDataGenerator(XmlUserParser xmlUserParser, AuthService authService, AdminPanelServiceImpl adminPanelService, CourseService courseService, UserService userService) {
         this.authService = authService;
         this.adminPanelService = adminPanelService;
         this.courseService = courseService;
+        this.userService = userService;
+        this.xmlUserParser = xmlUserParser;
     }
 
 
     @Override
     @Transactional
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws JAXBException {
+        System.out.println(xmlUserParser.parse());
         // генерация нулевого админа
         RegistrationRequestDto adminUserRequest = new RegistrationRequestDto();
         adminUserRequest.setEmail(adminLogin);
@@ -52,7 +60,15 @@ public class FirstDataGenerator implements ApplicationRunner {
         adminUserRequest.setFirstName(adminLogin);
         adminUserRequest.setPhoneNumber("+7800553535");
 
-        authService.signUp(adminUserRequest);
+        var res = authService.signUp(adminUserRequest);
+        var user = userService.getUserByEmail(adminUserRequest.getEmail());
+        try {
+            xmlUserParser.save(user);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
+
         adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
 
         // генерация нулевого пользователя
@@ -63,6 +79,14 @@ public class FirstDataGenerator implements ApplicationRunner {
         simpleUserReq.setFirstName("jaba");
         simpleUserReq.setPhoneNumber("+7800553535");
         authService.signUp(simpleUserReq);
+
+        var user1 = userService.getUserByEmail(simpleUserReq.getEmail());
+        try {
+            xmlUserParser.save(user1);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+
 
         // генерация нулевого курса
         List<Course> courses = new ArrayList<>();

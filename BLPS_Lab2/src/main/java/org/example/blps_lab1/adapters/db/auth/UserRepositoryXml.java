@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 @Profile("dev")
 @Slf4j
+@Deprecated
 public class UserRepositoryXml implements UserDatabase {
 
     private static final String XML_FILE = "users.xml";
