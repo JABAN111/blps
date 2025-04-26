@@ -8,7 +8,7 @@ spring:
   application:
     name: BLPS_Lab1
   datasource:
-    url: jdbc:postgresql://localhost:5432/first
+    url: jdbc:postgresql://localhost:23848/first
     username: user
     password: user
     driver-class-name: org.postgresql.Driver
@@ -19,7 +19,7 @@ spring:
     host: smtp.mail.ru
     port: 465
     username: hokure04@mail.ru
-    password: aHXm4xap2rkyg4dS4hL5
+    password: BlpS_lab2123^^^
     protocol: smtps
     properties:
       mail:
@@ -29,7 +29,7 @@ spring:
             enable: true
             required: true
 minio:
-  endpoint: "http://localhost:9000"
+  endpoint: "http://localhost:23236"
   root:
     username:
       JABA_SUPER_USER_MINIO
