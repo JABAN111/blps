@@ -3,11 +3,9 @@ package org.example.blps_lab1;
 import java.math.BigDecimal;
 import java.util.*;
 
-import jakarta.xml.bind.JAXBException;
-import org.example.blps_lab1.adapters.XmlUserParser;
+import org.example.blps_lab1.adapters.db.auth.XmlUserParser;
 import org.example.blps_lab1.adapters.admin.AdminPanelServiceImpl;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
-import org.example.blps_lab1.core.domain.auth.Role;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.domain.course.Topic;

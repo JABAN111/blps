@@ -8,6 +8,7 @@ import org.example.blps_lab1.core.exception.common.ObjectAlreadyExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -69,5 +71,9 @@ public class RestAdviser {
         return new ExceptionWrapper(new Exception("У вас недостаточно прав"));
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ExceptionWrapper noHandlerFoundException(Exception ex) {
+        return new ExceptionWrapper(new Exception("страница не найдена"));
+    }
 }
 

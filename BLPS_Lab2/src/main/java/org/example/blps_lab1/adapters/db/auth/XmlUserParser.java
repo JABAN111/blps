@@ -1,4 +1,4 @@
-package org.example.blps_lab1.adapters;
+package org.example.blps_lab1.adapters.db.auth;
 
 
 import jakarta.annotation.PostConstruct;
@@ -9,13 +9,11 @@ import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

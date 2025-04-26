@@ -2,7 +2,7 @@ package org.example.blps_lab1.adapters.auth.service;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.example.blps_lab1.adapters.XmlUserParser;
+import org.example.blps_lab1.adapters.db.auth.XmlUserParser;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.adapters.db.auth.UserRepository;
 import org.example.blps_lab1.core.ports.auth.UserService;
