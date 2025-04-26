@@ -15,7 +15,7 @@ build:
 	$(DOCKER_COMPOSE_CMD) build
 
 up:
-	$(DOCKER_COMPOSE_CMD) up -d
+	$(DOCKER_COMPOSE_CMD) up -d --build
 
 run:
 	$(MAKE) build

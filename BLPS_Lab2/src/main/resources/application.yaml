@@ -1,4 +1,6 @@
 spring:
+  jta:
+    enabled: true
   application:
     name: BLPS_Lab1
   datasource:
@@ -22,17 +24,25 @@ spring:
           starttls:
             enable: true
             required: true
-minio: 
+minio:
+  endpoint: "http://localhost:9000"
   root:
     username:
       JABA_SUPER_USER_MINIO
     pwd:
       jaba127!368601NO
-    access_key:
-      JABA_SUPER_USER_MINIO
-    secret_key:
-      jaba127!368601NO
-  # database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 token:
   signing:
     key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=
+certificate:
+  generator:
+    pdf: "/Users/jaba/Documents/life/learning_extra/BLPS_Labs/BLPS_Lab1/подпись.png"
+narayana:
+  messaginghub:
+    maxConnections: 10
+    max_prepared_transactions: 100
+app:
+  admin:
+    username: admin@admin.admin
+    password: admin
