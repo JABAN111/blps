@@ -1,7 +1,6 @@
 package org.example.blps_lab1.adapters.course.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
@@ -114,13 +113,13 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     public Boolean submitAnswer(Long exerciseId, String userAnswer) {
         return transactionTemplate.execute(status -> {
-            User user = authService.getCurrentUser();
+            var user = authService.getCurrentUser();
             Exercise exercise = exerciseRepository.findById(exerciseId)
                     .orElseThrow(() -> new ObjectNotFoundException("Задание с id " + exerciseId + " не найдено"));
 
-            UserExerciseProgress progress = userExerciseProgressRepository.findByUserAndExercise(user, exercise)
+            UserExerciseProgress progress = userExerciseProgressRepository.findByUserEmailAndExercise(user.getUsername(), exercise)
                     .orElseGet(() -> {
-                        UserExerciseProgress newProgress = new UserExerciseProgress(user, exercise);
+                        UserExerciseProgress newProgress = new UserExerciseProgress(user.getUsername(), exercise);
                         return userExerciseProgressRepository.save(newProgress);
                     });
 

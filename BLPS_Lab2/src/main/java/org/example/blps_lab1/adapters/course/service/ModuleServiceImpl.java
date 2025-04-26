@@ -2,7 +2,6 @@ package org.example.blps_lab1.adapters.course.service;
 
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
@@ -14,7 +13,6 @@ import org.example.blps_lab1.adapters.db.course.ModuleRepository;
 import org.example.blps_lab1.adapters.db.course.UserExerciseProgressRepository;
 import org.example.blps_lab1.adapters.db.course.UserModuleProgressRepository;
 import org.example.blps_lab1.core.ports.course.CourseProgressService;
-import org.example.blps_lab1.core.ports.course.CourseService;
 import org.example.blps_lab1.core.ports.course.ModuleService;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +22,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.swing.text.html.parser.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -141,7 +138,7 @@ public class ModuleServiceImpl implements ModuleService {
 
     public Integer completeModule(Long moduleId) {
         return transactionTemplate.execute(status -> {
-            User user = authService.getCurrentUser();
+            var user = authService.getCurrentUser();
 
             Module module = moduleRepository.findById(moduleId)
                     .orElseThrow(() -> new ObjectNotFoundException("Модуль не найден"));
@@ -152,7 +149,7 @@ public class ModuleServiceImpl implements ModuleService {
                     .map(ModuleExercise::getExercise)
                     .filter(Objects::nonNull)
                     .allMatch(exercise -> {
-                        UserExerciseProgress progress = userExerciseProgressRepository.findByUserAndExercise(user, exercise)
+                        UserExerciseProgress progress = userExerciseProgressRepository.findByUserEmailAndExercise(user.getUsername(), exercise)
                                 .orElseThrow(() -> new ObjectNotExistException("Прогресс для упражнения не найден"));
 
                         return Boolean.TRUE.equals(progress.getIsCompleted());
@@ -162,8 +159,8 @@ public class ModuleServiceImpl implements ModuleService {
                 throw new RuntimeException("Не все задания в модуле завершены");
             }
 
-            UserModuleProgress userModuleProgress = userModuleProgressRepository.findByUserAndModule(user, module)
-                    .orElse(new UserModuleProgress(null, user, module, false, 0));
+            UserModuleProgress userModuleProgress = userModuleProgressRepository.findByUserEmailAndModule(user.getUsername(), module)
+                    .orElse(new UserModuleProgress(null, user.getUsername(), module, false, 0));
 
             if (userModuleProgress.getIsCompleted()) {
                 throw new RuntimeException("Модуль уже завершен для данного пользователя");
@@ -177,7 +174,7 @@ public class ModuleServiceImpl implements ModuleService {
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("Предыдущий модуль не найден"));
 
-                userModuleProgressRepository.findByUserAndModule(user, previousModule)
+                userModuleProgressRepository.findByUserEmailAndModule(user.getUsername(), previousModule)
                         .filter(UserModuleProgress::getIsCompleted)
                         .orElseThrow(() -> new IllegalStateException("Нельзя разблокировать новый модуль, пока не завершен предыдущий"));
             }
@@ -198,14 +195,14 @@ public class ModuleServiceImpl implements ModuleService {
                     .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))
                     .findFirst()
                     .ifPresent(nextModule -> {
-                        UserModuleProgress nextModuleProgress = userModuleProgressRepository.findByUserAndModule(user, nextModule)
-                                .orElse(new UserModuleProgress(null, user, nextModule, false, 0));
+                        UserModuleProgress nextModuleProgress = userModuleProgressRepository.findByUserEmailAndModule(user.getUsername(), nextModule)
+                                .orElse(new UserModuleProgress(null, user.getUsername(), nextModule, false, 0));
 
                         nextModuleProgress.setIsCompleted(false);
                         userModuleProgressRepository.save(nextModuleProgress);
                     });
 
-            emailService.informAboutModuleCompletion(user.getEmail(), module.getCourse().getCourseName(), module.getName());
+            emailService.informAboutModuleCompletion(user.getUsername(), module.getCourse().getCourseName(), module.getName());
 
             log.info("Module {} is completed by user {}", moduleId, user.getId());
 

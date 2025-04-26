@@ -39,8 +39,7 @@ public class Application {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
-    @ManyToOne
-    private User user;
+    private String userEmail;
 
     @ManyToOne
     private Course course;

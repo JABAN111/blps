@@ -1,6 +1,5 @@
 package org.example.blps_lab1.adapters.auth.service;
 
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,6 +7,7 @@ import org.example.blps_lab1.adapters.auth.dto.ApplicationResponseDto;
 import org.example.blps_lab1.adapters.auth.dto.JwtAuthenticationResponse;
 import org.example.blps_lab1.adapters.auth.dto.LoginRequest;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.exception.auth.AuthorizeException;
 import org.example.blps_lab1.core.domain.auth.Role;
 import org.example.blps_lab1.core.exception.course.CourseNotExistException;
@@ -19,7 +19,6 @@ import org.example.blps_lab1.core.exception.common.FieldNotSpecifiedException;
 
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.ports.course.CourseService;
-import org.example.blps_lab1.core.ports.email.EmailService;
 import org.example.blps_lab1.core.ports.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,19 +65,18 @@ public class AuthServiceImpl implements AuthService {
      * @throws AuthorizeException, если пользователь с таким именем существует
      *          {@link }
      */
-    private User getUserOrThrow(RegistrationRequestDto request) {
+    private UserXml getUserOrThrow(RegistrationRequestDto request) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(request.getEmail());
         if (!matcher.matches()){
             log.error("error, email expect domain, got {}", request.getEmail());
             throw new IllegalArgumentException("Email должен включать в себя домен");
         }
 
-        var userBuilder = User.builder()
+        var userBuilder = UserXml.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .email(request.getEmail())
+                .username(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .company(null)
                 .role(Role.CASUAL_STUDENT)
                 .password(passwordEncoder.encode(request.getPassword()));
         var user = userBuilder.build();
@@ -153,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new FieldNotSpecifiedException("Поле password обязательное");
             }
 
-            User userEntity;
+            UserXml userEntity;
             try {
                 userEntity = userService.getUserByEmail(request.getEmail());
                 log.debug("Stored hash: {}", userEntity.getPassword());
@@ -171,7 +169,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User getCurrentUser() {
+    public UserXml getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserExerciseProgressRepository extends JpaRepository<UserExerciseProgress, Long> {
-    Optional<UserExerciseProgress> findByUserAndExercise(User user, Exercise exercise);
+    Optional<UserExerciseProgress> findByUserEmailAndExercise(String userEmail, Exercise exercise);
 }
 

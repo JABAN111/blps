@@ -2,12 +2,11 @@ package org.example.blps_lab1.adapters.auth.service;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.example.blps_lab1.adapters.db.auth.XmlUserParser;
-import org.example.blps_lab1.core.domain.auth.User;
-import org.example.blps_lab1.adapters.db.auth.UserRepository;
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.domain.course.Course;
+import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,34 +24,31 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+    private final UserDatabase userRepository;
     private final TransactionTemplate transactionTemplate;
-    private final XmlUserParser xmlUserParser;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PlatformTransactionManager transactionManager, XmlUserParser xmlUserParser) {
+    public UserServiceImpl(UserDatabase userRepository, PlatformTransactionManager transactionManager) {
         this.userRepository = userRepository;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
-        this.xmlUserParser = xmlUserParser;
     }
 
 
     @Override
-    public User add(final User user) {
+    public UserXml add(final UserXml user) {
         var userEntity = transactionTemplate.execute(status -> {
             user.setPassword(user.getPassword());
-            User savedUser = userRepository.save(user);
+            UserXml savedUser = userRepository.save(user);
             log.info("{} registered successfully", user.getUsername());
             return savedUser;
         });
-        xmlUserParser.save(userEntity);
         return userEntity;
     }
 
 
     @Override
-    public User updateUser(final User user) {
-        User newUser = userRepository.save(user);
+    public UserXml updateUser(final UserXml user) {
+        UserXml newUser = userRepository.save(user);
         log.info("{} updated successfully", user.getUsername());
         return newUser;
     }
@@ -60,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isExist(final String email) {
-        Optional<User> potentialUser = userRepository.findByEmail(email);
+        Optional<UserXml> potentialUser = userRepository.findByEmail(email);
         if (potentialUser.isPresent()) {
             log.info("User with username: {} exist", email);
             return true;
@@ -70,8 +66,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmail(final String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " not found"));
+    public UserXml getUserByEmail(final String email) {
+        return userRepository.findByEmail(email.trim()).orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " not found"));
     }
 
     @Override
@@ -80,12 +76,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void enrollUser(User user, Course course) {
+    public void enrollUser(UserXml user, Course course) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
-                var userOptional = userRepository.findByEmail(user.getEmail());
-                var userEntity = userOptional.orElseThrow(() -> new ObjectNotExistException("Нет пользователя с email: " + user.getEmail() + ", невозможно зачислить на курс"));
+                var userOptional = userRepository.findByEmail(user.getUsername());
+                var userEntity = userOptional.orElseThrow(() -> new ObjectNotExistException("Нет пользователя с email: " + user.getUsername() + ", невозможно зачислить на курс"));
                 userRepository.save(userEntity);
             }
         });

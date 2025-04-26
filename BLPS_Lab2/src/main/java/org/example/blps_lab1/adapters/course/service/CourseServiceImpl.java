@@ -2,7 +2,7 @@ package org.example.blps_lab1.adapters.course.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.core.domain.auth.User;
-import org.example.blps_lab1.adapters.db.auth.UserRepository;
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.exception.course.CourseNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
@@ -10,6 +10,7 @@ import org.example.blps_lab1.adapters.course.dto.CourseDto;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.adapters.db.course.CourseRepository;
 import org.example.blps_lab1.core.ports.course.CourseService;
+import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,12 @@ import java.util.UUID;
 @Slf4j
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
+    private final UserDatabase userRepository;
     private final EmailService emailService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, UserRepository userRepository,
+    public CourseServiceImpl(CourseRepository courseRepository, UserDatabase userRepository,
                              EmailService emailService, PlatformTransactionManager platformTransactionManager) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
@@ -99,7 +100,7 @@ public class CourseServiceImpl implements CourseService {
 
     public List<Course> enrollUser(Long userId, Long courseUUID) {
         return transactionTemplate.execute(status -> {
-            User user = userRepository.findById(userId)
+            UserXml user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("user not found in enroll"));
 
             courseRepository.findById(courseUUID)

@@ -55,7 +55,7 @@ public class UserEnrollmentServiceImpl implements UserEnrollmentService {
                 }
                 var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
                 if (appStatus == ApplicationStatus.REJECT) {
-                    emailService.rejectionMail(authService.getCurrentUser().getEmail(), applicationEntity.getCourse().getCourseName());
+                    emailService.rejectionMail(authService.getCurrentUser().getUsername(), applicationEntity.getCourse().getCourseName());
                     return;
                 }
                 var courseUUID = applicationEntity.getCourse().getCourseId();

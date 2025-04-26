@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import javax.crypto.SecretKey;
 
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.ports.security.JwtService;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -47,8 +48,7 @@ public class JwtServiceImpl implements JwtService {
      */
     public String generateToken(final UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof User customUserDetails) {
-            // claims.put("id", customUserDetails.getId());
+        if (userDetails instanceof UserXml customUserDetails) {
             claims.put("username", customUserDetails.getUsername());
             claims.put("role", customUserDetails.getRole());
         }

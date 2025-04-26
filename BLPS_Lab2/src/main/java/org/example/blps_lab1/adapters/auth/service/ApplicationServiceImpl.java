@@ -1,12 +1,11 @@
 package org.example.blps_lab1.adapters.auth.service;
 
 import java.util.Optional;
-import java.util.UUID;
 
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.ports.auth.ApplicationService;
 import org.example.blps_lab1.core.domain.auth.Application;
 import org.example.blps_lab1.core.domain.auth.ApplicationStatus;
-import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.adapters.db.auth.ApplicationRepository;
 import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
@@ -44,12 +43,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Application add(Long courseUUID, User user) {
+    public Application add(Long courseUUID, UserXml user) {
         return transactionTemplate.execute(status -> {
             var courseEntity = courseService.find(courseUUID);
             var app = Application.builder()
                     .course(courseEntity)
-                    .user(user)
+                    .userEmail(user.getUsername())
                     .status(ApplicationStatus.PENDING)
                     .build();
             log.debug("attempt to create application: {}", app);
@@ -75,7 +74,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         });
     }
 
-    private User getCurrentUser() {
+    private UserXml getCurrentUser() {
 //        copypaste cause depend cycle
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

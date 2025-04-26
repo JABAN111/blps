@@ -1,19 +1,20 @@
 package org.example.blps_lab1.core.ports.auth;
 
 import org.example.blps_lab1.core.domain.auth.User;
+import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
-    User add(User user);
+    UserXml add(UserXml user);
 
-    User getUserByEmail(String username);
+    UserXml getUserByEmail(String username);
 
-    User updateUser(User user);
+    UserXml updateUser(UserXml user);
 
     boolean isExist(String username);
 
-    void enrollUser(User user, Course course);
+    void enrollUser(UserXml user, Course course);
 
     UserDetailsService getUserDetailsService();
 }

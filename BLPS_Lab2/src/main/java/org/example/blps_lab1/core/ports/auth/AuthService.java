@@ -6,6 +6,7 @@ import org.example.blps_lab1.adapters.auth.dto.LoginRequest;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
 
 import org.example.blps_lab1.core.domain.auth.User;
+import org.example.blps_lab1.core.domain.auth.UserXml;
 
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public interface AuthService {
     JwtAuthenticationResponse signIn(LoginRequest request);
 
 
-    User getCurrentUser();
+    UserXml getCurrentUser();
 
 
 }

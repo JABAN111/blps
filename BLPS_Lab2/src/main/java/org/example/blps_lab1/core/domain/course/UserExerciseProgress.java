@@ -17,9 +17,7 @@ public class UserExerciseProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private String userEmail;
 
     @ManyToOne
     @JoinColumn(name = "exercise_id", nullable = false)
@@ -31,8 +29,8 @@ public class UserExerciseProgress {
     @Column(nullable = false)
     private Integer points = 0;
 
-    public UserExerciseProgress(User user, Exercise exercise) {
-        this.user = user;
+    public UserExerciseProgress(String userEmail, Exercise exercise) {
+        this.userEmail = userEmail;
         this.exercise = exercise;
         this.isCompleted = false;
         this.points = 0;

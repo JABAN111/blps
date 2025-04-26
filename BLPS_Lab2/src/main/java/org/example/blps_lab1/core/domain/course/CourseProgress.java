@@ -21,10 +21,7 @@ public class CourseProgress {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @ManyToOne
-    @MapsId("userId")
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String userEmail;
 
     @Column(nullable = false)
     private Integer earnedPoints;

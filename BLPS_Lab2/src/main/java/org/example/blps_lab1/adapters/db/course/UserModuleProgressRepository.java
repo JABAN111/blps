@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface UserModuleProgressRepository extends JpaRepository<UserModuleProgress, Long> {
-    Optional<UserModuleProgress> findByUserAndModule(User user, Module module);
+    Optional<UserModuleProgress> findByUserEmailAndModule(String userEmail, Module module);
 }
