@@ -325,7 +325,7 @@ func TestRegistrationWithoutCourseID(t *testing.T) {
 	reg := RegistrationBody{
 		FirstName:   "Ivan",
 		LastName:    "Ivanov",
-		Email:       uuid.NewString(),
+		Email:       uuid.NewString() + "@gm.gm",
 		Password:    "secret",
 		PhoneNumber: "+79001234567",
 	}
@@ -351,7 +351,7 @@ func TestLogin(t *testing.T) {
 		{
 			name: "valid test",
 			args: args{
-				Email:    "admin",
+				Email:    "admin@admin.admin",
 				Password: "admin",
 			},
 			expErr: false,
@@ -628,7 +628,7 @@ func TestCreateCourse(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			token, err := generateToken("admin", "admin")
+			token, err := generateToken("admin@admin.admin", "admin")
 
 			require.NoError(t, err)
 

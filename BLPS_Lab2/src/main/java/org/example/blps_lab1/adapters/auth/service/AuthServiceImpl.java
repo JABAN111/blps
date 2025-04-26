@@ -1,6 +1,8 @@
 package org.example.blps_lab1.adapters.auth.service;
 
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.example.blps_lab1.adapters.auth.dto.ApplicationResponseDto;
 import org.example.blps_lab1.adapters.auth.dto.JwtAuthenticationResponse;
@@ -40,6 +42,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final ApplicationService applicationService;
     private final EmailService emailService; // FIXME: temporary killed, need to enable and check
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
@@ -62,8 +66,15 @@ public class AuthServiceImpl implements AuthService {
      * @param request RegistrationRequestDto
      * @return {@link User}, которого можно сохранять в бд
      * @throws AuthorizeException, если пользователь с таким именем существует
+     *          {@link }
      */
     private User getUserOrThrow(RegistrationRequestDto request) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(request.getEmail());
+        if (!matcher.matches()){
+            log.error("error, email expect domain, got {}", request.getEmail());
+            throw new IllegalArgumentException("Email должен включать в себя домен");
+        }
+
         var userBuilder = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
