@@ -39,7 +39,7 @@ token:
     key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=
 certificate:
   generator:
-    pdf: "/Users/jaba/Documents/life/learning_extra/BLPS_Labs/BLPS_Lab1/подпись.png"
+    pdf: "подпись.png"
 narayana:
   messaginghub:
     maxConnections: 10
@@ -49,4 +49,4 @@ app:
     username: admin@admin.admin
     password: admin
   files:
-    users: "/Users/jaba/Documents/life/ITMO/blps/BLPS_Labs/BLPS_Lab2/data.xml"
+    users: "data.xml"
