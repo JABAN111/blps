@@ -44,7 +44,7 @@ public class XmlUserParser {
         var prevData = parse();
         for (var d : prevData) {
             if (d.getId().equals(user.getId())) {
-                return; // для избежания дублежей записей. Если дубляж есть, то не записываем
+                return;
             }
         }
         prevData.add(user);

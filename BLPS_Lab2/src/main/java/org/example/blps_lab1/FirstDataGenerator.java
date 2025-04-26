@@ -7,6 +7,7 @@ import jakarta.xml.bind.JAXBException;
 import org.example.blps_lab1.adapters.XmlUserParser;
 import org.example.blps_lab1.adapters.admin.AdminPanelServiceImpl;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
+import org.example.blps_lab1.core.domain.auth.Role;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.domain.course.Topic;
@@ -50,7 +51,7 @@ public class FirstDataGenerator implements ApplicationRunner {
 
     @Override
     @Transactional
-    public void run(ApplicationArguments args) throws JAXBException {
+    public void run(ApplicationArguments args) {
         System.out.println(xmlUserParser.parse());
         // генерация нулевого админа
         RegistrationRequestDto adminUserRequest = new RegistrationRequestDto();
@@ -62,10 +63,10 @@ public class FirstDataGenerator implements ApplicationRunner {
 
         authService.signUp(adminUserRequest);
         var user = userService.getUserByEmail(adminUserRequest.getEmail());
+        adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
         xmlUserParser.save(user);
 
 
-        adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
 
         // генерация нулевого пользователя
         RegistrationRequestDto simpleUserReq = new RegistrationRequestDto();
@@ -93,5 +94,8 @@ public class FirstDataGenerator implements ApplicationRunner {
 
         courses.add(course);
         courseService.addAll(courses);
+
+        xmlUserParser.parse();
+        System.out.println("finish initing");
     }
 }
