@@ -59,10 +59,6 @@ public class User implements UserDetails {
     @XmlTransient
     private Role role;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_course", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private List<Course> courseList;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

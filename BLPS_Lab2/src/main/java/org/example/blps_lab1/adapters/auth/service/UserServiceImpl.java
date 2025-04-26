@@ -86,7 +86,6 @@ public class UserServiceImpl implements UserService {
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
                 var userOptional = userRepository.findByEmail(user.getEmail());
                 var userEntity = userOptional.orElseThrow(() -> new ObjectNotExistException("Нет пользователя с email: " + user.getEmail() + ", невозможно зачислить на курс"));
-                userEntity.getCourseList().add(course);
                 userRepository.save(userEntity);
             }
         });

@@ -102,25 +102,11 @@ public class CourseServiceImpl implements CourseService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("user not found in enroll"));
 
-            Course course = courseRepository.findById(courseUUID)
+            courseRepository.findById(courseUUID)
                     .orElseThrow(() -> new RuntimeException("course not found in enroll"));
 
             List<Course> enrolledCourses = new ArrayList<>();
 
-
-            if (!user.getCourseList().contains(course)) {
-                user.getCourseList().add(course);
-                enrolledCourses.add(course);
-            }
-
-            List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
-            user.getCourseList().addAll(additionalCourses);
-            emailService.informAboutNewCourses(
-                    user.getEmail(),
-                    course.getCourseName(),
-                    course.getCoursePrice(),
-                    additionalCourses);
-            enrolledCourses.addAll(additionalCourses);
             userRepository.save(user);
             return enrolledCourses;
         });
@@ -140,16 +126,9 @@ public class CourseServiceImpl implements CourseService {
             Course course = courseRepository.findById(courseUUID)
                     .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseUUID + " не найден"));
 
-            Course additionalCourse = courseRepository.findById(additionalCourseUUID)
+            courseRepository.findById(additionalCourseUUID)
                     .orElseThrow(() -> new ObjectNotFoundException("Дополнительный курс с id " + additionalCourseUUID + " не найден"));
 
-            if (!course.getAdditionalCourseList().contains(additionalCourse)) {
-                course.getAdditionalCourseList().add(additionalCourse);
-                courseRepository.save(course);
-                log.info("Курс {} добавлен в дополнительные курсы для {}", additionalCourseUUID, courseUUID);
-            } else {
-                log.warn("Курс {} уже есть в дополнительных курсах для {}", additionalCourseUUID, courseUUID);
-            }
             return course;
         });
     }
@@ -164,7 +143,6 @@ public class CourseServiceImpl implements CourseService {
                     courseRepository.save(additionalCourse);
                 }
             }
-            course.getAdditionalCourseList().addAll(additionalCourses);
             courseRepository.save(course);
             log.info("Курсы добавлены в дополнительные курсы для курса с uuid {}", uuid);
             return course;

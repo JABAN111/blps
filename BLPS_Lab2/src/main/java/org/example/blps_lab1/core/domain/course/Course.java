@@ -51,9 +51,6 @@ public class Course {
     @Column
     private Boolean isCompleted = false;
 
-    @ManyToMany(mappedBy = "courseList")
-    private List<User> userList;
-
     @ManyToMany
     @JoinTable(
             name = "additional_courses",
