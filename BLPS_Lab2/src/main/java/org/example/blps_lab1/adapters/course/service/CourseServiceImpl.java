@@ -10,7 +10,6 @@ import org.example.blps_lab1.adapters.course.dto.CourseDto;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.adapters.db.course.CourseRepository;
 import org.example.blps_lab1.core.ports.course.CourseService;
-import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,12 @@ import java.util.UUID;
 @Slf4j
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
-    private final UserDatabase userRepository;
+    private final UserRepository userRepository;
     private final EmailService emailService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, UserDatabase userRepository,
+    public CourseServiceImpl(CourseRepository courseRepository, UserRepository userRepository,
                              EmailService emailService, PlatformTransactionManager platformTransactionManager) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;

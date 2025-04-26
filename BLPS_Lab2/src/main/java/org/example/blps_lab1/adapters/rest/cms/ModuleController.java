@@ -1,5 +1,8 @@
 package org.example.blps_lab1.adapters.rest.cms;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.example.blps_lab1.adapters.course.dto.ModuleDto;
@@ -18,10 +21,12 @@ import java.util.Map;
 @RequestMapping("/api/v1/modules")
 @AllArgsConstructor
 @PreAuthorize("hasRole('ROLE_ADMIN')")
+@Tag(name = "Module-controller", description = "контроллер для управления молулями")
 public class ModuleController {
     private final ModuleService moduleService;
 
     @PostMapping
+    @Operation(summary = "создание модуля")
     public ResponseEntity<Map<String, Object>> createModule(@Valid @RequestBody Module module){
         Map<String, Object> response = new HashMap<>();
         Module createdModule = moduleService.createModule(module);
@@ -31,20 +36,20 @@ public class ModuleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteModule(@PathVariable Long id){
+    @Operation(summary = "удаление модуля")
+    public ResponseEntity<Map<String, Object>> deleteModule(@PathVariable @Parameter(description = "") Long id){
         Map<String, Object> response = new HashMap<>();
         moduleService.deleteModule(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateModule(@PathVariable Long id, @Valid @RequestBody ModuleDto moduleDto){
+    @Operation(summary = "обновление модуля")
+    public ResponseEntity<Map<String, Object>> updateModule(@PathVariable @Parameter(description = "") Long id, @Valid @RequestBody @Parameter(description = "") ModuleDto moduleDto){
         Map<String, Object> response = new HashMap<>();
         Module updatedModule = moduleService.updateModule(id, moduleDto);
         response.put("message", "module updated");
         response.put("module", updatedModule);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 }

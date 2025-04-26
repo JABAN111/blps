@@ -1,5 +1,8 @@
 package org.example.blps_lab1.adapters.rest.cms;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.example.blps_lab1.adapters.course.dto.ExerciseDto;
@@ -18,10 +21,12 @@ import java.util.Map;
 @RequestMapping("/api/v1/exercises")
 @AllArgsConstructor
 @PreAuthorize("hasRole('ROLE_ADMIN')")
+@Tag(name = "Exercise-controller", description = "контроллер для управления заданиями")
 public class ExerciseController {
     private final ExerciseService exerciseService;
 
     @PostMapping
+    @Operation(summary = "создание задания")
     public ResponseEntity<Map<String, Object>> createExercise(@Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise createdExercise = exerciseService.createExercise(exerciseDto);
@@ -31,14 +36,16 @@ public class ExerciseController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteExercise(@PathVariable Long id){
+    @Operation(summary = "удаление задания")
+    public ResponseEntity<Map<String, Object>> deleteExercise(@PathVariable @Parameter(description = "Идентификатор задания") Long id){
         Map<String, Object> response = new HashMap<>();
         exerciseService.deleteExercise(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateExercise(@PathVariable Long id, @Valid @RequestBody ExerciseDto exerciseDto){
+    @Operation(summary = "обновление задания")
+    public ResponseEntity<Map<String, Object>> updateExercise(@PathVariable @Parameter(description = "Идентификатор задания") Long id, @Valid @RequestBody ExerciseDto exerciseDto){
         Map<String, Object> response = new HashMap<>();
         Exercise updatedExercise = exerciseService.updateExercise(id, exerciseDto);
         response.put("message", "exercise updated");

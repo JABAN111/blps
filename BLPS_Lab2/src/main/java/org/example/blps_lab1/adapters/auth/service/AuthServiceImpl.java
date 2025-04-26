@@ -66,9 +66,9 @@ public class AuthServiceImpl implements AuthService {
      * @param request RegistrationRequestDto
      * @return {@link User}, которого можно сохранять в бд
      * @throws AuthorizeException, если пользователь с таким именем существует
-     *          {@link IllegalArgumentException}, если email пользователя не соответствует стандарту
+     *          {@link }
      */
-    private User getPreparedUserOrThrow(RegistrationRequestDto request) {
+    private User getUserOrThrow(RegistrationRequestDto request) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(request.getEmail());
         if (!matcher.matches()){
             log.error("error, email expect domain, got {}", request.getEmail());
@@ -102,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtAuthenticationResponse signUp(RegistrationRequestDto request) {
         return transactionTemplate.execute(status -> {
-            var user = getPreparedUserOrThrow(request);
+            var user = getUserOrThrow(request);
             userService.add(user);
             var jwt = jwtService.generateToken(user);
             return new JwtAuthenticationResponse(jwt);
@@ -123,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
     public ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID) {
         return transactionTemplate.execute(status -> {
             var resultBuilder = ApplicationResponseDto.builder();
-            var user = getPreparedUserOrThrow(request);
+            var user = getUserOrThrow(request);
             if (courseUUID == null) {
                 log.warn("course id is not specified, request: {}", request);
                 throw new FieldNotSpecifiedException("Не указан id курса");

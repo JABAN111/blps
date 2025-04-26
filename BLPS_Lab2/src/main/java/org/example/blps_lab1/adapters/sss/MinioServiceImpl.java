@@ -7,14 +7,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.core.ports.sss.SimpleStorageService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 
 @Service
 @Slf4j
-@Profile("stage")
 public class MinioServiceImpl implements SimpleStorageService {
 
     private final String BUCKET_NAME = "certificates";
@@ -31,7 +29,7 @@ public class MinioServiceImpl implements SimpleStorageService {
     private MinioClient minioClient;
 
     @PostConstruct
-    public void initMinio() {
+    public void reinitMinio() {
         this.minioClient = MinioClient.builder()
                 .endpoint(endpoint.trim())
                 .credentials(username, password)

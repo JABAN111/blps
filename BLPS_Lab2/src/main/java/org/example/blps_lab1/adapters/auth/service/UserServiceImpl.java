@@ -7,7 +7,6 @@ import org.example.blps_lab1.adapters.db.auth.UserRepository;
 import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.domain.course.Course;
-import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,12 +24,12 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserDatabase userDatabase;
+    private final UserRepository userRepository;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public UserServiceImpl(UserDatabase userDatabase, PlatformTransactionManager transactionManager) {
-        this.userDatabase = userDatabase;
+    public UserServiceImpl(UserRepository userRepository, PlatformTransactionManager transactionManager) {
+        this.userRepository = userRepository;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
     public User add(final User user) {
         return transactionTemplate.execute(status -> {
             user.setPassword(user.getPassword());
-            User savedUser = userDatabase.save(user);
+            User savedUser = userRepository.save(user);
             log.info("{} registered successfully", user.getUsername());
             return savedUser;
         });
@@ -48,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(final User user) {
-        User newUser = userDatabase.save(user);
+        User newUser = userRepository.save(user);
         log.info("{} updated successfully", user.getUsername());
         return newUser;
     }
@@ -56,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isExist(final String email) {
-        Optional<User> potentialUser = userDatabase.findByEmail(email);
+        Optional<User> potentialUser = userRepository.findByEmail(email);
         if (potentialUser.isPresent()) {
             log.info("User with username: {} exist", email);
             return true;
@@ -67,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(final String email) {
-        return userDatabase.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " not found"));
     }
 
     @Override
@@ -80,10 +79,10 @@ public class UserServiceImpl implements UserService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
-                var userOptional = userDatabase.findByEmail(user.getEmail());
+                var userOptional = userRepository.findByEmail(user.getEmail());
                 var userEntity = userOptional.orElseThrow(() -> new ObjectNotExistException("Нет пользователя с email: " + user.getEmail() + ", невозможно зачислить на курс"));
                 userEntity.getCourseList().add(course);
-                userDatabase.save(userEntity);
+                userRepository.save(userEntity);
             }
         });
     }

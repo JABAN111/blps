@@ -9,7 +9,6 @@ import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -19,9 +18,8 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Service("EmailService")
+@Service
 @Slf4j
-@Profile("dev")
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
