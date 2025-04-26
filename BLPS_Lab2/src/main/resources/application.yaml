@@ -44,5 +44,5 @@ narayana:
     max_prepared_transactions: 100
 app:
   admin:
-    username: admin
+    username: admin@admin.admin
     password: admin

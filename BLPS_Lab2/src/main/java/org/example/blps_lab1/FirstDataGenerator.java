@@ -30,7 +30,7 @@ public class FirstDataGenerator implements ApplicationRunner {
 
     @Value("${app.admin.password}")
     private String adminPass;
-    @Value("${app.admin.password}")
+    @Value("${app.admin.username}")
     private String adminLogin;
 
     @Autowired
@@ -44,6 +44,7 @@ public class FirstDataGenerator implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        // генерация нулевого админа
         RegistrationRequestDto adminUserRequest = new RegistrationRequestDto();
         adminUserRequest.setEmail(adminLogin);
         adminUserRequest.setPassword(adminPass);
@@ -51,27 +52,20 @@ public class FirstDataGenerator implements ApplicationRunner {
         adminUserRequest.setFirstName(adminLogin);
         adminUserRequest.setPhoneNumber("+7800553535");
 
-        authService.signUp(adminUserRequest);//пользователь зареган
+        authService.signUp(adminUserRequest);
         adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
 
+        // генерация нулевого пользователя
         RegistrationRequestDto simpleUserReq = new RegistrationRequestDto();
         simpleUserReq.setEmail("jaba@jaba.jaba");
         simpleUserReq.setPassword("jaba");
         simpleUserReq.setLastName("jaba");
         simpleUserReq.setFirstName("jaba");
         simpleUserReq.setPhoneNumber("+7800553535");
+        authService.signUp(simpleUserReq);
 
-        authService.signUp(simpleUserReq);//пользователь зареган
-
-
-
-        // NOTE: Генерация случайных данных для тестирования
-        // Выпилить перед показом
-//        List<Company> companies = new ArrayList<>();
+        // генерация нулевого курса
         List<Course> courses = new ArrayList<>();
-//        List<User> users = new ArrayList<>();
-//
-//
         var course = Course.builder()
                 .courseName(UUID.randomUUID().toString())
                 .coursePrice(BigDecimal.valueOf(new Random().nextDouble()))
