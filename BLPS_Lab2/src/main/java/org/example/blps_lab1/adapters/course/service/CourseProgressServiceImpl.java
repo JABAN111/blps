@@ -41,7 +41,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     @Override
-    public void addPoints(Long userId, UUID courseUUID, int points) {
+    public void addPoints(Long userId, Long courseUUID, int points) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {

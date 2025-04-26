@@ -1,5 +1,6 @@
 package org.example.blps_lab1.adapters.course.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.core.ports.auth.AuthService;
@@ -13,6 +14,7 @@ import org.example.blps_lab1.adapters.db.course.ModuleRepository;
 import org.example.blps_lab1.adapters.db.course.UserExerciseProgressRepository;
 import org.example.blps_lab1.adapters.db.course.UserModuleProgressRepository;
 import org.example.blps_lab1.core.ports.course.CourseProgressService;
+import org.example.blps_lab1.core.ports.course.CourseService;
 import org.example.blps_lab1.core.ports.course.ModuleService;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +24,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.swing.text.html.parser.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -39,12 +42,13 @@ public class ModuleServiceImpl implements ModuleService {
     private final AuthService authService;
     private final UserExerciseProgressRepository userExerciseProgressRepository;
     private final TransactionTemplate transactionTemplate;
+    private final EntityManager em;
 
     public ModuleServiceImpl(ModuleRepository moduleRepository, CourseProgressService courseProgressService,
                              ModuleExerciseRepository moduleExerciseRepository, EmailService emailService,
                              UserModuleProgressRepository userModuleProgressRepository, AuthService authService,
                              UserExerciseProgressRepository userExerciseProgressRepository,
-                             PlatformTransactionManager platformTransactionManager) {
+                             PlatformTransactionManager platformTransactionManager, EntityManager em) {
         this.moduleRepository = moduleRepository;
         this.courseProgressService = courseProgressService;
         this.moduleExerciseRepository = moduleExerciseRepository;
@@ -53,33 +57,38 @@ public class ModuleServiceImpl implements ModuleService {
         this.authService = authService;
         this.userExerciseProgressRepository = userExerciseProgressRepository;
         this.transactionTemplate = new TransactionTemplate(platformTransactionManager);
+        this.em = em;
     }
 
     public Module createModule(final Module module) {
         return transactionTemplate.execute(status -> {
-            validateModule(module);
+            if (module.getOrderNumber() <= 0) {
+                throw new IllegalArgumentException("порядковый номер модуля должен быть больше 0");
+            }
+//            moduleRepository.findByCourseAndOrderNumber(module.getCourse(), module.getOrderNumber())
+//                    .ifPresent(existingModule -> {
+//                        throw new IllegalArgumentException("Модуль с таким порядковым номером уже существует в данном курсе");
+//                    });
 
             Course course = module.getCourse();
-            List<Module> existingModules = moduleRepository.findByCourseOrderByOrderNumberAsc(course);
-            if (!existingModules.isEmpty()) {
-                module.setIsBlocked(true);
-            }
+            em.flush();
+            module.setCourse(course);
+            em.flush();
+            module.setTotalPoints(0);
+            module.setIsBlocked(false);
+            em.flush();
+
             Module newModule = moduleRepository.save(module);
+
+            em.flush();
             newModule.setLocalDateTime(LocalDateTime.now());
+            em.flush();
             log.info("Module created {}", newModule);
+            em.flush();
             return newModule;
         });
     }
 
-    public void validateModule(Module module) {
-        if (module.getOrderNumber() <= 0) {
-            throw new IllegalArgumentException("порядковый номер модуля должен быть больше 0");
-        }
-        moduleRepository.findByCourseAndOrderNumber(module.getCourse(), module.getOrderNumber())
-                .ifPresent(existingModule -> {
-                    throw new IllegalArgumentException("Модуль с таким порядковым номером уже существует в данном курсе");
-                });
-    }
 
     public Module getModuleById(final Long id) {
         var optionalModule = moduleRepository.findById(id);
@@ -183,7 +192,7 @@ public class ModuleServiceImpl implements ModuleService {
             userModuleProgress.setPoints(totalPoints);
             userModuleProgressRepository.save(userModuleProgress);
 
-            courseProgressService.addPoints(user.getId(), module.getCourse().getCourseUUID(), totalPoints);
+            courseProgressService.addPoints(user.getId(), module.getCourse().getCourseId(), totalPoints);
 
             courseModules.stream()
                     .filter(m -> m.getOrderNumber().equals(module.getOrderNumber() + 1))

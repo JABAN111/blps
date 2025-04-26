@@ -8,11 +8,11 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class CourseProgressId implements Serializable {
     private Long userId;
-    private UUID courseId;
+    private Long courseId;
 
     public CourseProgressId() {}
 
-    public CourseProgressId(UUID courseId, Long userId) {
+    public CourseProgressId(Long courseId, Long userId) {
         this.courseId = courseId;
         this.userId = userId;
     }

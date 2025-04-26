@@ -16,7 +16,7 @@ import org.example.blps_lab1.core.domain.course.Topic;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseDto {
-    private UUID courseUUID;
+    private Long courseID;
     private String courseName;
     private BigDecimal coursePrice;
     private String description;

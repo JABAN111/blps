@@ -14,4 +14,53 @@
         <email>jaba@jaba.jaba</email>
         <phoneNumber>+7800553535</phoneNumber>
     </user>
+    <user>
+        <id>3</id>
+        <firstName>Ivan</firstName>
+        <lastName>Ivanov</lastName>
+        <email>10b446cd-5cc8-4101-84e7-d031abd1ba4a@gm.gm</email>
+        <phoneNumber>+79001234567</phoneNumber>
+    </user>
+    <user>
+        <id>4</id>
+        <firstName>26d9b59f-ed8d-40f3-8951-af44b51deee2</firstName>
+        <lastName>26d9b59f-ed8d-40f3-8951-af44b51deee2</lastName>
+        <email>26d9b59f-ed8d-40f3-8951-af44b51deee2@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
+    <user>
+        <id>5</id>
+        <firstName>0135dfd5-6b0b-4e72-81ca-ad0419e50d3c</firstName>
+        <lastName>0135dfd5-6b0b-4e72-81ca-ad0419e50d3c</lastName>
+        <email>0135dfd5-6b0b-4e72-81ca-ad0419e50d3c@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
+    <user>
+        <id>6</id>
+        <firstName>0d3fcf86-0f3c-41b3-b472-7a6e93ad7ba7</firstName>
+        <lastName>0d3fcf86-0f3c-41b3-b472-7a6e93ad7ba7</lastName>
+        <email>0d3fcf86-0f3c-41b3-b472-7a6e93ad7ba7@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
+    <user>
+        <id>7</id>
+        <firstName>ac150fa1-9bcc-4909-934c-ef8f41e6cb5e</firstName>
+        <lastName>ac150fa1-9bcc-4909-934c-ef8f41e6cb5e</lastName>
+        <email>ac150fa1-9bcc-4909-934c-ef8f41e6cb5e@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
+    <user>
+        <id>8</id>
+        <firstName>aa6bef75-0e28-4a1b-bdff-dab85ff9c73d</firstName>
+        <lastName>aa6bef75-0e28-4a1b-bdff-dab85ff9c73d</lastName>
+        <email>aa6bef75-0e28-4a1b-bdff-dab85ff9c73d@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
+    <user>
+        <id>9</id>
+        <firstName>b2a10638-7a88-4407-b38e-ad300f695994</firstName>
+        <lastName>b2a10638-7a88-4407-b38e-ad300f695994</lastName>
+        <email>b2a10638-7a88-4407-b38e-ad300f695994@gmail.com</email>
+        <phoneNumber>+78005553535</phoneNumber>
+    </user>
 </users>

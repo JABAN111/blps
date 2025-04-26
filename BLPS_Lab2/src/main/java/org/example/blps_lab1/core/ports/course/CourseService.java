@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface CourseService {
     Course createCourse(final Course course);
-    Course find(final UUID id);
+    Course find(final Long id);
     List<Course> addAll(List<Course> courses);
-    Course getCourseByUUID(final UUID id);
-    void deleteCourse(final UUID courseUUID);
+    Course getCourseByUUID(final Long id);
+    void deleteCourse(final Long courseUUID);
     List<Course> getAllCourses();
-    Course updateCourse(UUID courseUUID, CourseDto courseDto);
-    List<Course> enrollUser(Long userId, UUID courseUUID);
-    Course addAdditionalCourses(UUID courseUUID, UUID additionalCourseUUID);
-    Course addListOfCourses(UUID uuid, List<Course> additionalCourses);
+    Course updateCourse(Long courseUUID, CourseDto courseDto);
+    List<Course> enrollUser(Long userId, Long courseUUID);
+    Course addAdditionalCourses(Long courseUUID, Long additionalCourseUUID);
+    Course addListOfCourses(Long uuid, List<Course> additionalCourses);
 }

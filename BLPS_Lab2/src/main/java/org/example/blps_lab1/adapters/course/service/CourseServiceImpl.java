@@ -46,7 +46,7 @@ public class CourseServiceImpl implements CourseService {
         return newCourse;
     }
 
-    public Course find(final UUID id) {
+    public Course find(final Long id) {
         return courseRepository.findById(id).orElseThrow(() -> new ObjectNotExistException("Курс с id: " + id + " не существует"));
     }
 
@@ -55,12 +55,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-    public Course getCourseByUUID(final UUID id) {
+    public Course getCourseByUUID(final Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotExistException("Курс с таким id не существует"));
     }
 
-    public void deleteCourse(final UUID courseUUID) {
+    public void deleteCourse(final Long courseUUID) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
@@ -77,7 +77,7 @@ public class CourseServiceImpl implements CourseService {
         return list;
     }
 
-    public Course updateCourse(UUID courseUUID, CourseDto courseDto) {
+    public Course updateCourse(Long courseUUID, CourseDto courseDto) {
         return transactionTemplate.execute(status -> {
             if (courseRepository.findById(courseUUID).isEmpty()) {
                 log.error("Course with id {} does not exist", courseUUID);
@@ -97,7 +97,7 @@ public class CourseServiceImpl implements CourseService {
         });
     }
 
-    public List<Course> enrollUser(Long userId, UUID courseUUID) {
+    public List<Course> enrollUser(Long userId, Long courseUUID) {
         return transactionTemplate.execute(status -> {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("user not found in enroll"));
@@ -135,7 +135,7 @@ public class CourseServiceImpl implements CourseService {
      * @param additionalCourseUUID второстепенного курса
      * @return основной курс(тот, что с UUID: {@code courseUUID}
      */
-    public Course addAdditionalCourses(UUID courseUUID, UUID additionalCourseUUID) {
+    public Course addAdditionalCourses(Long courseUUID, Long additionalCourseUUID) {
         return transactionTemplate.execute(status -> {
             Course course = courseRepository.findById(courseUUID)
                     .orElseThrow(() -> new ObjectNotFoundException("Курс с id " + courseUUID + " не найден"));
@@ -154,13 +154,13 @@ public class CourseServiceImpl implements CourseService {
         });
     }
 
-    public Course addListOfCourses(UUID uuid, List<Course> additionalCourses) {
+    public Course addListOfCourses(Long uuid, List<Course> additionalCourses) {
         return transactionTemplate.execute(status -> {
             Course course = courseRepository.findById(uuid)
                     .orElseThrow(() -> new ObjectNotFoundException("Курс с uuid " + uuid + " не найден"));
 
             for (Course additionalCourse : additionalCourses) {
-                if (additionalCourse.getCourseUUID() == null) {
+                if (additionalCourse.getCourseId() == null) {
                     courseRepository.save(additionalCourse);
                 }
             }

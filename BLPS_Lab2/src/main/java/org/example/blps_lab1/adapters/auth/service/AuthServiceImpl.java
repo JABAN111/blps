@@ -118,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
      * jwt токен {@link JwtAuthenticationResponse} и информацию о заявке(цену и описание)
      */
     @Override
-    public ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID) {
+    public ApplicationResponseDto signUp(RegistrationRequestDto request, Long courseUUID) {
         return transactionTemplate.execute(status -> {
             var resultBuilder = ApplicationResponseDto.builder();
             var user = getUserOrThrow(request);

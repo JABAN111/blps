@@ -142,7 +142,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                     return false;
                 }
                 courseProgressService.addPoints(user.getId(),
-                       listExercises.get(0).getModule().getCourse().getCourseUUID(),
+                       listExercises.get(0).getModule().getCourse().getCourseId(),
                         points);
 
                 log.info("Exercise {} завершено пользователем {}", exerciseId, user.getId());

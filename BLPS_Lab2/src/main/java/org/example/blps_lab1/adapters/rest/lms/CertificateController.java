@@ -22,7 +22,7 @@ public class CertificateController {
     
 
     @GetMapping("/{courseUUID}")
-    public void getMethodName(@PathVariable UUID courseUUID) {
+    public void getMethodName(@PathVariable Long courseUUID) {
         certificateManagerService.getCertificate(authService.getCurrentUser(), courseUUID);
     }
 }

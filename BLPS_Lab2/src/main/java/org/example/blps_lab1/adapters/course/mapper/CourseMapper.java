@@ -19,7 +19,7 @@ public class CourseMapper {
 
     public static CourseDto toDto(Course course) {
         return new CourseDto(
-                course.getCourseUUID(),
+                course.getCourseId(),
                 course.getCourseName(),
                 course.getCoursePrice(),
                 course.getCourseDescription(),

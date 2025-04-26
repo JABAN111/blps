@@ -25,23 +25,16 @@ public class Module {
     @Column(nullable = false)
     private String name;
 
-
-    @Column(nullable = false)
     private Boolean isCompleted;
 
-    @Column(nullable = false)
     private Integer orderNumber;
 
-    @Column
     private String description;
 
-    @Column
     private Boolean isBlocked;
 
-    @Column
     private Integer totalPoints;
 
-    @Column
     private LocalDateTime localDateTime;
 
     @ManyToOne(fetch = FetchType.EAGER)

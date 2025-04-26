@@ -29,7 +29,7 @@ public class ApplicationController {
      * Возвращает id заявки, которую можно подтвердить или отказаться. См {@code updateApplicationStatus()}
      */
     @PostMapping("/application/{courseUUID}")
-    public Long createApplication(@PathVariable UUID courseUUID) {
+    public Long createApplication(@PathVariable Long courseUUID) {
         log.info("got request for course with id: {}", courseUUID);
         var applicationEntity = applicationService.add(courseUUID);
         return applicationEntity.getId();

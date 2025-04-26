@@ -43,7 +43,7 @@ public class CourseController {
     @DeleteMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Удаление курса")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") UUID courseUUID) {
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseUUID) {
         Map<String, Object> response = new HashMap<>();
         courseService.deleteCourse(courseUUID);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -52,7 +52,7 @@ public class CourseController {
     @PutMapping("/{courseUUID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Обновление курса")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") UUID courseUUID, @Valid @RequestBody CourseDto courseDto) {
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseUUID, @Valid @RequestBody CourseDto courseDto) {
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.updateCourse(courseUUID, courseDto);
         response.put("message", "course updated");
@@ -64,8 +64,8 @@ public class CourseController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Привязка дополнительного курса")
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
-            @PathVariable @Parameter(description = "Индентификатор основоного курса") UUID courseId,
-            @PathVariable @Parameter(description = "Идентификатор дополнительного курса") UUID additionalId
+            @PathVariable @Parameter(description = "Индентификатор основоного курса") Long courseId,
+            @PathVariable @Parameter(description = "Идентификатор дополнительного курса") Long additionalId
     ) {
         Map<String, Object> response = new HashMap<>();
         Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
@@ -77,7 +77,7 @@ public class CourseController {
     @PutMapping("/{courseUUID}/additional-courses")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Привязка спика дополнительных курсов")
-    public ResponseEntity<Course> addListOfCourses(@PathVariable @Parameter(description = "Индентификатор основного курса") UUID courseUUID, @RequestBody @Parameter(description = "список курсов для привязки") List<Course> additionalCourses) {
+    public ResponseEntity<Course> addListOfCourses(@PathVariable @Parameter(description = "Индентификатор основного курса") Long courseUUID, @RequestBody @Parameter(description = "список курсов для привязки") List<Course> additionalCourses) {
         Course updatedCourse = courseService.addListOfCourses(courseUUID, additionalCourses);
         return ResponseEntity.ok(updatedCourse);
     }

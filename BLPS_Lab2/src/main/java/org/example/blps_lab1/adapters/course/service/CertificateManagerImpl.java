@@ -32,17 +32,14 @@ public class CertificateManagerImpl implements CertificateManager {
     private UserModuleProgressService userModuleProgressService;
 
     @Override
-    public void getCertificate(User user, UUID courseUUID) {
+    public void getCertificate(User user, Long courseUUID) {
         var course = courseService.getCourseByUUID(courseUUID);
-        if (course.getModules() == null || course.getModules().isEmpty()) {
-            throw new ObjectNotExistException("Курс не сформирован до конца в нём отсутствуют модули");
-        }
 
         boolean allModulesCompleted = course.getModules().stream()
                 .allMatch(module -> userModuleProgressService.isModuleCompletedForUser(user, module));
 
         CourseProgress courseProgress = courseProgressRepository.findByUserAndCourse(user, course)
-                .orElse(new CourseProgress(new CourseProgressId(course.getCourseUUID(), user.getId()), course, user, 0));
+                .orElse(new CourseProgress(new CourseProgressId(course.getCourseId(), user.getId()), course, user, 0));
 
         courseProgressRepository.save(courseProgress);
 

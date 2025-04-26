@@ -21,12 +21,12 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "courseUUID")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "courseId")
 public class Course {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID courseUUID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long courseId;
 
     @Column(nullable = false)
     private String courseName;

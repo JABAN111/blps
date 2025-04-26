@@ -38,13 +38,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Application add(UUID courseUUID) {
+    public Application add(Long courseUUID) {
         var userEntity = getCurrentUser();
         return add(courseUUID, userEntity);
     }
 
     @Override
-    public Application add(UUID courseUUID, User user) {
+    public Application add(Long courseUUID, User user) {
         return transactionTemplate.execute(status -> {
             var courseEntity = courseService.find(courseUUID);
             var app = Application.builder()

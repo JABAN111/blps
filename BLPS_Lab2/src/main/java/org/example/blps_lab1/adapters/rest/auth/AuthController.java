@@ -28,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up/{courseUUID}")
-    public ApplicationResponseDto signUp(@RequestBody RegistrationRequestDto request, @PathVariable UUID courseUUID){
+    public ApplicationResponseDto signUp(@RequestBody RegistrationRequestDto request, @PathVariable Long courseUUID){
         return authService.signUp(request, courseUUID);
     }
 

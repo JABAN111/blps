@@ -32,7 +32,7 @@ public class CourseController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid) {
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long uuid) {
         Map<String, Object> response = new HashMap<>();
         Course course = courseService.getCourseByUUID(uuid);
         CourseDto courseDto = CourseMapper.toDto(course);
