@@ -11,6 +11,7 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,9 +40,9 @@ public class XmlUserParser {
 
     public void save(User user) throws JAXBException {
         var prevData = parse();
-        for(var d : prevData){
-            if (d.getId().equals(user.getId())){
-
+        for (var d : prevData) {
+            if (d.getId().equals(user.getId())) {
+                return; // для избежания дублежей записей. Если дубляж есть, то не записываем
             }
         }
         prevData.add(user);
@@ -66,21 +67,11 @@ public class XmlUserParser {
         return wrapper.getUsers();
     }
 
-    /**
-     * Wrapper class for JAXB to handle list of User elements.
-     */
     @XmlRootElement(name = "users")
     @XmlAccessorType(XmlAccessType.FIELD)
+    @Data
     public static class UsersWrapper {
         @XmlElement(name = "user")
         private List<User> users = new ArrayList<>();
-
-        public List<User> getUsers() {
-            return users;
-        }
-
-        public void setUsers(List<User> users) {
-            this.users = users;
-        }
     }
 }
