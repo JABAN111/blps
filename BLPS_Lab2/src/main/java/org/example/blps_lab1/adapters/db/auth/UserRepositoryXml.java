@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class UserRepositoryXml implements UserDatabase {
 
-    //TODO сделать через PostConstruct
     private static final String XML_FILE = "users.xml";
     private final XmlMapper xmlMapper = new XmlMapper();
     private final File file;
