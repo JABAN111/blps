@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <users>
-
+    <user>
+        <id>1</id>
+        <firstName>admin@admin.admin</firstName>
+        <lastName>admin@admin.admin</lastName>
+        <email>admin@admin.admin</email>
+        <phoneNumber>+7800553535</phoneNumber>
+    </user>
+    <user>
+        <id>2</id>
+        <firstName>jaba</firstName>
+        <lastName>jaba</lastName>
+        <email>jaba@jaba.jaba</email>
+        <phoneNumber>+7800553535</phoneNumber>
+    </user>
 </users>

@@ -41,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final ApplicationService applicationService;
-    private final EmailService emailService; // FIXME: temporary killed, need to enable and check
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     private final TransactionTemplate transactionTemplate;
@@ -49,14 +48,13 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     public AuthServiceImpl(CourseService courseService, PasswordEncoder passwordEncoder,
                            JwtService jwtService, UserService userService,
-                           ApplicationService applicationService, EmailService emailService,
+                           ApplicationService applicationService,
                            PlatformTransactionManager transactionManager) {
         this.courseService = courseService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userService = userService;
         this.applicationService = applicationService;
-        this.emailService = emailService;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 

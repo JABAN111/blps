@@ -38,7 +38,6 @@ public class CertificateManagerImpl implements CertificateManager {
             throw new ObjectNotExistException("Курс не сформирован до конца в нём отсутствуют модули");
         }
 
-//        FIXME тут было в попыхах выпилине проверка. Нужно вернуть и починить ее
         boolean allModulesCompleted = course.getModules().stream()
                 .allMatch(module -> userModuleProgressService.isModuleCompletedForUser(user, module));
 

@@ -40,11 +40,9 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private Topic topicName;
 
-    // FIXME почему это блять Integer
     private Integer courseDuration;
 
     @Column
-//    FIXME ???
     private Boolean withJobOffer;
 
     @Column
