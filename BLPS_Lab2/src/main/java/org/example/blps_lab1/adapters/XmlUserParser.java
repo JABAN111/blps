@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Service
 public class XmlUserParser {
-    @Value("{app.files.users}")
+    @Value("${app.files.users}")
     private String filePath;
     private File xmlFile;
     private JAXBContext jaxbContext;
