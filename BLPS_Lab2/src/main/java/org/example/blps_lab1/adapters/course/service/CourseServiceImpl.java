@@ -25,7 +25,6 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-// transactional OK
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
@@ -116,8 +115,6 @@ public class CourseServiceImpl implements CourseService {
 
             List<Course> additionalCourses = new ArrayList<>(course.getAdditionalCourseList());
             user.getCourseList().addAll(additionalCourses);
-            // FIXME mail ломается
-//                     	                   	            	{code: 400, error: {"message":"Failed messages: jakarta.mail.SendFailedException: Invalid Addresses;\n  nested exception is:\n\torg.eclipse.angus.mail.smtp.SMTPAddressFailedException: 501 <f6ea5455-f7be-46fc-be29-472a6aa7c84b>: recipient address must contain a domain\n","time":"2025-04-25T17:23:10.083495"}}
             emailService.informAboutNewCourses(
                     user.getEmail(),
                     course.getCourseName(),

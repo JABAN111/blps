@@ -23,7 +23,6 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-// transactional OK
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TransactionTemplate transactionTemplate;

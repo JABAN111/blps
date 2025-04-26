@@ -32,7 +32,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
-// transactional OK
 public class AuthServiceImpl implements AuthService {
 
     private CourseService courseService;

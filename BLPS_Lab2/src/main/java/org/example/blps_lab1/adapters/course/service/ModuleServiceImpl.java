@@ -29,7 +29,6 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-// transactional OK
 public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;

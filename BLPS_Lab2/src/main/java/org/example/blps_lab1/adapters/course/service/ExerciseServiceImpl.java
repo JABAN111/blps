@@ -28,7 +28,6 @@ import java.util.List;
 
 @Service
 @Slf4j
-// transactional OK
 public class ExerciseServiceImpl implements ExerciseService {
 
     private final ExerciseRepository exerciseRepository;

@@ -23,7 +23,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
-//transactional OK
 public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository repository;
     private final UserService userService;
