@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service("EmailService")
 @Slf4j
-@Profile("stage")
+@Profile("dev")
 public class EmailServiceStub implements EmailService {
 
     private void simulateWorking(){
