@@ -3,29 +3,19 @@ package org.example.blps_lab1;
 import java.math.BigDecimal;
 import java.util.*;
 
-import lombok.NoArgsConstructor;
-import org.example.blps_lab1.admin.service.AdminPanelService;
-import org.example.blps_lab1.authorization.dto.ApplicationResponseDto;
-import org.example.blps_lab1.authorization.dto.RegistrationRequestDto;
-import org.example.blps_lab1.authorization.models.Company;
-import org.example.blps_lab1.authorization.models.Role;
-import org.example.blps_lab1.authorization.models.User;
-import org.example.blps_lab1.authorization.service.AuthService;
-import org.example.blps_lab1.authorization.service.CompanyService;
-import org.example.blps_lab1.authorization.service.UserService;
-import org.example.blps_lab1.courseSignUp.models.Course;
-import org.example.blps_lab1.courseSignUp.models.Topic;
-import org.example.blps_lab1.courseSignUp.service.CourseService;
+import org.example.blps_lab1.adapters.admin.AdminPanelServiceImpl;
+import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
+import org.example.blps_lab1.core.ports.auth.AuthService;
+import org.example.blps_lab1.core.domain.course.Course;
+import org.example.blps_lab1.core.domain.course.Topic;
+import org.example.blps_lab1.core.ports.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 
 
 /**
@@ -35,7 +25,7 @@ import lombok.AllArgsConstructor;
 public class FirstDataGenerator implements ApplicationRunner {
 
     private final AuthService authService;
-    private final AdminPanelService adminPanelService;
+    private final AdminPanelServiceImpl adminPanelService;
     private final CourseService courseService;
 
     @Value("${app.admin.password}")
@@ -44,7 +34,7 @@ public class FirstDataGenerator implements ApplicationRunner {
     private String adminLogin;
 
     @Autowired
-    public FirstDataGenerator(AuthService authService, AdminPanelService adminPanelService, CourseService courseService) {
+    public FirstDataGenerator(AuthService authService, AdminPanelServiceImpl adminPanelService, CourseService courseService) {
         this.authService = authService;
         this.adminPanelService = adminPanelService;
         this.courseService = courseService;

@@ -38,6 +38,9 @@ minio:
 token:
   signing:
     key: Q5v1CXQ1Y64cayU84BnlR3Az9fVFe8Bvn6Mrf68bX5U=
+certificate:
+  generator:
+    pdf: "/Users/jaba/Documents/life/learning_extra/BLPS_Labs/BLPS_Lab1/подпись.png"
 narayana:
   messaginghub:
     maxConnections: 10

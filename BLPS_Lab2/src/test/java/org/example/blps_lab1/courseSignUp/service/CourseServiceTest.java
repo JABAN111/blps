@@ -1,9 +1,9 @@
 // package org.example.blps_lab1.courseSignUp.service;
 
 // import jakarta.transaction.Transactional;
-// import org.example.blps_lab1.courseSignUp.models.Course;
-// import org.example.blps_lab1.courseSignUp.models.Topic;
-// import org.example.blps_lab1.courseSignUp.repository.CourseRepository;
+// import org.example.blps_lab1.core.domain.course.Course;
+// import org.example.blps_lab1.core.domain.course.Topic;
+// import org.example.blps_lab1.adapters.db.course.CourseRepository;
 // import org.junit.jupiter.api.BeforeAll;
 // import org.junit.jupiter.api.Test;
 // import org.springframework.beans.factory.annotation.Autowired;
