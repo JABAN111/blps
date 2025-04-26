@@ -60,13 +60,9 @@ public class FirstDataGenerator implements ApplicationRunner {
         adminUserRequest.setFirstName(adminLogin);
         adminUserRequest.setPhoneNumber("+7800553535");
 
-        var res = authService.signUp(adminUserRequest);
+        authService.signUp(adminUserRequest);
         var user = userService.getUserByEmail(adminUserRequest.getEmail());
-        try {
-            xmlUserParser.save(user);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+        xmlUserParser.save(user);
 
 
         adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
@@ -81,11 +77,7 @@ public class FirstDataGenerator implements ApplicationRunner {
         authService.signUp(simpleUserReq);
 
         var user1 = userService.getUserByEmail(simpleUserReq.getEmail());
-        try {
-            xmlUserParser.save(user1);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+        xmlUserParser.save(user1);
 
 
         // генерация нулевого курса

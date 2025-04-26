@@ -2,6 +2,7 @@ package org.example.blps_lab1.adapters.auth.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.example.blps_lab1.adapters.XmlUserParser;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.adapters.db.auth.UserRepository;
 import org.example.blps_lab1.core.ports.auth.UserService;
@@ -26,22 +27,26 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TransactionTemplate transactionTemplate;
+    private final XmlUserParser xmlUserParser;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PlatformTransactionManager transactionManager) {
+    public UserServiceImpl(UserRepository userRepository, PlatformTransactionManager transactionManager, XmlUserParser xmlUserParser) {
         this.userRepository = userRepository;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.xmlUserParser = xmlUserParser;
     }
 
 
     @Override
     public User add(final User user) {
-        return transactionTemplate.execute(status -> {
+        var userEntity = transactionTemplate.execute(status -> {
             user.setPassword(user.getPassword());
             User savedUser = userRepository.save(user);
             log.info("{} registered successfully", user.getUsername());
             return savedUser;
         });
+        xmlUserParser.save(userEntity);
+        return userEntity;
     }
 
 
