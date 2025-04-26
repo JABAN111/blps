@@ -3,6 +3,7 @@ package org.example.blps_lab1.adapters.sss;
 import io.minio.*;
 
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blps_lab1.core.ports.sss.SimpleStorageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,23 +23,22 @@ public class MinioServiceImpl implements SimpleStorageService {
     @Value("${minio.root.pwd}")
     private String password;
 
-    private String accessKey = "JABA_SUPER_USER_MINIO";
+    @Value("${minio.endpoint}")
+    private String endpoint;
 
-    private String secretKey = "jaba127!368601NO";//NOTE: почему-то не отрабатывает нормально @value
+    private MinioClient minioClient;
 
-    private final MinioClient minioClient;
-
-    public MinioServiceImpl() {
+    @PostConstruct
+    public void reinitMinio() {
         this.minioClient = MinioClient.builder()
-                .endpoint("http://localhost:9000")
-                .credentials(accessKey, secretKey)
+                .endpoint(endpoint.trim())
+                .credentials(username, password)
                 .build();
         ensureBucketExists();
     }
 
     @Override
     public void uploadFile(final String username, final String filename, final File file) throws Exception {
-
         final String filenameForStoring = getNewFileName(username, filename);
 
         try (InputStream fileStream = new FileInputStream(file)) {
@@ -50,11 +50,11 @@ public class MinioServiceImpl implements SimpleStorageService {
                     .build();
 
             minioClient.putObject(args);
-            log.info("File successfully uploaded: {}", filenameForStoring);
         } catch (Exception e) {
             log.error("Error occurred while uploading file: {}", filenameForStoring, e);
             throw new Exception(e);
         }
+        log.info("File successfully uploaded: {}", filenameForStoring);
     }
 
     private String getNewFileName(String username, String filename) {
