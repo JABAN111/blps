@@ -384,6 +384,7 @@ func TestLogin(t *testing.T) {
 			if tc.expErr {
 				require.Error(t, err, tc.name)
 			} else {
+				require.NoError(t, err)
 				require.NotNil(t, res, tc.name)
 				require.True(t, len(res.Token) > 5)
 			}

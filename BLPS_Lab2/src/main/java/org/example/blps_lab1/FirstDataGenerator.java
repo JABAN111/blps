@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.example.blps_lab1.adapters.admin.AdminPanelServiceImpl;
 import org.example.blps_lab1.adapters.auth.dto.RegistrationRequestDto;
+import org.example.blps_lab1.core.ports.admin.AdminPanelService;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.domain.course.Topic;
@@ -25,16 +26,16 @@ import jakarta.transaction.Transactional;
 public class FirstDataGenerator implements ApplicationRunner {
 
     private final AuthService authService;
-    private final AdminPanelServiceImpl adminPanelService;
+    private final AdminPanelService adminPanelService;
     private final CourseService courseService;
 
-    @Value("${app.admin.password}")
-    private String adminPass;
     @Value("${app.admin.username}")
     private String adminLogin;
+    @Value("${app.admin.password}")
+    private String adminPass;
 
     @Autowired
-    public FirstDataGenerator(AuthService authService, AdminPanelServiceImpl adminPanelService, CourseService courseService) {
+    public FirstDataGenerator(AuthService authService, AdminPanelService adminPanelService, CourseService courseService) {
         this.authService = authService;
         this.adminPanelService = adminPanelService;
         this.courseService = courseService;
@@ -55,7 +56,7 @@ public class FirstDataGenerator implements ApplicationRunner {
         authService.signUp(adminUserRequest);
         adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
 
-        // генерация нулевого пользователя
+//         генерация нулевого пользователя
         RegistrationRequestDto simpleUserReq = new RegistrationRequestDto();
         simpleUserReq.setEmail("jaba@jaba.jaba");
         simpleUserReq.setPassword("jaba");

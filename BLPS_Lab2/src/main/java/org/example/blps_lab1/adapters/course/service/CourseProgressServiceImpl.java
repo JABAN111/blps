@@ -11,6 +11,7 @@ import org.example.blps_lab1.core.domain.course.CourseProgressId;
 import org.example.blps_lab1.adapters.db.course.CourseProgressRepository;
 import org.example.blps_lab1.adapters.db.course.CourseRepository;
 import org.example.blps_lab1.core.ports.course.CourseProgressService;
+import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -27,12 +28,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     private final CourseRepository courseRepository;
     private final CourseProgressRepository courseProgressRepository;
-    private final UserRepository userRepository;
+    private final UserDatabase userRepository;
     private final TransactionTemplate transactionTemplate;
 
     public CourseProgressServiceImpl(CourseRepository courseRepository,
                                      CourseProgressRepository courseProgressRepository,
-                                     UserRepository userRepository,
+                                     UserDatabase userRepository,
                                      PlatformTransactionManager platformTransactionManager) {
         this.courseRepository = courseRepository;
         this.courseProgressRepository = courseProgressRepository;
