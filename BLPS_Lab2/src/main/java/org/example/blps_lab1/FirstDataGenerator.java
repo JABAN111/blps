@@ -66,8 +66,6 @@ public class FirstDataGenerator implements ApplicationRunner {
         adminPanelService.updateRole(adminUserRequest.getEmail(), "ROLE_ADMIN");
         xmlUserParser.save(user);
 
-
-
         // генерация нулевого пользователя
         RegistrationRequestDto simpleUserReq = new RegistrationRequestDto();
         simpleUserReq.setEmail("jaba@jaba.jaba");
@@ -79,7 +77,6 @@ public class FirstDataGenerator implements ApplicationRunner {
 
         var user1 = userService.getUserByEmail(simpleUserReq.getEmail());
         xmlUserParser.save(user1);
-
 
         // генерация нулевого курса
         List<Course> courses = new ArrayList<>();
@@ -94,8 +91,5 @@ public class FirstDataGenerator implements ApplicationRunner {
 
         courses.add(course);
         courseService.addAll(courses);
-
-        xmlUserParser.parse();
-        System.out.println("finish initing");
     }
 }
