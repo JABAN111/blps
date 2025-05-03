@@ -113,10 +113,10 @@ public class CourseServiceImpl implements CourseService {
     public List<Course> enrollUser(Long userId, Long courseUUID) {
         return transactionTemplate.execute(status -> {
             UserXml user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("user not found in enroll"));
+                    .orElseThrow(() -> new CourseNotExistException("user not found in enroll"));
 
             courseRepository.findById(courseUUID)
-                    .orElseThrow(() -> new RuntimeException("course not found in enroll"));
+                    .orElseThrow(() -> new CourseNotExistException("course not found in enroll"));
 
             List<Course> enrolledCourses = new ArrayList<>();
 

@@ -273,4 +273,25 @@ func TestEnrollUser(t *testing.T) {
 		err = enrollUser(token, 1, courseID)
 		require.NoError(t, err)
 	})
+
+	t.Run("enroll on unexistent course", func(t *testing.T) {
+		regB := RegistrationBody{
+			FirstName:   uuid.NewString(),
+			LastName:    uuid.NewString(),
+			Email:       uuid.NewString() + "@gmail.com",
+			Password:    uuid.NewString(),
+			PhoneNumber: "+83212313122",
+			CompanyName: uuid.NewString(),
+		}
+		_, err := signUp(regB)
+		require.NoError(t, err)
+
+		courseID := getExistCourseID()
+
+		token, err := generateToken("admin@admin.admin", "admin")
+		require.NoError(t, err)
+
+		err = enrollUser(token, 1, -courseID)
+		require.Error(t, err)
+	})
 }
