@@ -22,8 +22,8 @@ public class EnrollmentController {
 
     @PostMapping("/enroll")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<Course> enrollUser(@RequestParam Long userId, Long courseUUID){
-        return courseService.enrollUser(userId, courseUUID);
+    public List<Course> enrollUser(@RequestParam Long userId, Long courseID){
+        return courseService.enrollUser(userId, courseID);
     }
 
 }

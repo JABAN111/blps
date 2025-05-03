@@ -478,3 +478,35 @@ func getCourseByName(courseName string) (Course, error) {
 	}
 	return res.Course, nil
 }
+
+func enrollUser(token string, userID, courseID int) error {
+	url := address + "/api/v1/enrollment/enroll"
+
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return fmt.Errorf("ошибка при создании запроса: %w", err)
+	}
+
+	q := req.URL.Query()
+	q.Add("userId", strconv.Itoa(userID))
+	q.Add("courseID", strconv.Itoa(courseID))
+	req.URL.RawQuery = q.Encode()
+
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+
+	return nil
+}
