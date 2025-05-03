@@ -31,7 +31,7 @@ public class CertificateManagerImpl implements CertificateManager {
 
     @Override
     public void getCertificate(UserXml user, Long courseUUID) {
-        var course = courseService.getCourseByUUID(courseUUID);
+        var course = courseService.getCourseByID(courseUUID);
 
         boolean allModulesCompleted = course.getModules().stream()
                 .allMatch(module -> userModuleProgressService.isModuleCompletedForUser(user, module));

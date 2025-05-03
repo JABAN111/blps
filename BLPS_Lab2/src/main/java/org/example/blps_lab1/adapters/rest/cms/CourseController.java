@@ -61,7 +61,6 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/additional/{additionalId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Привязка дополнительного курса")
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
             @PathVariable @Parameter(description = "Индентификатор основоного курса") Long courseId,

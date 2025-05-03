@@ -125,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new FieldNotSpecifiedException("Не указан id курса");
             }
             try {
-                courseService.getCourseByUUID(courseUUID);
+                courseService.getCourseByID(courseUUID);
             } catch (ObjectNotExistException e) {
                 log.warn("course with uuid: {} not found", courseUUID);
                 throw new CourseNotExistException("ошибка при создании заявки: данного курса больше не существует");

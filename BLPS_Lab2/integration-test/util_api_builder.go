@@ -152,6 +152,38 @@ func createCourse(token string, course Course) error {
 	return nil
 }
 
+func addAdditionalCourse(token string, mainCourseID, additionalCourseID int) (Course, error) {
+	url := address + courseBase + "/" + strconv.Itoa(mainCourseID) + "/additional/" + strconv.Itoa(additionalCourseID)
+
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка создания запроса: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		var httpErr ErrHttp
+		httpErr.code = resp.StatusCode
+		httpErr.text = string(bodyBytes)
+		return Course{}, httpErr
+	}
+
+	type innerCourse struct {
+		Course Course `json:"course"`
+	}
+	var res innerCourse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return Course{}, err
+	}
+	return res.Course, nil
+}
+
 func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 	url := address + registrationUrl
 
@@ -380,4 +412,36 @@ func getExistCourseID() int {
 	}
 
 	return res[0].CourseID
+}
+
+func getCourseByName(courseName string) (Course, error) {
+	url := address + courseBase + "/name/" + courseName
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка при создании запроса")
+	}
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return Course{}, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return Course{}, ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+	type innerCourse struct {
+		Course Course `json:"course"`
+	}
+
+	var res innerCourse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return Course{}, fmt.Errorf("ошибка при обработке ответа: %v", err)
+	}
+	return res.Course, nil
 }

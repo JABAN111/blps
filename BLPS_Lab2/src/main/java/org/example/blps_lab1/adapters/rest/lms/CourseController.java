@@ -8,12 +8,12 @@ import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.ports.course.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController("lmsCourseController")
 @RequestMapping("/api/v1/courses")
@@ -31,13 +31,21 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long uuid) {
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Course course = courseService.getCourseByUUID(uuid);
+        Course course = courseService.getCourseByID(id);
         CourseDto courseDto = CourseMapper.toDto(course);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/name/{courseName}")
+    public ResponseEntity<Map<String, Object>> getCourseByName(@PathVariable String courseName) {
+        Map<String, Object> response = new HashMap<>();
+        Course course = courseService.find(courseName);
+        CourseDto courseDto = CourseMapper.toDto(course);
+        response.put("course", courseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

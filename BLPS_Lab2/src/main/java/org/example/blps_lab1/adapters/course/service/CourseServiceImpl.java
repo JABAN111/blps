@@ -51,12 +51,17 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findById(id).orElseThrow(() -> new ObjectNotExistException("Курс с id: " + id + " не существует"));
     }
 
+    @Override
+    public Course find(String courseName) {
+        return courseRepository.findByCourseName(courseName).orElseThrow(() -> new ObjectNotExistException("Курс с таким именем: " + courseName + " не существует"));
+    }
+
     public List<Course> addAll(List<Course> courses) {
         return courseRepository.saveAll(courses);
     }
 
 
-    public Course getCourseByUUID(final Long id) {
+    public Course getCourseByID(final Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotExistException("Курс с таким id не существует"));
     }
