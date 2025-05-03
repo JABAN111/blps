@@ -151,6 +151,38 @@ func createCourse(token string, course Course) error {
 	return nil
 }
 
+func updateCourse(token string, course Course, courseID int) error {
+	url := address + courseBase + "/" + strconv.Itoa(courseID)
+
+	reqBody, err := json.Marshal(course)
+	if err != nil {
+		return fmt.Errorf("ошибка маршалинга запроса: %w", err)
+	}
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return fmt.Errorf("ошибка создания запроса: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		var httpErr ErrHttp
+		httpErr.code = resp.StatusCode
+		httpErr.text = string(bodyBytes)
+		return httpErr
+	}
+
+	return nil
+}
+
 func addAdditionalCourse(token string, mainCourseID, additionalCourseID int) (Course, error) {
 	url := address + courseBase + "/" + strconv.Itoa(mainCourseID) + "/additional/" + strconv.Itoa(additionalCourseID)
 
@@ -220,14 +252,13 @@ func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 	return &applicationResponse, nil
 }
 
-func getCourse(token string, courseID int) (Course, error) {
+func getCourse(courseID int) (Course, error) {
 	url := address + courseBase + "/id/" + strconv.Itoa(courseID)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return Course{}, fmt.Errorf("ошибка при создании запроса")
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := client.Do(req)
 
@@ -243,12 +274,15 @@ func getCourse(token string, courseID int) (Course, error) {
 		}
 	}
 
-	var course Course
-	if err := json.NewDecoder(resp.Body).Decode(&course); err != nil {
+	type wrapper struct {
+		Course Course `json:"course"`
+	}
+	var wrap wrapper
+	if err := json.NewDecoder(resp.Body).Decode(&wrap); err != nil {
 		return Course{}, fmt.Errorf("ошибка при обработке ответа: %v", err)
 	}
 
-	return course, nil
+	return wrap.Course, nil
 
 }
 

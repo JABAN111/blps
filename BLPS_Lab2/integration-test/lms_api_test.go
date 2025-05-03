@@ -43,10 +43,10 @@ func TestGetSpecificCourse(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			token, err := generateNewUserAndToken(tc.username, tc.password)
-			require.NoError(t, err)
+			//token, err := generateNewUserAndToken(tc.username, tc.password)
+			//require.NoError(t, err)
 
-			course, err := getCourse(token, tc.courseID)
+			course, err := getCourse(tc.courseID)
 
 			if tc.expErr {
 				require.Error(t, err, tc.name)

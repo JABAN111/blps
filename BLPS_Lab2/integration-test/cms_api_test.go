@@ -180,3 +180,74 @@ func TestCreateCourseWithAdditionals(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateCourse(t *testing.T) {
+
+	courseToUpdate := func() Course {
+		courses, err := getAllCourses()
+		require.NoError(t, err)
+		require.True(t, len(courses) > 0, "0 courses in the system")
+		return courses[0]
+	}()
+
+	testCases := []struct {
+		name       string
+		course     Course
+		toUpdate   Course
+		toUpdateID int
+		expErr     bool
+	}{
+		{
+			name: "successful creation",
+			course: Course{
+				CourseName:     "skillbox",
+				CoursePrice:    2341,
+				Description:    "cool text of bullshit",
+				TopicName:      "MARKETING",
+				CourseDuration: 23,
+
+				WithJobOffer: false,
+			},
+			toUpdate:   courseToUpdate,
+			toUpdateID: courseToUpdate.CourseID,
+			expErr:     false,
+		},
+		{
+			name: "update course, which not exist",
+			course: Course{
+				CourseName:     "skillbox",
+				CoursePrice:    2341,
+				Description:    "cool text of bullshit",
+				TopicName:      "MARKETING",
+				CourseDuration: 23,
+
+				WithJobOffer: false,
+			},
+			toUpdate: Course{
+				CourseName:     "skillbox",
+				CoursePrice:    2341,
+				Description:    "cool text of bullshit",
+				TopicName:      "MARKETING",
+				CourseDuration: 23,
+
+				WithJobOffer: false,
+			},
+			toUpdateID: -5,
+			expErr:     true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			token, err := generateToken("admin@admin.admin", "admin")
+			require.NoError(t, err)
+
+			err = updateCourse(token, tc.course, tc.toUpdateID)
+			if tc.expErr {
+				require.Error(t, err)
+			} else {
+				t.Logf("was updated course %v", tc.toUpdateID)
+				require.NoError(t, err)
+			}
+		})
+	}
+}
