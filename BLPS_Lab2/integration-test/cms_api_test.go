@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -294,4 +295,84 @@ func TestEnrollUser(t *testing.T) {
 		err = enrollUser(token, 1, -courseID)
 		require.Error(t, err)
 	})
+}
+
+func TestCreaeteModule(t *testing.T) {
+	existCourseID := getExistCourseID()
+	if existCourseID == 0 {
+		t.Skip("no existence course")
+	}
+
+	testCases := []struct {
+		name   string
+		module ModuleEntity
+		expErr bool
+	}{
+		//{ TODO вырублен, тк ordernum защита мешается быть тестам перезапускаемыми
+		//	name: "full valid test",
+		//	module: ModuleEntity{
+		//		Name:        "module",
+		//		IsCompleted: false,
+		//		OrderNumber: 521,
+		//		Description: "module descpript",
+		//		Course: struct {
+		//			CourseId int `json:"courseId"`
+		//		}{
+		//			CourseId: getExistCourseID(),
+		//		},
+		//		ModuleExercises: nil,
+		//	},
+		//	expErr: false,
+		//},
+		{
+			name: "invalid order test",
+			module: ModuleEntity{
+				Name:        "module",
+				IsCompleted: false,
+				OrderNumber: -1,
+				Description: "module descpript",
+				Course: struct {
+					CourseId int `json:"courseId"`
+				}{
+					CourseId: getExistCourseID(),
+				},
+				ModuleExercises: nil,
+			},
+			expErr: true,
+		},
+		{
+			name: "course which is not exist",
+			module: ModuleEntity{
+				Name:        "module",
+				IsCompleted: false,
+				OrderNumber: 1,
+				Description: "module descpript",
+				Course: struct {
+					CourseId int `json:"courseId"`
+				}{
+					CourseId: -2,
+				},
+				ModuleExercises: nil,
+			},
+			expErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			token, err := generateToken("admin@admin.admin", "admin")
+			require.NoError(t, err)
+
+			err = createModule(token, tc.module)
+			modules, moduleErr := getModules(token, existCourseID)
+			require.NoError(t, moduleErr)
+			t.Log("got results")
+			fmt.Println(modules)
+			if tc.expErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
 }

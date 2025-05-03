@@ -9,7 +9,7 @@ public interface ModuleService {
     Module createModule(final Module module);
     Module getModuleById(final Long id);
     void deleteModule(final Long id);
-    List<Module> getAllModules();
+    List<Module> getAllModules(Long courseID);
     Module updateModule(Long id, ModuleDto moduleDto);
     Integer completeModule(Long moduleId);
 

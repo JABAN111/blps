@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface ModuleRepository extends JpaRepository<Module, Long> {
     Optional<Module> findByCourseAndOrderNumber(Course course, Integer orderNumber);
     List<Module> findByCourseOrderByOrderNumberAsc(Course course);
+
+    List<Module> findAllByCourse_CourseId(Long courseCourseId);
 }

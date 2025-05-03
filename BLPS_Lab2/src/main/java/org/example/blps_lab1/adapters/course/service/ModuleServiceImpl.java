@@ -2,16 +2,14 @@ package org.example.blps_lab1.adapters.course.service;
 
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.adapters.db.course.*;
+import org.example.blps_lab1.core.exception.course.CourseNotExistException;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
 import org.example.blps_lab1.adapters.course.dto.ModuleDto;
 import org.example.blps_lab1.core.domain.course.*;
 import org.example.blps_lab1.core.domain.course.Module;
-import org.example.blps_lab1.adapters.db.course.ModuleExerciseRepository;
-import org.example.blps_lab1.adapters.db.course.ModuleRepository;
-import org.example.blps_lab1.adapters.db.course.UserExerciseProgressRepository;
-import org.example.blps_lab1.adapters.db.course.UserModuleProgressRepository;
 import org.example.blps_lab1.core.ports.course.CourseProgressService;
 import org.example.blps_lab1.core.ports.course.ModuleService;
 import org.example.blps_lab1.core.ports.email.EmailService;
@@ -40,12 +38,13 @@ public class ModuleServiceImpl implements ModuleService {
     private final UserExerciseProgressRepository userExerciseProgressRepository;
     private final TransactionTemplate transactionTemplate;
     private final EntityManager em;
+    private final CourseRepository courseRepository;
 
     public ModuleServiceImpl(ModuleRepository moduleRepository, CourseProgressService courseProgressService,
                              ModuleExerciseRepository moduleExerciseRepository, EmailService emailService,
                              UserModuleProgressRepository userModuleProgressRepository, AuthService authService,
                              UserExerciseProgressRepository userExerciseProgressRepository,
-                             PlatformTransactionManager platformTransactionManager, EntityManager em) {
+                             PlatformTransactionManager platformTransactionManager, EntityManager em, CourseRepository courseRepository) {
         this.moduleRepository = moduleRepository;
         this.courseProgressService = courseProgressService;
         this.moduleExerciseRepository = moduleExerciseRepository;
@@ -55,6 +54,7 @@ public class ModuleServiceImpl implements ModuleService {
         this.userExerciseProgressRepository = userExerciseProgressRepository;
         this.transactionTemplate = new TransactionTemplate(platformTransactionManager);
         this.em = em;
+        this.courseRepository = courseRepository;
     }
 
     public Module createModule(final Module module) {
@@ -62,11 +62,13 @@ public class ModuleServiceImpl implements ModuleService {
             if (module.getOrderNumber() <= 0) {
                 throw new IllegalArgumentException("порядковый номер модуля должен быть больше 0");
             }
-//            moduleRepository.findByCourseAndOrderNumber(module.getCourse(), module.getOrderNumber())
-//                    .ifPresent(existingModule -> {
-//                        throw new IllegalArgumentException("Модуль с таким порядковым номером уже существует в данном курсе");
-//                    });
-
+            moduleRepository.findByCourseAndOrderNumber(module.getCourse(), module.getOrderNumber())
+                    .ifPresent(existingModule -> {
+                        throw new IllegalArgumentException("Модуль с таким порядковым номером уже существует в данном курсе");
+                    });
+            courseRepository.findById(module.getCourse().getCourseId()).orElseThrow(
+                    () -> new CourseNotExistException("Невозможно создать модуль, так как курс не существует")
+            );
             Course course = module.getCourse();
             em.flush();
             module.setCourse(course);
@@ -112,8 +114,8 @@ public class ModuleServiceImpl implements ModuleService {
         });
     }
 
-    public List<Module> getAllModules() {
-        var list = moduleRepository.findAll();
+    public List<Module> getAllModules(Long courseID) {
+        var list = moduleRepository.findAllByCourse_CourseId(courseID);
         log.info("Get module list {}", list.size());
         return list;
     }

@@ -510,3 +510,82 @@ func enrollUser(token string, userID, courseID int) error {
 
 	return nil
 }
+
+// creating exercise and other shit
+type ExerciseDto struct {
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	ModuleId        int    `json:"moduleId"`
+	DifficultyLevel string `json:"difficultyLevel"`
+	Answer          string `json:"answer"`
+}
+
+type ModuleEntity struct {
+	Name        string `json:"name"`
+	IsCompleted bool   `json:"isCompleted"`
+	OrderNumber int    `json:"orderNumber"`
+	Description string `json:"description"`
+	Course      struct {
+		CourseId int `json:"courseId"`
+	} `json:"course"`
+	ModuleExercises []interface{} `json:"moduleExercises"`
+}
+
+func getModules(token string, courseID int) ([]ModuleEntity, error) {
+	url := address + "/api/v1/modules/course/" + strconv.Itoa(courseID)
+
+	reg, _ := http.NewRequest(http.MethodGet, url, nil)
+	reg.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(reg)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+
+	type wrap struct {
+		Modules []ModuleEntity `json:"modules_list"`
+	}
+	var result wrap
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+	return result.Modules, nil
+}
+
+func createModule(token string, module ModuleEntity) error {
+	url := address + "/api/v1/modules"
+
+	body, err := json.Marshal(module)
+	if err != nil {
+		return err
+	}
+
+	reg, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+	reg.Header.Set("Content-Type", "application/json")
+	reg.Header.Add("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(reg)
+
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return ErrHttp{
+			code: resp.StatusCode,
+			text: string(bodyBytes),
+		}
+	}
+
+	return nil
+}

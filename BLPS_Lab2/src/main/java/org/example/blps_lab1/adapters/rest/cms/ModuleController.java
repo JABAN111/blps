@@ -30,7 +30,7 @@ public class ModuleController {
     public ResponseEntity<Map<String, Object>> createModule(@Valid @RequestBody Module module){
         Map<String, Object> response = new HashMap<>();
         Module createdModule = moduleService.createModule(module);
-        ModuleDto moduleDto = ModuleMapper.convertToModelDto(createdModule);
+        ModuleDto moduleDto = ModuleMapper.toDto(createdModule);
         response.put("created_module", moduleDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

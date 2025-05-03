@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 
 public class ModuleMapper {
 
-    public static List<ModuleDto> convertToModelDto(List<org.example.blps_lab1.core.domain.course.Module> modules){
+    public static List<ModuleDto> toDto(List<org.example.blps_lab1.core.domain.course.Module> modules){
         return modules.stream()
-                .map(ModuleMapper::convertToModelDto)
+                .map(ModuleMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    public static ModuleDto convertToModelDto(Module module){
+    public static ModuleDto toDto(Module module){
         return new ModuleDto(
                 module.getName(),
                 module.getIsCompleted(),

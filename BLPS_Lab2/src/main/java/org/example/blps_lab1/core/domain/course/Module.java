@@ -24,13 +24,14 @@ public class Module {
 
     @Column(nullable = false)
     private String name;
-
+// FIXME ???????????????????
     private Boolean isCompleted;
 
+    // FIXME ??
     private Integer orderNumber;
 
     private String description;
-
+    // FIXME ???????????????????
     private Boolean isBlocked;
 
     private Integer totalPoints;
@@ -40,7 +41,8 @@ public class Module {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
-
+    //TODO ???????????????????
+    // какого ляда это вообще торчит в запросе. СКРЫТЬ ПОД ДТО
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ModuleExercise> moduleExercises;
 
