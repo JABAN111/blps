@@ -319,6 +319,30 @@ func updateApplicationStatus(applicationID int, token, newStatus string) error {
 	return nil
 }
 
+func deleteCourse(token string, courseId int) error {
+	url := address + courseBase + "/" + strconv.Itoa(courseId)
+
+	reg, _ := http.NewRequest(http.MethodDelete, url, nil)
+	reg.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(reg)
+
+	if err != nil {
+		return fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		var httpErr ErrHttp
+		httpErr.code = resp.StatusCode
+		httpErr.text = string(bodyBytes)
+		return httpErr
+	}
+
+	return nil
+}
+
 func generateNewUserAndToken(email, password string) (string, error) {
 	app, err := signUp(
 		RegistrationBody{

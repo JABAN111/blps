@@ -72,6 +72,7 @@ public class RestAdviser {
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ExceptionWrapper noHandlerFoundException(Exception ex) {
         return new ExceptionWrapper(new Exception("страница не найдена"));
     }

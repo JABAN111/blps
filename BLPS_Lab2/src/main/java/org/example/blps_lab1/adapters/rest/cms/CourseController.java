@@ -24,11 +24,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/courses")
 @AllArgsConstructor
 @Slf4j
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @Tag(name = "Course-controller", description = "Контроллер для управления курсами")
 public class CourseController {
     private final CourseService courseService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping()
     @Operation(summary = "Создание курса")
     public ResponseEntity<Map<String, Object>> createCourse(@RequestBody Course course) {
@@ -40,21 +40,21 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{courseUUID}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{courseID}")
     @Operation(summary = "Удаление курса")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseUUID) {
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseID) {
         Map<String, Object> response = new HashMap<>();
-        courseService.deleteCourse(courseUUID);
+        log.debug("got reg to delete");
+        courseService.deleteCourse(courseID);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{courseUUID}")
+    @PutMapping("/{courseID}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Обновление курса")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseUUID, @Valid @RequestBody CourseDto courseDto) {
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseID, @Valid @RequestBody CourseDto courseDto) {
         Map<String, Object> response = new HashMap<>();
-        Course updatedCourse = courseService.updateCourse(courseUUID, courseDto);
+        Course updatedCourse = courseService.updateCourse(courseID, courseDto);
         response.put("message", "course updated");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
