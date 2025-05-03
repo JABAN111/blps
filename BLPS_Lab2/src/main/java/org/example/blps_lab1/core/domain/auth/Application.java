@@ -2,17 +2,9 @@ package org.example.blps_lab1.core.domain.auth;
 
 import java.sql.Timestamp;
 
+import jakarta.persistence.*;
 import org.example.blps_lab1.core.domain.course.Course;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,7 +33,7 @@ public class Application {
 
     private String userEmail;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     private Course course;
 
     private Timestamp updatedAt;

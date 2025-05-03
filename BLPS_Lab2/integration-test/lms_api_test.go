@@ -36,7 +36,7 @@ func TestGetSpecificCourse(t *testing.T) {
 			name:     "course which are not exist",
 			username: uuid.NewString(),
 			password: uuid.NewString(),
-			courseID: rand.Int() * 200,
+			courseID: rand.Int() * 100,
 			expErr:   true,
 		},
 	}

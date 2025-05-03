@@ -5,6 +5,7 @@ import org.example.blps_lab1.core.domain.auth.ApplicationStatus;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.core.domain.auth.UserXml;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ApplicationService {
@@ -13,4 +14,7 @@ public interface ApplicationService {
 
     Application updateStatus(Long id, ApplicationStatus applicationStatus);
 
+    List<Application> find(Long courseID);
+
+    void remove(List<Application> applicationList);
 }

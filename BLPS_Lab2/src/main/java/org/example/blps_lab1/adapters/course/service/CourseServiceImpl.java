@@ -1,6 +1,7 @@
 package org.example.blps_lab1.adapters.course.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.adapters.db.auth.ApplicationRepository;
 import org.example.blps_lab1.core.domain.auth.User;
 import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.exception.course.CourseNotExistException;
@@ -9,6 +10,7 @@ import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
 import org.example.blps_lab1.adapters.course.dto.CourseDto;
 import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.adapters.db.course.CourseRepository;
+import org.example.blps_lab1.core.ports.auth.ApplicationService;
 import org.example.blps_lab1.core.ports.course.CourseService;
 import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.example.blps_lab1.core.ports.email.EmailService;
@@ -27,14 +29,17 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class CourseServiceImpl implements CourseService {
+    private final ApplicationRepository applicationRepository;
     private final CourseRepository courseRepository;
     private final UserDatabase userRepository;
     private final EmailService emailService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, UserDatabase userRepository,
-                             EmailService emailService, PlatformTransactionManager platformTransactionManager) {
+    public CourseServiceImpl(ApplicationRepository applicationRepository, CourseRepository courseRepository, UserDatabase userRepository,
+                             EmailService emailService,
+                             PlatformTransactionManager platformTransactionManager) {
+        this.applicationRepository = applicationRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -71,6 +76,8 @@ public class CourseServiceImpl implements CourseService {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
                 courseRepository.findById(courseUUID).orElseThrow(() -> new CourseNotExistException("Курс с таким id не существует"));
+                var applicationListToDelete = applicationRepository.findByCourseCourseId(courseUUID);
+                applicationRepository.deleteAll(applicationListToDelete);
                 courseRepository.deleteById(courseUUID);
                 log.info("Course deleted: {}", courseUUID);
             }

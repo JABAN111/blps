@@ -134,7 +134,6 @@ func createCourse(token string, course Course) error {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	fmt.Println(req)
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("ошибка выполнения запроса: %w", err)
@@ -222,7 +221,7 @@ func signUp(reg RegistrationBody) (*JwtAuthenticationResponse, error) {
 }
 
 func getCourse(token string, courseID int) (Course, error) {
-	url := address + courseBase + "/" + strconv.Itoa(courseID)
+	url := address + courseBase + "/id/" + strconv.Itoa(courseID)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

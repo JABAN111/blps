@@ -52,7 +52,6 @@ func TestCreateCourse(t *testing.T) {
 }
 
 func TestDeleteCourse(t *testing.T) {
-	TestCreateCourse(t)
 
 	testCases := []struct {
 		name     string

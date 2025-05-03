@@ -1,5 +1,6 @@
 package org.example.blps_lab1.adapters.auth.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.example.blps_lab1.core.domain.auth.UserXml;
@@ -11,6 +12,7 @@ import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.auth.ApplicationStatusAlreadySetException;
 import org.example.blps_lab1.core.ports.course.CourseService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
@@ -71,6 +75,21 @@ public class ApplicationServiceImpl implements ApplicationService {
             entity.setStatus(applicationStatus);
 
             return repository.save(entity);
+        });
+    }
+
+    @Override
+    public List<Application> find(Long courseID) {
+        return repository.findByCourseCourseId(courseID);
+    }
+
+    @Override
+    public void remove(List<Application> applicationList) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                repository.deleteAll(applicationList);
+            }
         });
     }
 
