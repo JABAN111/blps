@@ -29,7 +29,7 @@ import java.util.UUID;
 public class CourseController {
     private final CourseService courseService;
 
-    @PostMapping()
+    @PostMapping
     @Operation(summary = "Создание курса")
     public ResponseEntity<Map<String, Object>> createCourse(@RequestBody Course course) {
         Map<String, Object> response = new HashMap<>();
@@ -50,7 +50,6 @@ public class CourseController {
     }
 
     @PutMapping("/{courseID}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Обновление курса")
     public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseID, @Valid @RequestBody CourseDto courseDto) {
         Map<String, Object> response = new HashMap<>();
@@ -74,7 +73,6 @@ public class CourseController {
     }
 
     @PutMapping("/{courseUUID}/additional-courses")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Привязка спика дополнительных курсов")
     public ResponseEntity<Course> addListOfCourses(@PathVariable @Parameter(description = "Индентификатор основного курса") Long courseUUID, @RequestBody @Parameter(description = "список курсов для привязки") List<Course> additionalCourses) {
         Course updatedCourse = courseService.addListOfCourses(courseUUID, additionalCourses);
