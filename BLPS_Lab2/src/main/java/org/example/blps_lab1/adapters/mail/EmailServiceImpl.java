@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-@Profile("dev")
+@Profile("stage")
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;

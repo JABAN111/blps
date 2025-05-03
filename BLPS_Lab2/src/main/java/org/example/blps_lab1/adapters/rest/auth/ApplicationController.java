@@ -8,7 +8,6 @@ import org.example.blps_lab1.adapters.auth.service.UserEnrollmentServiceImpl;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 
