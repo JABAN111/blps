@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetCourses(t *testing.T) {
-	jwtResp, err := signIn(LoginRequest{Email: "jaba@jaba.jaba", Password: "jaba"})
+	jwtResp, err := signIn(LoginRequest{Email: "admin@admin.admin", Password: "admin"})
 	require.NoError(t, err, "failed to get token")
 	token := jwtResp.Token
 	t.Log("attempt to create an application with token: " + token)

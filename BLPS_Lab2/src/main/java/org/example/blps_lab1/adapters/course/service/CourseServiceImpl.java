@@ -93,7 +93,7 @@ public class CourseServiceImpl implements CourseService {
     public Course updateCourse(Long courseUUID, CourseDto courseDto) {
         return transactionTemplate.execute(status -> {
             if (courseRepository.findById(courseUUID).isEmpty()) {
-                log.error("Course with id {} does not exist", courseUUID);
+                log.warn("Course with id {} does not exist", courseUUID);
                 throw new ObjectNotFoundException("Курс не найден");
             }
             return courseRepository.findById(courseUUID).map(course -> {

@@ -36,6 +36,8 @@ public class UserXmlRepository implements UserDatabase {
     }
 
 
+
+
     @Override
     public UserXml save(UserXml userXml) {
         userXml.setId(idCounter.getAndIncrement());
@@ -63,6 +65,12 @@ public class UserXmlRepository implements UserDatabase {
         return users.stream()
                 .filter(user -> userId.equals(user.getId()))
                 .findFirst();
+    }
+
+    @Override
+    public void truncate() throws IOException {
+        Files.deleteIfExists(xmlPath);
+        Files.createFile(xmlPath);
     }
 
     private UsersXmlWrapper getUserXmlWrapper() {
