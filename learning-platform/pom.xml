@@ -10,10 +10,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>labs.blps</groupId>
-    <artifactId>BLPS_Lab2</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>BLPS_Lab1</name>
-    <description>BLPS_Lab1</description>
+    <artifactId>learning-platform</artifactId>
+    <version>3</version>
+    <name>learning-platform</name>
+    <description>fake skillbox</description>
     <url/>
     <licenses>
         <license/>
