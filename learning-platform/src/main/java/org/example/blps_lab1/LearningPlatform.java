@@ -8,10 +8,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableTransactionManagement
 @SpringBootApplication
 @EnableWebMvc
-public class BlpsLab1Application {
+public class LearningPlatform {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BlpsLab1Application.class, args);
+		SpringApplication.run(LearningPlatform.class, args);
 	}
 
 }
