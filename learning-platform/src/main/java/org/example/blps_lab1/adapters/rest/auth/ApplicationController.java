@@ -8,6 +8,7 @@ import org.example.blps_lab1.adapters.auth.service.UserEnrollmentServiceImpl;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 
@@ -28,7 +29,7 @@ public class ApplicationController {
      * Возвращает id заявки, которую можно подтвердить или отказаться. См {@code updateApplicationStatus()}
      */
     @PostMapping("/application/{courseUUID}")
-    public Long createApplication(@PathVariable Long courseUUID) {
+    public Long createApplication(@PathVariable UUID courseUUID) {
         log.info("got request for course with id: {}", courseUUID);
         var applicationEntity = applicationService.add(courseUUID);
         return applicationEntity.getId();

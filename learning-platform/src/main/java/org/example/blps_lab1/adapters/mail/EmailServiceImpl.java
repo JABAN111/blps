@@ -3,9 +3,9 @@ package org.example.blps_lab1.adapters.mail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.example.blps_lab1.core.domain.course.nw.NewCourse;
 import org.example.blps_lab1.core.exception.mail.MailCreationException;
 import org.example.blps_lab1.core.exception.mail.MailSendingException;
-import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
     public void informAboutNewCourses(String toEmail,
                                       String courseName,
                                       BigDecimal price,
-                                      List<Course> additionalCourses) {
+                                      List<NewCourse> additionalCourses) {
         try {
             MimeMessageHelper helper = createMimeMessageHelper(toEmail, "Запись на курсы");
 
@@ -64,8 +64,8 @@ public class EmailServiceImpl implements EmailService {
 
             if (additionalCourses != null && !additionalCourses.isEmpty()) {
                 StringBuilder courseList = new StringBuilder();
-                for (Course course : additionalCourses) {
-                    courseList.append("<li>").append(course.getCourseName()).append("</li>");
+                for (var course : additionalCourses) {
+                    courseList.append("<li>").append(course.getName()).append("</li>");
                 }
                 htmlContent += "<p style='color: #555; font-size: 16px;'>Также вы были записаны на дополнительные курсы:</p>" +
                         "<ul>" + courseList + "</ul>" +
@@ -201,7 +201,7 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(helper.getMimeMessage());
         } catch (MessagingException e) {
             log.error("Error while sending email on {} {}", toEmail, e.getMessage());
-            throw new MailSendingException("Ошибка при отправке email о успешном отказе");
+//            throw new MailSendingException("Ошибка при отправке email о успешном отказе");
         }
     }
 }

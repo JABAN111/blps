@@ -7,10 +7,9 @@ import org.example.blps_lab1.core.exception.common.FieldNotSpecifiedException;
 import org.example.blps_lab1.core.exception.common.ObjectAlreadyExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.common.ObjectNotFoundException;
-import org.example.blps_lab1.core.exception.course.CourseNotExistException;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
+import org.example.blps_lab1.core.exception.course.InvalidFieldException;
+import org.example.blps_lab1.core.exception.course.NotExistException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -79,7 +78,7 @@ public class RestAdviser {
         return new ExceptionWrapper(new Exception("страница не найдена"));
     }
 
-    @ExceptionHandler(CourseNotExistException.class)
+    @ExceptionHandler({NotExistException.class, InvalidFieldException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionWrapper courseNotExistException(Exception ex) {
         return new ExceptionWrapper(ex);

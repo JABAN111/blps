@@ -6,5 +6,5 @@ import org.example.blps_lab1.core.domain.auth.UserXml;
 import java.util.UUID;
 
 public interface CertificateManager {
-    void getCertificate(UserXml user, Long courseUUID);
+    void getCertificate(UserXml user, UUID courseUUID);
 }

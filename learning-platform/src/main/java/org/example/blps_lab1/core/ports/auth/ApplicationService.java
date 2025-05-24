@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ApplicationService {
-    Application add(Long courseUUID);
-    Application add(Long courseUUID, UserXml user);
+    Application add(UUID courseUUID);
+    Application add(UUID courseUUID, UserXml user);
 
     Application updateStatus(Long id, ApplicationStatus applicationStatus);
 
-    List<Application> find(Long courseID);
+    List<Application> find(UUID courseUUID);
 
     void remove(List<Application> applicationList);
 }

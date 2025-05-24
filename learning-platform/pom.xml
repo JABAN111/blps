@@ -32,6 +32,13 @@
         <narayana.version>7.2.1.Final</narayana.version>
     </properties>
     <dependencies>
+
+        <!--        kafka depend            -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>dev.snowdrop</groupId>
             <artifactId>narayana-spring-boot-starter</artifactId>

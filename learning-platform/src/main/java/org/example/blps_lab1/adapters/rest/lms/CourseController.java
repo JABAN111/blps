@@ -2,49 +2,55 @@ package org.example.blps_lab1.adapters.rest.lms;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.blps_lab1.adapters.course.dto.CourseDto;
-import org.example.blps_lab1.adapters.course.mapper.CourseMapper;
-import org.example.blps_lab1.core.domain.course.Course;
-import org.example.blps_lab1.core.ports.course.CourseService;
+import org.example.blps_lab1.adapters.course.mapper.NewCourseMapper;
+import org.example.blps_lab1.core.ports.course.nw.NewCourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController("lmsCourseController")
-@RequestMapping("/api/v1/courses")
+@RequestMapping("/api/v1/lms/courses")
 @AllArgsConstructor
 @Slf4j
 public class CourseController {
-    private final CourseService courseService;
+    private final NewCourseService courseService;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllCourses() {
         Map<String, Object> response = new HashMap<>();
-        List<Course> courseList = courseService.getAllCourses();
-        List<CourseDto> courseDtoList = CourseMapper.toDto(courseList);
-        response.put("course_list", courseDtoList);
+        var courseList = courseService.getAllCourses();
+        var toRet = courseList
+                .stream()
+                .map(NewCourseMapper::toDto)
+                .toList();
+        response.put("course_list", toRet);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id) {
+    @GetMapping("/{uuid}")
+    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable UUID uuid) {
         Map<String, Object> response = new HashMap<>();
-        Course course = courseService.getCourseByID(id);
-        CourseDto courseDto = CourseMapper.toDto(course);
+        var course = courseService.getCourseByUUID(uuid);
+        var courseDto = NewCourseMapper.toDto(course);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/name/{courseName}")
-    public ResponseEntity<Map<String, Object>> getCourseByName(@PathVariable String courseName) {
+    @GetMapping("/complete/{courseUUID}")
+    public ResponseEntity<Map<String, Object>> completeCourse(@PathVariable UUID courseUUID) {
+        var isFinished = courseService.isCourseFinished(courseUUID);
         Map<String, Object> response = new HashMap<>();
-        Course course = courseService.find(courseName);
-        CourseDto courseDto = CourseMapper.toDto(course);
-        response.put("course", courseDto);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        response.put("courseUUID", courseUUID);
+        response.put("isFinished", isFinished);
+        if(isFinished)
+            response.put("message", "Курс успешно завершён, можете запросить сертификат");
+        else
+            response.put("message", "Курс еще не завершён");
+        return ResponseEntity.ok(response);
     }
+
 }

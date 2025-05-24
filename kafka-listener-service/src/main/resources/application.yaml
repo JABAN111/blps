@@ -1,0 +1,19 @@
+spring:
+  kafka:
+    bootstrap-servers: "localhost:29092,localhost:39092"
+    consumer:
+      group-id: "reg-users"
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+  datasource:
+    url: jdbc:postgresql://localhost:23666/first
+    username: user
+    password: user
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+server:
+  port: 8081

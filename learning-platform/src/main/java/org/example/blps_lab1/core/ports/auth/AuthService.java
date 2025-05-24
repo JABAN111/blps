@@ -29,7 +29,7 @@ public interface AuthService {
      *                   Если uuid не указан, выбрасывает ошибку <code>FieldNotSpecifiedException()</code>
      * @return ApplicationResponseDto
      */
-    ApplicationResponseDto signUp(RegistrationRequestDto request, Long courseUUID);
+    ApplicationResponseDto signUp(RegistrationRequestDto request, UUID courseUUID);
 
     JwtAuthenticationResponse signIn(LoginRequest request);
 

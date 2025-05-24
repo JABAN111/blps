@@ -5,7 +5,7 @@ import org.example.blps_lab1.core.domain.auth.ApplicationStatus;
 import org.example.blps_lab1.core.ports.auth.AuthService;
 import org.example.blps_lab1.core.ports.auth.UserService;
 
-import org.example.blps_lab1.core.ports.course.CourseService;
+import org.example.blps_lab1.core.ports.course.nw.NewCourseService;
 import org.example.blps_lab1.core.ports.email.EmailService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +23,14 @@ public class UserEnrollmentServiceImpl implements UserEnrollmentService {
     private final ApplicationServiceImpl applicationService;
     private final UserService userService;
     private final AuthService authService;
-    private final CourseService courseService;
+    private final NewCourseService courseService;
     private final EmailService emailService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public UserEnrollmentServiceImpl(
             PlatformTransactionManager transactionTemplate, EmailService emailService,
-            CourseService courseService, AuthService authService,
+            NewCourseService courseService, AuthService authService,
             UserService userService, ApplicationServiceImpl applicationService) {
         this.transactionTemplate = new TransactionTemplate(transactionTemplate);
         this.emailService = emailService;
@@ -55,13 +55,13 @@ public class UserEnrollmentServiceImpl implements UserEnrollmentService {
                 }
                 var applicationEntity = applicationService.updateStatus(applicationEnrollmentId, appStatus);
                 if (appStatus == ApplicationStatus.REJECT) {
-                    emailService.rejectionMail(authService.getCurrentUser().getUsername(), applicationEntity.getCourse().getCourseName());
+                    emailService.rejectionMail(authService.getCurrentUser().getUsername(), applicationEntity.getNewCourse().getName());
                     return;
                 }
-                var courseUUID = applicationEntity.getCourse().getCourseId();
+                var courseUUID = applicationEntity.getNewCourse().getUuid();
                 var user = authService.getCurrentUser();
-                userService.enrollUser(user, applicationEntity.getCourse());
-                courseService.enrollUser(user.getId(), courseUUID);
+                userService.enrollUser(user, applicationEntity.getNewCourse());
+                courseService.enrollStudent(user.getId(), courseUUID);
             }
         });
     }

@@ -3,79 +3,78 @@ package org.example.blps_lab1.adapters.rest.cms;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.blps_lab1.adapters.course.dto.CourseDto;
-import org.example.blps_lab1.adapters.course.mapper.CourseMapper;
-import org.example.blps_lab1.core.domain.course.Course;
-import org.example.blps_lab1.core.ports.course.CourseService;
+import org.example.blps_lab1.adapters.course.dto.nw.NewCourseDto;
+import org.example.blps_lab1.adapters.course.mapper.NewCourseMapper;
+import org.example.blps_lab1.core.ports.course.nw.NewCourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController("cmsCourseController")
-@RequestMapping("/api/v1/courses")
+@RequestMapping("/api/v1/cms/courses")
 @AllArgsConstructor
 @Slf4j
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @Tag(name = "Course-controller", description = "Контроллер для управления курсами")
 public class CourseController {
-    private final CourseService courseService;
+    private final NewCourseService newCourseService;
 
     @PostMapping
     @Operation(summary = "Создание курса")
-    public ResponseEntity<Map<String, Object>> createCourse(@RequestBody Course course) {
+    public ResponseEntity<Map<String, Object>> createCourse(@RequestBody NewCourseDto dto) {
         Map<String, Object> response = new HashMap<>();
-
-        Course newCourse = courseService.createCourse(course);
-        CourseDto courseDto = CourseMapper.toDto(newCourse);
+        var newCourse = newCourseService.createCourse(dto);
+        var courseDto = NewCourseMapper.toDto(newCourse);
         response.put("course", courseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{courseID}")
+    @DeleteMapping("/{courseUUID}")
     @Operation(summary = "Удаление курса")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseID) {
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable @Parameter(description = "Идентификатор курса") UUID courseUUID) {
         Map<String, Object> response = new HashMap<>();
         log.debug("got reg to delete");
-        courseService.deleteCourse(courseID);
+        newCourseService.deleteCourse(courseUUID);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{courseID}")
+    @PutMapping("/{courseUUID}")
     @Operation(summary = "Обновление курса")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") Long courseID, @Valid @RequestBody CourseDto courseDto) {
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable @Parameter(description = "Идентификатор курса") UUID courseUUID, @RequestBody NewCourseDto courseDto) {
         Map<String, Object> response = new HashMap<>();
-        Course updatedCourse = courseService.updateCourse(courseID, courseDto);
+        var updatedCourse = newCourseService.updateCourse(courseUUID, courseDto);
         response.put("message", "course updated");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{courseId}/additional/{additionalId}")
+    @PostMapping("/{courseUUID}/additional/{additionalUUID}")
     @Operation(summary = "Привязка дополнительного курса")
     public ResponseEntity<Map<String, Object>> addAdditionalCourse(
-            @PathVariable @Parameter(description = "Индентификатор основоного курса") Long courseId,
-            @PathVariable @Parameter(description = "Идентификатор дополнительного курса") Long additionalId
+            @PathVariable @Parameter(description = "Индентификатор основоного курса") UUID courseUUID,
+            @PathVariable @Parameter(description = "Идентификатор дополнительного курса") UUID additionalUUID
     ) {
         Map<String, Object> response = new HashMap<>();
-        Course updatedCourse = courseService.addAdditionalCourses(courseId, additionalId);
+        var updatedCourse = newCourseService.addAdditionalCourses(courseUUID, additionalUUID);
         response.put("message", "Дополнительный курс добавлен");
         response.put("course", updatedCourse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{courseUUID}/additional-courses")
-    @Operation(summary = "Привязка спика дополнительных курсов")
-    public ResponseEntity<Course> addListOfCourses(@PathVariable @Parameter(description = "Индентификатор основного курса") Long courseUUID, @RequestBody @Parameter(description = "список курсов для привязки") List<Course> additionalCourses) {
-        Course updatedCourse = courseService.addListOfCourses(courseUUID, additionalCourses);
-        return ResponseEntity.ok(updatedCourse);
+    @PostMapping("/link")
+    @Operation(summary = "привязывает упражнение к модулю")
+    public ResponseEntity<Map<String, Object>> linkExerciseToModule(@RequestParam UUID courseUUID, @RequestParam UUID moduleUUID) {
+        Map<String, Object> response = new HashMap<>();
+        var toRet = NewCourseMapper.toDto(newCourseService.linkModule(courseUUID, moduleUUID));
+        response.put("update_course", toRet);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 }

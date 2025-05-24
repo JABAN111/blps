@@ -1,4 +1,21 @@
 spring:
+  kafka:
+    consumer:
+      group-id: cert-service
+      auto-offset-reset: earliest
+    listener:
+      missing-topics-fatal: false
+      ack-mode: record
+      retry:
+        max-attempts: 5
+        backoff:
+          initial-interval: 1000
+          multiplier: 2
+          max-interval: 10000
+    producer:
+      retries: 3
+  template:
+      default-topic: certificate-topic
   profiles:
     active: "dev"
   jta:

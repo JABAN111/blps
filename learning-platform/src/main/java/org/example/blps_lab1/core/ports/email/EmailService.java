@@ -1,6 +1,6 @@
 package org.example.blps_lab1.core.ports.email;
 
-import org.example.blps_lab1.core.domain.course.Course;
+import org.example.blps_lab1.core.domain.course.nw.NewCourse;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import java.io.File;
@@ -13,7 +13,7 @@ public interface EmailService {
     void informAboutNewCourses(String toEmail,
                                String courseName,
                                BigDecimal price,
-                               List<Course> additionalCourses);
+                               List<NewCourse> additionalCourses);
 
     void informAboutModuleCompletion(String toEmail, String courseName, String moduleName);
     void rejectionMail(String toEmail, String courseName);

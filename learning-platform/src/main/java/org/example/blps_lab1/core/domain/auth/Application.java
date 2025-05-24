@@ -3,12 +3,12 @@ package org.example.blps_lab1.core.domain.auth;
 import java.sql.Timestamp;
 
 import jakarta.persistence.*;
-import org.example.blps_lab1.core.domain.course.Course;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.blps_lab1.core.domain.course.nw.NewCourse;
 
 /**
  * Заявка, которую оставляет пользователь при регистрации
@@ -34,7 +34,7 @@ public class Application {
     private String userEmail;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    private Course course;
+    private NewCourse newCourse;
 
     private Timestamp updatedAt;
     private Timestamp createdAt;

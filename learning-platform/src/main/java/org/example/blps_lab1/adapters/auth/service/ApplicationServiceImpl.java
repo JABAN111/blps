@@ -2,6 +2,7 @@ package org.example.blps_lab1.adapters.auth.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.example.blps_lab1.core.domain.auth.UserXml;
 import org.example.blps_lab1.core.ports.auth.ApplicationService;
@@ -11,7 +12,7 @@ import org.example.blps_lab1.adapters.db.auth.ApplicationRepository;
 import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
 import org.example.blps_lab1.core.exception.auth.ApplicationStatusAlreadySetException;
-import org.example.blps_lab1.core.ports.course.CourseService;
+import org.example.blps_lab1.core.ports.course.nw.NewCourseService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,11 +30,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository repository;
     private final UserService userService;
-    private final CourseService courseService;
+    private final NewCourseService courseService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public ApplicationServiceImpl(ApplicationRepository repository, UserService userService, CourseService courseService, PlatformTransactionManager transactionManager) {
+    public ApplicationServiceImpl(ApplicationRepository repository, UserService userService, NewCourseService courseService, PlatformTransactionManager transactionManager) {
         this.repository = repository;
         this.userService = userService;
         this.courseService = courseService;
@@ -41,17 +42,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Application add(Long courseUUID) {
+    public Application add(UUID courseUUID) {
         var userEntity = getCurrentUser();
         return add(courseUUID, userEntity);
     }
 
     @Override
-    public Application add(Long courseUUID, UserXml user) {
+    public Application add(UUID courseUUID, UserXml user) {
         return transactionTemplate.execute(status -> {
             var courseEntity = courseService.find(courseUUID);
             var app = Application.builder()
-                    .course(courseEntity)
+                    .newCourse(courseEntity)
                     .userEmail(user.getUsername())
                     .status(ApplicationStatus.PENDING)
                     .build();
@@ -79,8 +80,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<Application> find(Long courseID) {
-        return repository.findByCourseCourseId(courseID);
+    public List<Application> find(UUID courseUUID) {
+        return repository.findByNewCourse_Uuid(courseUUID);
     }
 
     @Override

@@ -3,9 +3,9 @@ package org.example.blps_lab1.adapters.auth.service;
 import lombok.extern.slf4j.Slf4j;
 
 import org.example.blps_lab1.core.domain.auth.UserXml;
+import org.example.blps_lab1.core.domain.course.nw.NewCourse;
 import org.example.blps_lab1.core.ports.auth.UserService;
 import org.example.blps_lab1.core.exception.common.ObjectNotExistException;
-import org.example.blps_lab1.core.domain.course.Course;
 import org.example.blps_lab1.core.ports.db.UserDatabase;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void enrollUser(UserXml user, Course course) {
+    public void enrollUser(UserXml user, NewCourse course) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
